@@ -1,0 +1,19 @@
+SHELL=/bin/sh
+# Where you want it installed when you do 'make install'
+PREFIX=/usr/local/
+
+CFLAGS = ${KYLIN_CFLAGS} -I/usr/local/include -I${KYLIN_LIB_SRC}
+LDFLAGS += -L/usr/local/lib
+
+all: libcore_log
+
+LIB_OBJS = kylin_log.o kylin_log_buf.o kylin_log_obj.o \
+		   plugin/kylin_log_console.o plugin/kylin_log_file.o plugin/kylin_log_system.o
+
+libcore_log: $(LIB_OBJS)
+	${CC} ${CFLAGS} ${LIB_OBJS} -shared -o libcore_log.so ${LDFLAGS}
+
+distclean: clean
+clean:
+	rm -f *.o *.core libcore_log.so
+

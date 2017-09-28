@@ -1,0 +1,6 @@
+#ifndef _KYLIN_SYS_COMMON_LCORE_H_
+#define _KYLIN_SYS_COMMON_LCORE_H_
+
+
+
+#endif /*_KYLIN_SYS_COMMON_LCORE_H_*/

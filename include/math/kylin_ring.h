@@ -1,0 +1,32 @@
+#ifndef _KYLIN_MATH_BUFRING_H_
+#define _KYLIN_MATH_BUFRING_H_
+
+/*
+ * 环形缓冲区
+ */
+
+struct kylin_ring;
+typedef struct kylin_ring kring_t;
+
+typedef struct {
+    const char *name;
+    size_t      cap; /*容量，对象的个数，大小必须为2的幂次方*/
+    kobj_t      val_type;
+    size_t      val_size;
+
+    struct {
+        void *(*val_ctor)(size_t); /*如果为NULL，表示插入的值已分配好内存*/
+        void  (*val_dtor)(void *);
+        void *(*guard_ctor)(size_t);
+        void  (*guard_dtor)(void *);
+    } allocator;
+} kring_opts_t;
+
+extern kring_t *kylin_ring_create(kring_opts_t *opts, size_t count);
+extern void kylin_ring_destroy(kring_t *);
+
+extern kerr_t kylin_ring_enqueue(kring_t *, void *);
+extern void *kylin_ring_dequeue(kring_t *);
+extern void *kylin_ring_peek(kring_t *);
+
+#endif /*_KYLIN_MATH_BUFRING_H_*/

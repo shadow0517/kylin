@@ -1,0 +1,38 @@
+﻿第一部分：变量命名规范
+|---------------|---------------|---------------|
+|     原词      |    缩写词     |      释义     |
+|---------------|---------------|---------------|
+| account       | acc           | 账号          |
+| capacity      | cap           | 容量          |
+| constructor   | ctor          | 构造函数      |
+| consumer      | cons          | 消费者        |
+| control       | ctl           | 控制          |
+| count         | cnt           | 计数          |
+| descriptor    | desc          | 描述符        |
+| destructor    | dtor          | 析构函数      |
+| duplication   | dup           | 副本          |
+| exclusive     | excl          | 独占          |
+| group         | grp           | 组            |
+| number        | num           | 数字          |
+| initial       | init          | 初始化        |
+| integer       | int           | 整数          |
+| object        | obj           | 对象          |
+| package       | pkg           | 打包/套件     |
+| packet        | pkt           | 数据包        |
+| previous      | prev          | 先前          |
+| producer      | prod          | 生产者        |
+| receive       | recv          | 接收          |
+| standard      | std           | 标准          |
+| statistics    | stats         | 统计          |
+| traffic       | trf           | 流量          |
+| transfer      | xfer          | 转移          |
+| transmit      | xmit          | 传送          |
+| transport     | xport         | 运输          |
+
+
+
+第二部分：函数命名规范
+
+
+
+第三部分：文件命名规范

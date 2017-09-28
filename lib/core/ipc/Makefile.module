@@ -1,0 +1,20 @@
+SHELL=/bin/sh
+# Where you want it installed when you do 'make install'
+PREFIX=/usr/local/
+
+CFLAGS = ${KYLIN_CFLAGS} -DKYLIN_MODULE -I/usr/local/include -I${KYLIN_LIB_SRC}
+LDFLAGS += -L/usr/local/lib
+
+all: kylin_core_ipc
+
+USOCK_OBJS = usock/kylin_usock.o usock/kylin_usock_client.o usock/kylin_usock_server.o
+SHM_OBJS = shm/kylin_shm.o shm/kylin_shm_module.o shm/kylin_shm_open.o
+
+kylin_core_ipc: $(USOCK_OBJS) $(SHM_OBJS)
+	${CC} ${CFLAGS} ${LIB_OBJS} -shared -o kylin_core_ipc.so ${LDFLAGS}
+
+distclean: clean
+clean:
+	rm -f *.o *.core kylin_core_ipc.so
+
+

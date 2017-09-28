@@ -1,0 +1,33 @@
+内存子系统
+
+内存分配器
+|----------|-----------------------------------------------------------------------|
+| 名称     | 使用场景                                                              |
+| slab     | 参考linux系统slab实现，针对小内存对象（固定大小）使用                 |
+| zone     | 参考bsd系统zone的实现，针对大内存对象（固定大小）的使用               |
+| pool     | 参考linux系统pool实现，针对可变大小内存的分配使用                     |
+
+
+
+core模块
+1：隐藏各个内存分配器的实现细节，提供统一的操作接口
+|---------------|------------------------------------------------------------------|
+| 接口名称      | 注释                                                             |
+| mem_create    | 创建缓存，模块加载时调用，详细参数见附录1                        |
+| mem_destroy   | 销毁缓存，模块卸载时调用                                         |
+| mem_alloc     | 内存分配                                                         |
+| mem_free      | 内存释放，立即回收                                               |
+| mem_alloc_safe| 内存安全分配                                                     |
+| mem_free_safe | 内存安全释放，立即回收                                           |
+| mem_recycle   | 内存释放，定时回收，在超时之前仍可以使用                         |
+
+
+recycle模块
+提供能存定时回收机制，对外只提供接口kylin_mem_recycle(void *, struct kylin_memory *, kylin_time_t)
+
+
+附录：
+1：typedef struct kylin_memory *(*mem_create)(const char *name, size_t size, size_t align,
+												unsigned long flag;
+												void *(*ctor)(void *, struct kylin_memory *, unsigned long),
+												void *(*dtor)(void *, struct kylin_memory *, unsigned long));

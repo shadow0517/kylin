@@ -1,0 +1,20 @@
+SHELL=/bin/sh
+# Where you want it installed when you do 'make install'
+PREFIX=/usr/local/
+
+CFLAGS = ${KYLIN_CFLAGS} -DKYLIN_MODULE -I/usr/local/include -I${KYLIN_LIB_SRC}
+LDFLAGS += -L/usr/local/lib
+
+all: kylin_core_math
+
+LIB_OBJS = kylin_bitmap.o kylin_list.o kylin_rb.o kylin_map.o kylin_index.o \
+           kylin_string.o kylin_set.o kylin_fifo.o
+
+kylin_core_math: $(LIB_OBJS)
+	${CC} ${CFLAGS} ${LIB_OBJS} -shared -o kylin_core_math.so ${LDFLAGS}
+
+distclean: clean
+clean:
+	rm -f *.o *.core kylin_core_math.so
+
+
