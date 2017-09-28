@@ -1,6 +1,7 @@
 #ifndef _KYLIN_CORE_SHM_H_
 #define _KYLIN_CORE_SHM_H_
 
+#include <kylin/include/kylin.h>
 #include <kylin/include/utils/kylin_error.h>
 
 extern kerr_t kylin_shm_init(void);
