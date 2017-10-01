@@ -1,5 +1,5 @@
 #include <kylin/include/kylin.h>
-#include <kylin/include/utils/kylin_limits.h>
+#include <kylin/include/utils/kylin_limit.h>
 #include <kylin/include/arch/x86/kylin_bitops.h>
 #include <kylin/include/math/kylin_bitmap.h>
 
