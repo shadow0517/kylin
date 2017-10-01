@@ -19,6 +19,7 @@ void kylin_lifo_destroy(klifo_t *lifo)
 
 int kylin_lifo_push(klifo_t *lifo, const kbyte_t *buf, size_t len)
 {
+    return KYLIN_ERROR_OK;
 
 }
 
