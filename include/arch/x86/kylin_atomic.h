@@ -21,8 +21,7 @@ static inline int kylin_atomic16_cmpset(volatile uint16_t *dst, uint16_t exp, ui
 {
 	uint8_t res;
 
-	asm volatile(
-			MPLOCKED
+	asm volatile(MPLOCK
 			"cmpxchgw %[src], %[dst];"
 			"sete %[res];"
 			: [res] "=a" (res),     /* output */
@@ -41,8 +40,7 @@ static inline int kylin_atomic16_test_and_set(katomic16_t *v)
 
 static inline void kylin_atomic16_inc(katomic16_t *v)
 {
-	asm volatile(
-			MPLOCKED
+	asm volatile(MPLOCK
 			"incw %[cnt]"
 			: [cnt] "=m" (v->cnt)   /* output */
 			: "m" (v->cnt)          /* input */
@@ -51,8 +49,7 @@ static inline void kylin_atomic16_inc(katomic16_t *v)
 
 static inline void kylin_atomic16_dec(katomic16_t *v)
 {
-	asm volatile(
-			MPLOCKED
+	asm volatile(MPLOCK
 			"decw %[cnt]"
 			: [cnt] "=m" (v->cnt)   /* output */
 			: "m" (v->cnt)          /* input */
@@ -63,8 +60,7 @@ static inline int kylin_atomic16_inc_and_test(katomic16_t *v)
 {
 	uint8_t ret;
 
-	asm volatile(
-			MPLOCKED
+	asm volatile(MPLOCK
 			"incw %[cnt] ; "
 			"sete %[ret]"
 			: [cnt] "+m" (v->cnt),  /* output */
@@ -77,7 +73,7 @@ static inline int kylin_atomic16_dec_and_test(katomic16_t *v)
 {
 	uint8_t ret;
 
-	asm volatile(MPLOCKED
+	asm volatile(MPLOCK
 			"decw %[cnt] ; "
 			"sete %[ret]"
 			: [cnt] "+m" (v->cnt),  /* output */
@@ -92,8 +88,7 @@ static inline int kylin_atomic32_cmpset(volatile uint32_t *dst, uint32_t exp, ui
 {
 	uint8_t res;
 
-	asm volatile(
-			MPLOCKED
+	asm volatile(MPLOCK
 			"cmpxchgl %[src], %[dst];"
 			"sete %[res];"
 			: [res] "=a" (res),     /* output */
@@ -112,8 +107,7 @@ static inline int kylin_atomic32_test_and_set(katomic32_t *v)
 
 static inline void kylin_atomic32_inc(katomic32_t *v)
 {
-	asm volatile(
-			MPLOCKED
+	asm volatile(MPLOCK
 			"incl %[cnt]"
 			: [cnt] "=m" (v->cnt)   /* output */
 			: "m" (v->cnt)          /* input */
@@ -122,8 +116,7 @@ static inline void kylin_atomic32_inc(katomic32_t *v)
 
 static inline void kylin_atomic32_dec(katomic32_t *v)
 {
-	asm volatile(
-			MPLOCKED
+	asm volatile(MPLOCK
 			"decl %[cnt]"
 			: [cnt] "=m" (v->cnt)   /* output */
 			: "m" (v->cnt)          /* input */
@@ -134,8 +127,7 @@ static inline int kylin_atomic32_inc_and_test(katomic32_t *v)
 {
 	uint8_t ret;
 
-	asm volatile(
-			MPLOCKED
+	asm volatile(MPLOCK
 			"incl %[cnt] ; "
 			"sete %[ret]"
 			: [cnt] "+m" (v->cnt),  /* output */
@@ -148,7 +140,7 @@ static inline int kylin_atomic32_dec_and_test(katomic32_t *v)
 {
 	uint8_t ret;
 
-	asm volatile(MPLOCKED
+	asm volatile(MPLOCK
 			"decl %[cnt] ; "
 			"sete %[ret]"
 			: [cnt] "+m" (v->cnt),  /* output */
@@ -163,8 +155,7 @@ static inline int kylin_atomic64_cmpset(volatile uint64_t *dst, uint64_t exp, ui
 {
 	uint8_t res;
 
-	asm volatile(
-			MPLOCKED
+	asm volatile(MPLOCK
 			"cmpxchgq %[src], %[dst];"
 			"sete %[res];"
 			: [res] "=a" (res),     /* output */
@@ -194,8 +185,7 @@ static inline void kylin_atomic64_set(katomic64_t *v, uint64_t new_value)
 
 static inline void kylin_atomic64_add(katomic64_t *v, uint64_t inc)
 {
-	asm volatile(
-			MPLOCKED
+	asm volatile(MPLOCK
 			"addq %[inc], %[cnt]"
 			: [cnt] "=m" (v->cnt)   /* output */
 			: [inc] "ir" (inc),     /* input */
@@ -205,8 +195,7 @@ static inline void kylin_atomic64_add(katomic64_t *v, uint64_t inc)
 
 static inline void kylin_atomic64_sub(katomic64_t *v, uint64_t dec)
 {
-	asm volatile(
-			MPLOCKED
+	asm volatile(MPLOCK
 			"subq %[dec], %[cnt]"
 			: [cnt] "=m" (v->cnt)   /* output */
 			: [dec] "ir" (dec),     /* input */
@@ -217,7 +206,7 @@ static inline void kylin_atomic64_sub(katomic64_t *v, uint64_t dec)
 static inline void kylin_atomic64_inc(katomic64_t *v)
 {
 	asm volatile(
-			MPLOCKED
+			MPLOCK
 			"incq %[cnt]"
 			: [cnt] "=m" (v->cnt)   /* output */
 			: "m" (v->cnt)          /* input */
@@ -226,21 +215,19 @@ static inline void kylin_atomic64_inc(katomic64_t *v)
 
 static inline void kylin_atomic64_dec(katomic64_t *v)
 {
-	asm volatile(
-			MPLOCKED
-			"decq %[cnt]"
+	asm volatile(MPLOCK 
+            "decq %[cnt]"
 			: [cnt] "=m" (v->cnt)   /* output */
 			: "m" (v->cnt)          /* input */
 			);
 }
 
-static inline int64_t kylin_atomic64_add_return(katomic64_t *v, uint64_t inc)
+static inline int64_t kylin_atomic64_add_return(katomic64_t *v, int64_t inc)
 {
 	uint64_t prev = inc;
 
-	asm volatile(
-			MPLOCKED
-			"xaddq %[prev], %[cnt]"
+	asm volatile(MPLOCK 
+            "xaddq %[prev], %[cnt]"
 			: [prev] "+r" (prev),   /* output */
 			  [cnt] "=m" (v->cnt)
 			: "m" (v->cnt)          /* input */
@@ -248,26 +235,16 @@ static inline int64_t kylin_atomic64_add_return(katomic64_t *v, uint64_t inc)
 	return prev + inc;
 }
 
-static inline int64_t kylin_atomic64_sub_return(katomic64_t *v, uint64_t dec)
+static inline int64_t kylin_atomic64_sub_return(katomic64_t *v, int64_t dec)
 {
-	uint64_t prev = dec;
-
-	asm volatile(
-			MPLOCKED
-			"xdecq %[prev], %[cnt]"
-			: [prev] "-r" (prev),   /* output */
-			  [cnt] "=m" (v->cnt)
-			: "m" (v->cnt)          /* input */
-			);
-	return prev - dec;
+    return kylin_atomic64_add_return(v, -dec);
 }
 
 static inline int kylin_atomic64_inc_and_test(katomic64_t *v)
 {
 	uint8_t ret;
 
-	asm volatile(
-			MPLOCKED
+	asm volatile(MPLOCK
 			"incq %[cnt] ; "
 			"sete %[ret]"
 			: [cnt] "+m" (v->cnt), /* output */
@@ -281,8 +258,7 @@ static inline int kylin_atomic64_dec_and_test(katomic64_t *v)
 {
 	uint8_t ret;
 
-	asm volatile(
-			MPLOCKED
+	asm volatile(MPLOCK
 			"decq %[cnt] ; "
 			"sete %[ret]"
 			: [cnt] "+m" (v->cnt),  /* output */

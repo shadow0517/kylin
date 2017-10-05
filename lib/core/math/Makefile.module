@@ -8,7 +8,7 @@ LDFLAGS += -L/usr/local/lib
 all: kylin_core_math
 
 LIB_OBJS = kylin_bitmap.o kylin_list.o kylin_rb.o kylin_map.o kylin_index.o \
-           kylin_string.o kylin_set.o kylin_fifo.o kylin_lifo.o
+           kylin_string.o kylin_set.o kylin_fifo.o kylin_lifo.o kylin_ring.o
 
 kylin_core_math: $(LIB_OBJS)
 	${CC} ${CFLAGS} ${LIB_OBJS} -shared -o kylin_core_math.so ${LDFLAGS}

@@ -1,6 +1,10 @@
 #ifndef _KYLIN_MATH_BUFRING_H_
 #define _KYLIN_MATH_BUFRING_H_
 
+#include <kylin/include/kylin.h>
+#include <kylin/include/utils/kylin_error.h>
+#include <kylin/include/utils/kylin_object.h>
+
 /*
  * 环形缓冲区
  */
@@ -22,7 +26,7 @@ typedef struct {
     } allocator;
 } kring_opts_t;
 
-extern kring_t *kylin_ring_create(kring_opts_t *opts, size_t count);
+extern kring_t *kylin_ring_create(kring_opts_t *opts);
 extern void kylin_ring_destroy(kring_t *);
 
 extern kerr_t kylin_ring_enqueue(kring_t *, void *);
