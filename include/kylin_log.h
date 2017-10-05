@@ -7,6 +7,7 @@
 #define _LOG_FORMAT_         __kylin_format_print(2, 3)
 #define KYLIN_LOG_DATA_SIZE  2048  /*每一条日志能记录的最大长度*/
 
+/*日志对象*/
 struct kylin_log;
 typedef struct kylin_log klog_t;
 
@@ -14,9 +15,9 @@ typedef struct kylin_log klog_t;
  * 对每一个进程而言，日志模块提供一个指向默认日志类型的指针
  * 日志类型对应的日志等级都为KYLIN_LOG_INFO
  * 指针内容只能由用户模块使用，而不能修改
- * 用户模块不可以改动指针的指向，这会造成不可预计的后果
+ * 并且用户模块不可以改动指针的指向，这会造成不可预计的后果
  */
-const klog_t *klog;
+extern klog_t *klog;
 
 /*
  * 日志模块支持3种（console, file, system）默认类型
@@ -24,12 +25,11 @@ const klog_t *klog;
  * 最多可以支持64种日志类型
  */
 typedef enum kylin_log_type {
-    KYLIN_LOG_NONE                       = 1UL << 0;
-    KYLIN_LOG_CONSOLE                    = 1UL << 1,
-    KYLIN_LOG_FILE                       = 1UL << 2,
-    KYLIN_LOG_SYSTEM                     = 1UL << 3,
-    KYLIN_LOG_UNIX_SOCK                  = 1UL << 4, /*ipc, user defined*/
-    KYLIN_LOG_MAX                        = 1UL << 5,
+    KYLIN_LOG_CONSOLE                    = 0UL,
+    KYLIN_LOG_FILE                       = 1UL,
+    KYLIN_LOG_SYSTEM                     = 2UL,
+    KYLIN_LOG_UNIX_SOCK                  = 3UL, /*ipc, user defined*/
+    KYLIN_LOG_MAX                        = 4UL,
 }klog_type_t;
 
 /*
@@ -81,7 +81,7 @@ typedef void (*kylin_log_print)(uint64_t timestamp, klog_level_t level, const ch
  * 对于默认日志类型，日志模块提供已注册好的日志实例
  */
 typedef struct kylin_logger {
-    const klog_type_t type;
+    klog_type_t       type;
     klog_level_t      level;
     kylin_log_print   print;
     void             *priv;
@@ -93,7 +93,7 @@ extern klog_t *kylin_log_create(klog_logger_t logger[], size_t num);
 extern void kylin_log_destroy(klog_t *);
 
 extern klog_t *kylin_log_dup(const klog_t *);              /*日志对象副本*/
-extern kerr_t kylin_log_expand(klog_t *, klog_logger_t);   /*日志对象添加实例*/
+extern kerr_t kylin_log_expand(klog_t *, klog_logger_t *); /*日志对象添加实例*/
 extern kerr_t kylin_log_reduce(klog_t *, klog_type_t);     /*日志对象缩减实例*/
 
 extern klog_logger_t *kylin_log_logger_get(klog_t *, klog_type_t);

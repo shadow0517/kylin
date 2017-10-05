@@ -15,7 +15,7 @@ kerr_t log_console_fini(void *arg __kylin_unused)
 
 void log_console_print(uint64_t timestamp, klog_level_t level, const char *buf)
 {
-    printf("%lu %d: %s\n", timestamp, levle, buf);
+    printf("%lu %d: %s\n", timestamp, level, buf);
 }
 
 

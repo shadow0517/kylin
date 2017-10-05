@@ -37,7 +37,7 @@ void kylin_bitmap_destroy(kbitmap_t *bm)
     BITMAP_GUARD_FREE(&bm->opts)(bm);
 }
 
-kbitmap_t *kylin_bitmp_dup(const kbitmap_t *bm)
+kbitmap_t *kylin_bitmap_dup(const kbitmap_t *bm)
 {
     kbitmap_t *dup = NULL;
 

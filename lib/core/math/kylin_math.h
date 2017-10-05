@@ -51,6 +51,7 @@ static __kylin_inline void kmath_val_ctor(kmath_val_t *val, void *v,
         case KOBJ_KMAP:
         case KOBJ_KSET:
         case KOBJ_KSTR:
+        case KOBJ_OTHERS:
             if(ctor){
                 val->v = ctor(size);
                 memcpy(val->v, v, size);
@@ -148,6 +149,7 @@ static __kylin_inline void *kmath_val_get(kmath_val_t *val, kobj_t type)
         case KOBJ_KMAP:
         case KOBJ_KSET:
         case KOBJ_KSTR:
+        case KOBJ_OTHERS:
             return val->v;
         default:
             return val->v;

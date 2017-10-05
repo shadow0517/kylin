@@ -3,8 +3,11 @@
 
 /*
  * 基于位图实现的自动索引
- * kylin/lib/module/basic/kylin_autoid.c
  */
+struct kylin_autoid;
+typedef struct kylin_autoid kautoid_t;
+
+
 
 
 

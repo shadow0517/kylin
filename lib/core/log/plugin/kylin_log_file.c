@@ -17,7 +17,7 @@ kerr_t log_file_init(void *arg)
     return KYLIN_ERROR_OK;
 }
 
-kerr_t log_file_fini(void *arg __kylin_unused);
+kerr_t log_file_fini(void *arg __kylin_unused)
 {
     if(log_fd > 0) {
         close(log_fd);
@@ -27,9 +27,11 @@ kerr_t log_file_fini(void *arg __kylin_unused);
 
 void log_file_print(uint64_t timestamp, klog_level_t level, const char *buf)
 {
-    snprintf(log_buff, KYLIN_LOG_DATA_SIZE - 1, "%s\t%s\t: %s\n", 
+    int ret __kylin_unused;
+
+    snprintf(log_buff, KYLIN_LOG_DATA_SIZE - 1, "%lu\t%s\t: %s\n", 
             timestamp, kylin_log_level_string(level),buf);
     if(log_fd > 0) {
-        write(log_fd, log_buff, strlen(log_buff));
+        ret = write(log_fd, log_buff, strlen(log_buff));
     }
 }

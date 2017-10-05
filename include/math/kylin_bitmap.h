@@ -32,7 +32,7 @@ typedef struct {
 extern kbitmap_t *kylin_bitmap_create(const kbitmap_opts_t *opts);
 extern void kylin_bitmap_destroy(kbitmap_t *);
 
-extern kbitmap_t *kylin_bitmp_dup(const kbitmap_t *);
+extern kbitmap_t *kylin_bitmap_dup(const kbitmap_t *);
 extern kbitmap_t *kylin_bitmap_loads(kbitmap_opts_t *opts, const char *buf);
 extern kbitmap_t *kylin_bitmap_loadf(kbitmap_opts_t *opts, const FILE *buf);
 

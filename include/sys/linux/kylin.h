@@ -8,6 +8,7 @@
 #include <alloca.h>
 #include <endian.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/syscall.h>

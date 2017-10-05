@@ -69,14 +69,14 @@ extern kerr_t kylin_rb_loadf(krb_t *);
 extern kerr_t kylin_rb_flash(krb_t *, kword_t flags);
 */
 
-extern void *kylin_rb_val(const krb_t *guard, krb_node_t *);
+extern void *kylin_rb_val(const krb_t *, krb_node_t *);
 extern size_t kylin_rb_count(krb_t *);
 
 extern krb_node_t *kylin_rb_min(krb_t *);
 extern krb_node_t *kylin_rb_max(krb_t *);
 
-extern void kylin_rb_remove(krb_t *, krb_node_t *);
 extern krb_node_t *kylin_rb_insert(krb_t *, void *val);
+extern void kylin_rb_remove(krb_t *, krb_node_t *);
 
 extern krb_node_t *kylin_rb_next(krb_node_t *);
 extern krb_node_t *kylin_rb_prev(krb_node_t *);
