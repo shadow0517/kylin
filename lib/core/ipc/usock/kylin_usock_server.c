@@ -6,12 +6,12 @@
 
 /*存储所有已创建的服务端信息*/
 static krb_t *serv_rb = NULL;
+static pthread_t serv_tid;
 
 static int __accept_node_match(void *val, void *key);
 
 static int __server_socket_create(kfd_t *fd, int mode)
 {
-    int ret;
     int len;
     struct sockaddr_un local;
 
@@ -23,9 +23,8 @@ static int __server_socket_create(kfd_t *fd, int mode)
     sprintf(local.sun_path, "%s/%s", KYLIN_USOCK_LOCAL, name);
     len = sizeof(local.sun_family ) + strlen(local.sun_path) + 1;
 
-    ret = bind(*fd, (struct sockaddr *)&local, len);
-    if(ret != 0) 
-        return ret;
+    if(bind(*fd, (struct sockaddr *)&local, len) == -1)
+        return errno;
 
 #ifdef SO_NOSIGPIPE
     int set = 1;
@@ -40,15 +39,15 @@ static int __server_socket_create(kfd_t *fd, int mode)
     fcntl(*fd, F_SETFL, flags);
 #endif
 
-    ret = listen(*fd, 20);
-    if(ret != 0) 
-        return ret;
+    if(listen(*fd, 20) == -1)
+        return errno;
 
     if(mode) {
         chmod(local.sun_path, mode);
     }
     else {
-        chmod(local.sun_path, S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IWGRP|S_IXGRP|S_IROTH|S_IWOTH|S_IXOTH);
+        chmod(local.sun_path, 
+                S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IWGRP|S_IXGRP|S_IROTH|S_IWOTH|S_IXOTH);
     }
 
     return 0;
@@ -57,7 +56,6 @@ static int __server_socket_create(kfd_t *fd, int mode)
 kusock_server_t *kylin_usock_server_create(const char *name, int mode, 
         kusock_init_t init, kusock_fini_t fini, kusock_proc_t proc)
 {
-    int ret;
     kusock_server_t *serv = NULL;
 
     if(strlen(name) > KYLIN_NAME_LENGTH)
@@ -84,8 +82,7 @@ kusock_server_t *kylin_usock_server_create(const char *name, int mode,
 
     memset(serv, 0, sizeof(kusock_server_t));
 
-    ret = __server_socket_create(&serv->sock, mode);
-    if(ret != 0) {
+    if(__server_socket_create(&serv->sock, mode) != 0) {
         if(serv->sock)
             close(serv->sock);
         free(serv);
@@ -147,6 +144,12 @@ static int __accept_node_match(void *val, void *key)
     return 0;
 }
 
+/*TODO 可以考虑采用事件驱动的方式处理套接字可读事件*/
+static void *__server_process(void *arg __kylin_unused)
+{
+
+}
+
 kerr_t server_init(void)
 {
     krb_opts_t usock_serv_opts = {
@@ -168,7 +171,7 @@ kerr_t server_init(void)
     if(!serv_rb)
         return KYLIN_ERROR_NOMEM;
 
-    return KYLIN_ERROR_OK;
+    return pthread_create(&serv_tid, NULL, __server_process, NULL);
 }
 
 void server_fini(void)
