@@ -4,19 +4,21 @@
 #include <kylin/include/kylin.h>
 #include <kylin/include/utils/kylin_error.h>
 
+#define KYLIN_USOCK_PDU_PAYLOAD_MAX (65535)
+
 struct kylin_usock_server;
 struct kylin_usock_client;
 typedef struct kylin_usock_server kusock_server_t;
 typedef struct kylin_usock_client kusock_client_t;
 
-typedef int (*kylin_usock_init_f)(kusock_server_t *);
-typedef int (*kylin_usock_fini_f)(kusock_server_t *);
-typedef int (*kylin_usock_proc_f)(kusock_server_t *, unsigned long, void *);
+typedef int (*kusock_init_t)(kusock_server_t *);
+typedef int (*kusock_fini_t)(kusock_server_t *);
+typedef int (*kusock_proc_t)(kusock_server_t *, unsigned long, void *);
 
 extern kusock_server_t *kylin_usock_server_create(const char *, int mode,
-        kylin_usock_init_f init,
-        kylin_usock_fini_f fini,
-        kylin_usock_proc_f proc);
+        kusock_init_t init,
+        kusock_fini_t fini,
+        kusock_proc_t proc);
 extern void kylin_usock_server_destroy(kusock_server_t *);
 
 extern kusock_client_t *kylin_usock_client_open(const char *);

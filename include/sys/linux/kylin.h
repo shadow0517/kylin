@@ -13,6 +13,7 @@
 #include <sys/stat.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
+#include <sys/socket.h>
 
 #define KYLIN_PAGE_SIZE getpagesize()
 
