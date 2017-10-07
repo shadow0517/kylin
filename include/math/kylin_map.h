@@ -38,6 +38,7 @@ typedef struct {
 
 extern kmap_t *kylin_map_create(const kmap_opts_t *opts);
 extern void kylin_map_destroy(kmap_t *);
+extern void kylin_map_clear(kmap_t *);
 
 extern void *kylin_map_priv(kmap_t *);
 
@@ -48,14 +49,14 @@ extern kobj_t kylin_map_val_type(kmap_t *, kmap_node_t *);
 extern size_t kylin_map_count(kmap_t *);
 extern kerr_t kylin_map_resize(kmap_t *, size_t);
 
-extern void kylin_map_clear(kmap_t *);
-extern kerr_t kylin_map_remove_raw(kmap_t *, kmap_node_t *);
-extern kerr_t kylin_map_remove(kmap_t *, void *);
-extern kmap_node_t *kylin_map_unlink_raw(kmap_t *, kmap_node_t *);
-extern kmap_node_t *kylin_map_unlink(kmap_t *, void *key);
-
 extern kmap_node_t *kylin_map_insert(kmap_t *, void *key, void *val, kobj_t val_type, size_t size);
 extern kmap_node_t *kylin_map_insert_raw(kmap_t *, kmap_node_t *);
+
+extern kerr_t kylin_map_remove(kmap_t *, void *);
+extern kerr_t kylin_map_remove_raw(kmap_t *, kmap_node_t *);
+
+extern kmap_node_t *kylin_map_unlink(kmap_t *, void *key);
+extern kmap_node_t *kylin_map_unlink_raw(kmap_t *, kmap_node_t *);
 
 extern kmap_node_t *kylin_map_replace(kmap_t *, void *key, void *val, kobj_t val_type, size_t size);
 

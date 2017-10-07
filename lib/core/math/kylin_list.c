@@ -55,6 +55,16 @@ void kylin_list_destroy(klist_t *guard)
     LIST_GUARD_FREE(&guard->opts)(guard);
 }
 
+void kylin_list_clear(klist_t *guard)
+{
+    klist_node_t *node = NULL;
+
+    while((node = LIST_HEAD(guard)) != NULL) {
+        kmath_val_dtor(&LIST_VAL(node), guard->opts.val_type, LIST_VAL_FREE(&guard->opts));
+        kylin_list_remove(guard, node);
+    }
+}
+
 klist_t *kylin_list_dup(const klist_t *guard)
 {
     klist_t *dup = NULL;
@@ -180,17 +190,27 @@ klist_node_t *kylin_list_insert(klist_t *guard, klist_node_t *before, void *val)
     return node;
 }
 
-void kylin_list_clear(klist_t *guard)
+klist_node_t *kylin_list_insert_head_raw(klist_t *guard, klist_node_t *node)
 {
-    klist_node_t *node = NULL;
-
-    while((node = LIST_HEAD(guard)) != NULL) {
-        kmath_val_dtor(&LIST_VAL(node), guard->opts.val_type, LIST_VAL_FREE(&guard->opts));
-        kylin_list_remove(guard, node);
-    }
+    return NULL;
 }
 
-void kylin_list_remove(klist_t *guard, klist_node_t *node)
+klist_node_t *kylin_list_insert_tail_raw(klist_t *guard, klist_node_t *node)
+{
+    return NULL;
+}
+
+klist_node_t *kylin_list_insert_raw(klist_t *guard, klist_node_t *before, klist_node_t *node)
+{
+    return NULL;
+}
+
+void kylin_list_remove(klist_t *guard, void *cmp)
+{
+    return;
+}
+
+void kylin_list_remove_raw(klist_t *guard, klist_node_t *node)
 {
     if(LIST_PREV(node))
         LIST_NEXT(LIST_PREV(node)) = LIST_NEXT(node);
@@ -204,6 +224,16 @@ void kylin_list_remove(klist_t *guard, klist_node_t *node)
 
     LIST_COUNT(guard)--;
     LIST_NODE_FREE(&guard->opts)(node);
+}
+
+klist_node_t *kylin_list_unlink(klist_t *guard, void *cmp)
+{
+    return NULL;
+}
+
+klist_node_t *kylin_list_unlink_raw(klist_t *guard, klist_node_t *node)
+{
+    return NULL;
 }
 
 klist_node_t *kylin_list_find(const klist_t *guard, void *key)

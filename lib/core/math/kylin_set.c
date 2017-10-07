@@ -35,6 +35,12 @@ void kylin_set_destroy(kset_t *guard)
     SET_GUARD_FREE(&guard->opts)(guard);
 }
 
+void kylin_set_clear(kset_t *guard)
+{
+    for(int i = 0; i < guard->used; i++)
+        kmath_val_dtor(&guard->val[i], guard->opts.val_type, SET_VAL_FREE(&guard->opts));
+}
+
 kobj_t kylin_set_val_type(kset_t *guard)
 {
     return guard->opts.val_type;
@@ -93,12 +99,6 @@ kerr_t kylin_set_remove_by_index(kset_t *guard, uint32_t index)
     guard->used--;
 
     return KYLIN_ERROR_OK;
-}
-
-void kylin_set_clear(kset_t *guard)
-{
-    for(int i = 0; i < guard->used; i++)
-        kmath_val_dtor(&guard->val[i], guard->opts.val_type, SET_VAL_FREE(&guard->opts));
 }
 
 void *kylin_set_find(kset_t *guard, void *key)

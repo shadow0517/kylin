@@ -265,6 +265,11 @@ void kylin_rb_destroy(krb_t *guard)
     RB_GUARD_FREE(&guard->opts)(guard);
 }
 
+void kylin_rb_clear(krb_t *guard)
+{
+    return;
+}
+
 void *kylin_rb_val(const krb_t *guard, krb_node_t *node)
 {
     return kmath_val_get(&RB_VAL(node), guard->opts.val_type);
@@ -313,7 +318,17 @@ krb_node_t *kylin_rb_insert(krb_t *guard, void *elm)
     return node;
 }
 
-void kylin_rb_remove(krb_t *guard, krb_node_t *node)
+krb_node_t *kylin_rb_insert_raw(krb_t *guard, krb_node_t *node)
+{
+    return NULL;
+}
+
+void kylin_rb_remove(krb_t *guard, void *cmp)
+{
+    return;
+}
+
+void kylin_rb_remove_raw(krb_t *guard, krb_node_t *node)
 {
     int color = RB_RED;
     krb_node_t *child = NULL, *parent = NULL, *old = node;
@@ -382,6 +397,16 @@ color:
 
     RB_NODE_FREE(&guard->opts)(old);
     return ;
+}
+
+krb_node_t *kylin_rb_unlink(krb_t *guard, void *cmp)
+{
+    return NULL;
+}
+
+krb_node_t *kylin_rb_unlink_raw(krb_t *guard, krb_node_t *node)
+{
+    return NULL;
 }
 
 krb_node_t *kylin_rb_min(krb_t *guard)

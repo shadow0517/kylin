@@ -32,6 +32,7 @@ typedef struct {
 
 extern klist_t *kylin_list_create(const klist_opts_t *opts);
 extern void kylin_list_destroy(klist_t *);
+extern void kylin_list_clear(klist_t *);
 
 extern klist_t *kylin_list_dup(const klist_t *);
 
@@ -45,10 +46,17 @@ extern klist_node_t *kylin_list_next(const klist_node_t *);
 
 extern klist_node_t *kylin_list_insert_head(klist_t *, void *);
 extern klist_node_t *kylin_list_insert_tail(klist_t *, void *);
-extern klist_node_t *kylin_list_insert(klist_t *, klist_node_t *, void *);
+extern klist_node_t *kylin_list_insert(klist_t *, klist_node_t *before, void *);
 
-extern void kylin_list_clear(klist_t *);
-extern void kylin_list_remove(klist_t *, klist_node_t *);
+extern klist_node_t *kylin_list_insert_head_raw(klist_t *, klist_node_t *);
+extern klist_node_t *kylin_list_insert_tail_raw(klist_t *, klist_node_t *);
+extern klist_node_t *kylin_list_insert_raw(klist_t *, klist_node_t *before, klist_node_t *);
+
+extern void kylin_list_remove(klist_t *, void *);
+extern void kylin_list_remove_raw(klist_t *, klist_node_t *);
+
+extern klist_node_t *kylin_list_unlink(klist_t *, void *);
+extern klist_node_t *kylin_list_unlink_raw(klist_t *, klist_node_t *);
 
 extern klist_node_t *kylin_list_find(const klist_t *, void *key);
 extern klist_node_t *kylin_list_find_index(const klist_t *, int index);

@@ -15,5 +15,5 @@ libcore_math: $(LIB_OBJS)
 
 distclean: clean
 clean:
-	rm -f *.o *.core libcore_math.so
+	rm -f *.o libcore_math.so
 

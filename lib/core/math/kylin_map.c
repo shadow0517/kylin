@@ -155,6 +155,17 @@ void kylin_map_destroy(kmap_t *guard)
     MAP_GUARD_FREE(&guard->opts)(guard);
 }
 
+void kylin_map_clear(kmap_t *guard)
+{
+    if(guard->ht[0].table)
+        _ht_clear(guard, &guard->ht[0]);
+
+    if(guard->ht[1].table)
+        _ht_clear(guard, &guard->ht[1]);
+
+    guard->rehashidx = -1;
+}
+
 void *kylin_map_priv(kmap_t *guard)
 {
     return MAP_PRIV_DATA(guard);
@@ -206,17 +217,6 @@ kerr_t kylin_map_resize(kmap_t *guard, size_t count)
     }
 
     return KYLIN_ERROR_OK;
-}
-
-void kylin_map_clear(kmap_t *guard)
-{
-    if(guard->ht[0].table)
-        _ht_clear(guard, &guard->ht[0]);
-
-    if(guard->ht[1].table)
-        _ht_clear(guard, &guard->ht[1]);
-
-    guard->rehashidx = -1;
 }
 
 kerr_t kylin_map_remove(kmap_t *guard, void *key)

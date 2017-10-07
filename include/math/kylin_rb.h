@@ -55,6 +55,7 @@ typedef struct {
 
 extern krb_t *kylin_rb_create(const krb_opts_t *opts);
 extern void kylin_rb_destroy(krb_t *);
+extern void kylin_rb_clear(krb_t *);
 
 /*
  * TODO: 对于配置类的信息，可以采取这种方式替代小型数据库
@@ -76,7 +77,13 @@ extern krb_node_t *kylin_rb_min(krb_t *);
 extern krb_node_t *kylin_rb_max(krb_t *);
 
 extern krb_node_t *kylin_rb_insert(krb_t *, void *val);
-extern void kylin_rb_remove(krb_t *, krb_node_t *);
+extern krb_node_t *kylin_rb_insert_raw(krb_t *, krb_node_t *);
+
+extern void kylin_rb_remove(krb_t *, void *cmp);
+extern void kylin_rb_remove_raw(krb_t *, krb_node_t *);
+
+extern krb_node_t *kylin_rb_unlink(krb_t *, void *cmp);
+extern krb_node_t *kylin_rb_unlink_raw(krb_t *, krb_node_t *);
 
 extern krb_node_t *kylin_rb_next(krb_node_t *);
 extern krb_node_t *kylin_rb_prev(krb_node_t *);

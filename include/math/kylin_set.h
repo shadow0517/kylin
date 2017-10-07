@@ -32,6 +32,7 @@ typedef struct {
 
 extern kset_t *kylin_set_create(const kset_opts_t *opts);
 extern void kylin_set_destroy(kset_t *);
+extern void kylin_set_clear(kset_t *);
 
 extern kobj_t kylin_set_val_type(kset_t *);
 extern size_t kylin_set_val_size(kset_t *);
@@ -40,7 +41,6 @@ extern size_t kylin_set_count(kset_t *);
 extern kerr_t kylin_set_insert(kset_t *, void *);
 extern kerr_t kylin_set_remove(kset_t *, void *);
 extern kerr_t kylin_set_remove_by_index(kset_t *, uint32_t);
-extern void kylin_set_clear(kset_t *);
 
 extern void *kylin_set_find(kset_t *, void *);
 extern void *kylin_set_find_by_index(kset_t *, uint32_t);
