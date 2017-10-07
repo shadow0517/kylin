@@ -10,7 +10,7 @@ static pthread_t serv_tid;
 
 static int __accept_node_match(void *val, void *key);
 
-static int __server_socket_create(kfd_t *fd, int mode)
+static int __server_socket_create(kfd_t *fd, const char *name, int mode)
 {
     int len;
     struct sockaddr_un local;
@@ -19,7 +19,7 @@ static int __server_socket_create(kfd_t *fd, int mode)
     if(*fd == -1)
         return errno;
 
-    local.sun_family = AF_UNIX
+    local.sun_family = AF_UNIX;
     sprintf(local.sun_path, "%s/%s", KYLIN_USOCK_LOCAL, name);
     len = sizeof(local.sun_family ) + strlen(local.sun_path) + 1;
 
@@ -64,8 +64,8 @@ kusock_server_t *kylin_usock_server_create(const char *name, int mode,
     klist_opts_t serv_list_opts = {
         .name      = name,
         .val_type  = KOBJ_OTHERS,
-        .val_size  = sizeof(usock_accept_t);
-        .match     = __accept_node_match;
+        .val_size  = sizeof(usock_accept_t),
+        .match     = __accept_node_match,
         .allocator = {
             .val_ctor   = NULL, /*值所在的内存由调用者分配*/
             .val_dtor   = NULL,
@@ -82,7 +82,7 @@ kusock_server_t *kylin_usock_server_create(const char *name, int mode,
 
     memset(serv, 0, sizeof(kusock_server_t));
 
-    if(__server_socket_create(&serv->sock, mode) != 0) {
+    if(__server_socket_create(&serv->sock, name, mode) != 0) {
         if(serv->sock)
             close(serv->sock);
         free(serv);
@@ -117,7 +117,9 @@ kusock_server_t *kylin_usock_server_create(const char *name, int mode,
 
 void kylin_usock_server_destroy(kusock_server_t *serv)
 {
-
+    kylin_list_destroy(serv->acpt_q);
+    close(serv->sock);
+    kylin_rb_remove(serv_rb, kylin_rb_find(serv_rb, serv));
 }
 
 static int __serv_compare(const void *c1, const void *c2)
@@ -137,9 +139,9 @@ static int __accept_node_match(void *val, void *key)
     usock_accept_t *acpt = val;
     usock_accept_t *cmp  = key;
 
-    if(acpt->sock > key->sock)
+    if(acpt->sock > cmp->sock)
         return 1;
-    if(acpt->sock < key->sock)
+    if(acpt->sock < cmp->sock)
         return -1;
     return 0;
 }
@@ -147,7 +149,7 @@ static int __accept_node_match(void *val, void *key)
 /*TODO 可以考虑采用事件驱动的方式处理套接字可读事件*/
 static void *__server_process(void *arg __kylin_unused)
 {
-
+    return NULL;
 }
 
 kerr_t server_init(void)

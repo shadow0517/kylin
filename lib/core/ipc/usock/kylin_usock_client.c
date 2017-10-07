@@ -63,12 +63,12 @@ void kylin_usock_client_close(kusock_client_t *cli)
     kylin_rb_remove(cli_rb, kylin_rb_find(cli_rb, cli));
 }
 
-kerr_t __send_request_pdu(kfd_t fd, uint32_t cmd, void *data, int length)
+static kerr_t __send_request_pdu(kfd_t fd, uint32_t cmd, void *data, int length)
 {
     int len;
     usock_pdu_hdr_t hdr;
 
-    if(len > KYLIN_USOCK_PDU_PAYLOAD_MAX)
+    if(length > KYLIN_USOCK_PDU_PAYLOAD_MAX)
         return KYLIN_ERROR_2BIG;
 
     memset(&hdr, 0, sizeof(usock_pdu_hdr_t));
@@ -85,7 +85,7 @@ kerr_t __send_request_pdu(kfd_t fd, uint32_t cmd, void *data, int length)
 
     /*send pdu payload*/
     if(hdr.len > 0) {
-        len = send(s, data, hdr.len, 0);
+        len = send(fd, data, hdr.len, 0);
         if(len != hdr.len)
             return errno;
     }
@@ -93,7 +93,7 @@ kerr_t __send_request_pdu(kfd_t fd, uint32_t cmd, void *data, int length)
     return KYLIN_ERROR_OK;
 }
 
-kerr_t __recv_response_pdu(kfd_t fd, void *data)
+static kerr_t __recv_response_pdu(kfd_t fd, void *data)
 {
     int len;
     usock_pdu_hdr_t hdr;
@@ -105,7 +105,7 @@ kerr_t __recv_response_pdu(kfd_t fd, void *data)
     if(hdr.err != KYLIN_ERROR_OK)
         return hdr.err;
 
-    len = recv(s, data, hdr.len, 0);
+    len = recv(fd, data, hdr.len, 0);
     if(len != hdr.len)
         return errno;
 

@@ -8,6 +8,8 @@
 #include <kylin/include/utils/kylin_error.h>
 #include <kylin/include/utils/kylin_limit.h>
 
+#include <kylin/lib/core/ipc/usock/kylin_usock.h>
+
 typedef struct {
     kfd_t            sock;
     int              pdu_pos;

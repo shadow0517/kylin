@@ -9,11 +9,13 @@
 #include <endian.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <netinet/in.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/un.h>
 
 #define KYLIN_PAGE_SIZE getpagesize()
 

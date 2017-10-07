@@ -1,7 +1,8 @@
 #ifndef _KYLIN_ARCH_SPINLOCK_X86_64_H_
 #define _KYLIN_ARCH_SPINLOCK_X86_64_H_
 
-#include <kylin/include/arch/common/kylin_spinlock.h>
+//#include <kylin/include/arch/common/kylin_spinlock.h>
+#include <kylin/include/arch/kylin_spinlock.h>
 
 static inline void kylin_spinlock_lock(kspinlock_t *sl)
 {
