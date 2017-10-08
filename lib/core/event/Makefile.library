@@ -5,15 +5,20 @@ PREFIX=/usr/local/
 CFLAGS = ${KYLIN_CFLAGS} -I/usr/local/include -I${KYLIN_LIB_SRC}
 LDFLAGS += -L/usr/local/lib -lpthread
 
-all: libcore_log
+all: libcore_event
 
-LIB_OBJS = plugin/kylin_log_console.o plugin/kylin_log_file.o plugin/kylin_log_system.o \
-		   kylin_log.o kylin_log_buf.o kylin_log_obj.o
+LIB_OBJS = kylin_event.o kylin_event_plugin.o 
 
-libcore_log: $(LIB_OBJS)
-	${CC} ${CFLAGS} ${LIB_OBJS} -shared -o libcore_log.so ${LDFLAGS}
+ifeq (${KYLIN_OS}, Linux)
+	LIB_OBJS += plugin/kylin_select.o plugin/kylin_poll.o plugin/kylin_epoll.o
+else 
+	LIB_OBJS += plugin/kylin_kqueue.o
+endif
+
+libcore_event: $(LIB_OBJS)
+	${CC} ${CFLAGS} ${LIB_OBJS} -shared -o libcore_event.so ${LDFLAGS}
 
 distclean: clean
 clean:
-	rm -f *.o plugin/*.o libcore_log.so
+	rm -f *.o plugin/*.o libcore_event.so
 

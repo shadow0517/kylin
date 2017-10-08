@@ -16,5 +16,5 @@ library:
 
 distclean: clean
 clean:
-	rm -f *.o plugin/*.o *.so *.save 
+	rm -f *.o plugin/*.o *.so 
 
