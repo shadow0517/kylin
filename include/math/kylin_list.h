@@ -18,7 +18,7 @@ typedef struct {
     kobj_t      val_type;
     size_t      val_size;
 
-    int (*match)(void *val, void *key);
+    int (*match)(const void *val, const void *key);
 
     struct {
         void *(*val_ctor)(size_t); /*如果为NULL，表示插入的值已分配好内存*/
@@ -41,8 +41,13 @@ extern void *kylin_list_val(const klist_t *, klist_node_t *);
 
 extern klist_node_t *kylin_list_first(const klist_t *);
 extern klist_node_t *kylin_list_last(const klist_t *);
-extern klist_node_t *kylin_list_prev(const klist_node_t *);
-extern klist_node_t *kylin_list_next(const klist_node_t *);
+extern klist_node_t *kylin_list_prev(const klist_t *, const klist_node_t *);
+extern klist_node_t *kylin_list_next(const klist_t *, const klist_node_t *);
+
+#define KYLIN_LIST_FOREACH(guard, node)          \
+    for(node = kylin_list_first(guard);          \
+            node != NULL;                        \
+            node = kylin_list_next(guard, node))
 
 extern klist_node_t *kylin_list_insert_head(klist_t *, void *);
 extern klist_node_t *kylin_list_insert_tail(klist_t *, void *);

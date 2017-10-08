@@ -39,8 +39,12 @@ extern size_t kylin_set_val_size(kset_t *);
 extern size_t kylin_set_count(kset_t *);
 
 extern kerr_t kylin_set_insert(kset_t *, void *);
+
 extern kerr_t kylin_set_remove(kset_t *, void *);
 extern kerr_t kylin_set_remove_by_index(kset_t *, uint32_t);
+
+extern void *kylin_set_unlink(kset_t *, void *);
+extern void *kylin_set_unlink_by_index(kset_t *, uint32_t);
 
 extern void *kylin_set_find(kset_t *, void *);
 extern void *kylin_set_find_by_index(kset_t *, uint32_t);

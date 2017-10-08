@@ -5,7 +5,7 @@
 #include <kylin/lib/core/ipc/usock/kylin_usock.h>
 #include <kylin/lib/core/ipc/usock/kylin_usock_client.h>
 
-/*存储所有已打开的客户端信息*/
+/*存储所有已打开的客户端(kusock_client_t)信息*/
 static krb_t *cli_rb = NULL;
 
 kusock_client_t *kylin_usock_client_open(const char *name)

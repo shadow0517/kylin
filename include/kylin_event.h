@@ -17,6 +17,20 @@ typedef enum {
 struct kylin_event;
 typedef struct kylin_event kevent_t;
 
+/*支持的事件类型*/
+typedef enum {
+    KEVENT_FLAG_NONE    = 0UL,
+    KEVENT_FLAG_READ    = 1UL << 0,
+    KEVENT_FLAG_WRITE   = 1UL << 1,
+    KEVENT_FLAG_ERROR   = 1UL << 2,
+} kevent_flag_t;
+
+/*一个事件由事件描述符（fd）和事件类型（flags）组成*/
+typedef struct {
+    kfd_t         efd;
+    kevent_flag_t flags;
+} kevent_event_t;
+
 /*
  * 使用事件驱动机制的接口
  */
@@ -27,38 +41,45 @@ typedef struct {
         void (*send)(kfd_t, void *);
         void (*error)(kfd_t, void *);
         void (*timeout)(kfd_t, void *);
-    } callback;
+    } action;
 } kevent_opts_t;
 
 extern kevent_t *kylin_event_create(const kevent_type_t, const kevent_opts_t *);
 extern void kylin_event_destroy(kevent_t *);
 
-extern kerr_t kylin_event_add(kevent_t *, kfd_t);
-extern kerr_t kylin_event_del(kevent_t *, kfd_t);
+extern kerr_t kylin_event_add(kevent_t *, kfd_t, kevent_flag_t);
+extern kerr_t kylin_event_del(kevent_t *, kfd_t, kevent_flag_t);
 
 extern kerr_t kylin_event_process(kevent *);
+
+extern kfd_t kylin_event_get_ctl_fd(kevent_t *);
+extern kevent_opts_t *kylin_event_get_opts(kevent_t *);
+extern kevent_event_t *kylin_event_event_get_first(kevent_t *);
+extern kevent_event_t *kylin_event_event_get_next(kevent_t *, kevent_event_t *);
+
+#define KYLIN_EVENT_EVENT_FOREACH(guard, event)               \
+    for(event = kylin_event_event_get_first(guard);           \
+            event != NULL;                                    \
+            event = kylin_event_event_get_next(gaurd, event))
 
 /*
  * 注册事件驱动机制的接口
  */
 typedef struct {
-    kerr_t (*add)(kevent_t *, kfd_t, uint32_t flags);
-    kerr_t (*del)(kevent_t *, kfd_t, uint32_t flags);
+    kerr_t (*add)(kevent_t *, kfd_t, kevent_flag_t);
+    kerr_t (*del)(kevent_t *, kfd_t, kevent_flag_t);
+    kerr_t (*mod)(kevent_t *, kfd_t, kevent_flag_t);
 
-    kerr_t (*enable)(kevent_t *, kfd_t, uint32_t flags);
-    kerr_t (*disable)(kevent_t *, kfd_t, uint32_t flags);
+    kerr_t (*proc)(kevent_t *, uint64_t timeout);
 
-    kerr_t (*add_conn)(ngx_connection_t *c);
-    kerr_t (*del_conn)(ngx_connection_t *c, uint32_t flags);
-
-    kerr_t (*process_changes)(ngx_cycle_t *cycle, uint32_t nowait);
-    kerr_t (*process_events)(ngx_cycle_t *cycle, ngx_msec_t timer, uint32_t flags);
+    kfd_t  (*create)(void);
+    void   (*destroy)(kfd_t);
 
     kerr_t (*init)(void);
     void   (*fini)(void);
-} kevent_actions_t;
+} kevent_reg_t;
 
-extern kerr_t kylin_event_register(const kevent_type_t, const kevent_actions_t *);
-extern void kylin_event_unregister(const kevent_type_t);
+extern kerr_t kylin_event_register(const kevent_type_t, const kevent_reg_t *);
+extern kerr_t kylin_event_unregister(const kevent_type_t);
 
 #endif /*_KYLIN_EVENT_H_*/

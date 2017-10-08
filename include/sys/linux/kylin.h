@@ -10,7 +10,10 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <netinet/in.h>
+#include <poll.h>
+#include <sys/epoll.h>
 #include <sys/mman.h>
+#include <sys/select.h>
 #include <sys/stat.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
