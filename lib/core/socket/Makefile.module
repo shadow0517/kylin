@@ -1,0 +1,20 @@
+SHELL=/bin/sh
+# Where you want it installed when you do 'make install'
+PREFIX=/usr/local/
+
+CFLAGS = ${KYLIN_CFLAGS} -DKYLIN_MODULE -I/usr/local/include -I${KYLIN_LIB_SRC}
+LDFLAGS += -L/usr/local/lib -lpthread
+
+all: kylin_core_socket
+
+LIB_OBJS = plugin/kylin_socket_tcp.o plugin/kylin_socket_udp.o plugin/kylin_socket_unix.o \
+		   kylin_socket.o kylin_socket_plugin.o
+
+kylin_core_socket: $(LIB_OBJS)
+	${CC} ${CFLAGS} ${LIB_OBJS} -shared -o kylin_core_socket.so ${LDFLAGS}
+
+distclean: clean
+clean:
+	rm -f *.o plugin/*.o kylin_core_socket.so
+
+
