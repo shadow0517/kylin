@@ -67,7 +67,8 @@ kerr_t kylin_set_insert(kset_t *guard, void *v)
 
     if(guard->opts.is_order) {
         for(int i = 0; i < guard->used; i++) {
-            if(guard->opts.compare(&val, kmath_val_get(&guard->val[i], guard->opts.val_type)) < 0) {
+            if(guard->opts.compare && 
+                    guard->opts.compare(&val, kmath_val_get(&guard->val[i], guard->opts.val_type)) < 0) {
                 for(int j = i; j < guard->used; j++)
                     KYLIN_SWAP(val, guard->val[j]);
                 break;
@@ -82,7 +83,8 @@ kerr_t kylin_set_insert(kset_t *guard, void *v)
 kerr_t kylin_set_remove(kset_t *guard, void *cmp)
 {
     for(int i = 0; i < guard->used; i++) {
-        if(guard->opts.compare(cmp, kmath_val_get(&guard->val[i], guard->opts.val_type)) == 0)
+        if(guard->opts.compare && 
+                guard->opts.compare(cmp, kmath_val_get(&guard->val[i], guard->opts.val_type)) == 0)
             return kylin_set_remove_by_index(guard, i);
     }
     return KYLIN_ERROR_NOENT; 
@@ -103,11 +105,9 @@ kerr_t kylin_set_remove_by_index(kset_t *guard, uint32_t index)
 
 void *kylin_set_find(kset_t *guard, void *key)
 {
-    void *result = NULL;
-
     for(int i = 0; i < guard->used; i++) {
-        result = kmath_val_get(&guard->val[i], guard->opts.val_type);
-        if(guard->opts.compare(key, result) == 0)
+        if(guard->opts.compare && 
+                guard->opts.compare(key, kmath_val_get(&guard->val[i], guard->opts.val_type)) == 0)
             return result;
     }
 
@@ -137,7 +137,8 @@ void *kylin_set_last(kset_t *guard)
 void *kylin_set_next(kset_t *guard, void *cmp)
 {
     for(int i = 0; i < guard->used; i++) {
-        if(guard->opts.compare(cmp, kmath_val_get(&guard->val[i], guard->opts.val_type)) == 0) {
+        if(guard->opts.compare && 
+                guard->opts.compare(cmp, kmath_val_get(&guard->val[i], guard->opts.val_type)) == 0) {
             if(i < (guard->used - 1))
                 return kmath_val_get(&guard->val[i + 1], guard->opts.val_type);
             else
@@ -151,7 +152,8 @@ void *kylin_set_next(kset_t *guard, void *cmp)
 void *kylin_set_prev(kset_t *guard, void *cmp)
 {
     for(int i = 0; i < guard->used; i++) {
-        if(guard->opts.compare(cmp, kmath_val_get(&guard->val[i], guard->opts.val_type)) == 0) {
+        if(guard->opts.compare && 
+                guard->opts.compare(cmp, kmath_val_get(&guard->val[i], guard->opts.val_type)) == 0) {
             if(i > 0)
                 return kmath_val_get(&guard->val[i - 1], guard->opts.val_type);
             else

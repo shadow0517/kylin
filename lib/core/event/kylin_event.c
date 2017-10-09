@@ -8,12 +8,14 @@
 #include <kylin/lib/core/event/kylin_event_plugin.h>
 
 struct kylin_event {
+    uint32_t       id;
     kevent_type_t  type;
     kevent_opts_t  opts;
-    kfd_t          cfd;     /*event control fd. when we call epoll or kqueue, it is*/
+    void          *priv;    /*private data, return by epoll_create and etc...*/
     kset_t        *events;  /*events set, storage kevent_event_t*/
 };
 
+static uint32_t      eid = 0;
 static klist_t      *elist = NULL;         /*list of kevent_t*/
 
 static int __elist_match(const void *val, const void *key);
@@ -52,25 +54,26 @@ kevent_t *kylin_event_create(const kevent_type_t type, const kevent_opts_t *opts
     }
 
     if(eplugin[type].reg.create) {
-        guard->cfd = eplugin[type].reg.create(); 
-        if(guard->cfd == -1) {
+        guard->priv = eplugin[type].reg.create(); 
+        if(!guard->priv) {
             kylin_set_destroy(guard->events);
             free(guard);
             return NULL;
         }
     }
     else
-        guard->cfd = 0;
+        guard->priv = NULL;
 
     if(!kylin_list_insert_head(elist, guard)) {
         if(eplugin[type].reg.destroy)
-            eplugin[type].reg.destroy(guard->cfd);
+            eplugin[type].reg.destroy(guard->priv);
         kylin_set_destroy(guard->events);
         free(guard);
         return NULL;
     }
 
     eplugin[type].ref++;
+    guard->id   = eid++;
     guard->type = type;
     memcpy(&guard->opts, opts, sizeof(kevent_opts_t));
     
@@ -83,7 +86,7 @@ void kylin_event_destroy(kevent_t *guard)
         return;
 
     if(eplugin[guard->type].reg.destroy)
-        eplugin[guard->type].reg.destroy(guard->cfd);
+        eplugin[guard->type].reg.destroy(guard->priv);
 
     eplugin[guard->type].ref--;
     kylin_set_destroy(guard->events);
@@ -160,9 +163,9 @@ kerr_t kylin_event_process(kevent *guard)
     return ret;
 }
 
-kfd_t kylin_event_get_ctl_fd(kevent_t *guard)
+void *kylin_event_get_priv_data(kevent_t *)
 {
-    return guard->cfd;
+    return guard->priv;
 }
 
 kevent_opts_t *kylin_event_get_opts(kevent_t *guard)
@@ -180,14 +183,24 @@ kevent_event_t *kylin_event_event_get_next(kevent_t *guard, kevent_event_t *even
     return (kevent_event_t *)kylin_set_next(guard->events, event);
 }
 
+kevent_event_t *kylin_event_event_get_by_fd(kevent_t *guard, kfd_t fd)
+{
+    kevent_event_t cmp;
+
+    memset(&cmp, 0, sizeof(kevent_event_t));
+    cmp.efd = fd;
+
+    return (kevent_event_t *)kylin_set_find(guard->events, &cmp);
+}
+
 static int __elist_match(const void *val, const void *key)
 {
     const kevent_t *guard = val;
     const kevent_t *cmp   = key;
 
-    if(guard->cfd > key->cfd)
+    if(guard->cid > key->cid)
         return 1;
-    if(guard->cfd < key->cfd)
+    if(guard->cid < key->cid)
         return -1;
     return 0;
 }
@@ -225,19 +238,29 @@ kerr_t kylin_event_init(void)
     if(!elist)
         return KYLIN_ERROR_NOMEM;
 
-    return kylin_event_plugin_init(void);
+    return kylin_event_plugin_init();
 }
 
 void kylin_event_fini(void)
 {
-    klist_node_t *node = NULL;
+    klist_node_t *node  = NULL;
+    kevent_t     *guard = NULL;
 
     if(elist) {
-        KYLIN_LIST_FOREACH(elist, node)
-            kylin_event_destroy((kevent_t *)kylin_list_val(elist, node));
+        KYLIN_LIST_FOREACH(elist, node) {
+            gaurd = (kevent_t *)kylin_list_val(elist, node);
+            if(!guard)
+                continue;
+
+            if(eplugin[guard->type].reg.destroy)
+                eplugin[guard->type].reg.destroy(guard->priv);
+
+            eplugin[guard->type].ref--;
+            kylin_set_destroy(guard->events);
+        }
         kylin_list_destroy(elist);
     }
 
-    kylin_event_plugin_fini(void);
+    kylin_event_plugin_fini();
 }
 

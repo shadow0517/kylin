@@ -15,7 +15,7 @@ typedef struct kylin_set          kset_t;
 
 typedef struct {
     const char *name;
-    kbool_t     is_order;            /*是否为有序集合，KYLIN_TRUE or KYLIN_FALSE*/
+    kbool_t     is_order;            /*是否为有序集合(升序排列)，KYLIN_TRUE or KYLIN_FALSE*/
     size_t      cap;                 /*容量*/
     kobj_t      val_type;
     size_t      val_size; 
@@ -54,6 +54,11 @@ extern void *kylin_set_first(kset_t *);
 extern void *kylin_set_last(kset_t *);
 extern void *kylin_set_next(kset_t *, void *);
 extern void *kylin_set_prev(kset_t *, void *);
+
+#define KYLIN_SET_FOREACH(guard, val)          \
+    for(val = kylin_set_first(guard);          \
+            val != NULL;                       \
+            val = kylin_set_next(guard, val))
 
 /*排序, 对于非顺序的集合，该操作可能花费一定的时间*/
 extern kerr_t kylin_set_order(kset_t *);

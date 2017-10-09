@@ -52,10 +52,11 @@ extern kerr_t kylin_event_del(kevent_t *, kfd_t, kevent_flag_t);
 
 extern kerr_t kylin_event_process(kevent *);
 
-extern kfd_t kylin_event_get_ctl_fd(kevent_t *);
+extern void *kylin_event_get_priv_data(kevent_t *);
 extern kevent_opts_t *kylin_event_get_opts(kevent_t *);
 extern kevent_event_t *kylin_event_event_get_first(kevent_t *);
 extern kevent_event_t *kylin_event_event_get_next(kevent_t *, kevent_event_t *);
+extern kevent_event_t *kylin_event_event_get_by_fd(kevent_t *, kfd_t);
 
 #define KYLIN_EVENT_EVENT_FOREACH(guard, event)               \
     for(event = kylin_event_event_get_first(guard);           \
@@ -72,8 +73,8 @@ typedef struct {
 
     kerr_t (*proc)(kevent_t *, uint64_t timeout);
 
-    kfd_t  (*create)(void);
-    void   (*destroy)(kfd_t);
+    void  *(*create)(void);
+    void   (*destroy)(void *);
 
     kerr_t (*init)(void);
     void   (*fini)(void);

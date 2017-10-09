@@ -5,15 +5,15 @@
 #include <kylin/include/kylin_event.h>
 #include <kylin/include/utils/kylin_error.h>
 
-kerr_t kqueue_add(kevent_t *, kfd_t, kevent_flag_t);
-kerr_t kqueue_del(kevent_t *, kfd_t, kevent_flag_t);
-kerr_t kqueue_mod(kevent_t *, kfd_t, kevent_flag_t);
+extern kerr_t kqueue_add(kevent_t *, kfd_t, kevent_flag_t);
+extern kerr_t kqueue_del(kevent_t *, kfd_t, kevent_flag_t);
+extern kerr_t kqueue_mod(kevent_t *, kfd_t, kevent_flag_t);
 
-kerr_t kqueue_process(kevent_t *, uint64_t timeout);
+extern kerr_t kqueue_proc(kevent_t *, uint64_t timeout);
 
-kfd_t  kqueue_create(void);
-void   kqueue_destroy(kfd_t);
+extern void  *kqueue_create(void);
+extern void   kqueue_destroy(void *);
 
-kerr_t kqueue_init(void);
-void   kqueue_fini(void);
+extern kerr_t kqueue_init(void);
+extern void   kqueue_fini(void);
 #endif /*_KYLIN_CORE_EVENT_KQUEUE_H_*/
