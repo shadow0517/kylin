@@ -144,7 +144,6 @@ kerr_t select_mod(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
 
 kerr_t select_proc(kevent_t *guard, uint64_t timeout)
 {
-    kerr_t ret = KYLIN_ERROR_OK;
     int max_fd;
     struct timeval time;
     void            *val          = NULL;
@@ -194,6 +193,18 @@ kerr_t select_proc(kevent_t *guard, uint64_t timeout)
         FD_SET(*(kfd_t *)val, event_select->exsets);
 
     return KYLIN_ERROR_OK;
+}
+
+static int __fd_compare(const void *v1, const void *v2)
+{
+    const kfd_t *fd1 = v1;
+    const kfd_t *fd2 = v2;
+
+    if(*fd1 > *fd2)
+        return 1;
+    if(*fd1 < *fd2)
+        return -1;
+    return 0;
 }
 
 void *select_create(void)

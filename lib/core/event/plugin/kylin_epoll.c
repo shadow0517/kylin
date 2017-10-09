@@ -101,8 +101,7 @@ kerr_t epoll_proc(kevent_t *guard, uint64_t timeout)
         return KYLIN_ERROR_NOENT;
 
     nevents = epoll_wait(event_epoll->cfd, event_epoll->events, event_epoll->maxevents, timeout);
-
-    for(i = 0; i < nevents; i++) {
+    for(int i = 0; i < nevents; i++) {
         fd    = event_epoll->events[i].data.fd;
         flags = event_epoll->events[i].events;
 
