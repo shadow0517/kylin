@@ -2,7 +2,7 @@
 #include <kylin/include/kylin_event.h>
 
 #include <kylin/include/math/kylin_list.h>
-#include <kylin/include/math/kylin_rb.h>
+#include <kylin/include/math/kylin_set.h>
 
 #include <kylin/lib/core/event/kylin_event.h>
 #include <kylin/lib/core/event/kylin_event_plugin.h>
@@ -47,7 +47,7 @@ kevent_t *kylin_event_create(const kevent_type_t type, const kevent_opts_t *opts
     if(!guard)
         return NULL;
 
-    guard->events = kylin_set_create(&event_opts);
+    guard->events = kylin_set_create(&events_opts);
     if(!guard->events) {
         free(guard);
         return NULL;
@@ -153,7 +153,7 @@ kerr_t kylin_event_del(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
     return KYLIN_ERROR_OK;
 }
 
-kerr_t kylin_event_process(kevent *guard)
+kerr_t kylin_event_process(kevent_t *guard)
 {
     kerr_t ret = KYLIN_ERROR_OK;
 
@@ -163,7 +163,7 @@ kerr_t kylin_event_process(kevent *guard)
     return ret;
 }
 
-void *kylin_event_get_priv_data(kevent_t *)
+void *kylin_event_get_priv_data(kevent_t *guard)
 {
     return guard->priv;
 }
@@ -203,9 +203,9 @@ static int __elist_match(const void *val, const void *key)
     const kevent_t *guard = val;
     const kevent_t *cmp   = key;
 
-    if(guard->cid > key->cid)
+    if(guard->id > cmp->id)
         return 1;
-    if(guard->cid < key->cid)
+    if(guard->id < cmp->id)
         return -1;
     return 0;
 }
@@ -253,7 +253,7 @@ void kylin_event_fini(void)
 
     if(elist) {
         KYLIN_LIST_FOREACH(elist, node) {
-            gaurd = (kevent_t *)kylin_list_val(elist, node);
+            guard = (kevent_t *)kylin_list_val(elist, node);
             if(!guard)
                 continue;
 

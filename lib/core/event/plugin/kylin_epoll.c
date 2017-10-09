@@ -9,7 +9,7 @@ typedef struct {
     struct epoll_event *events;
 }kevent_epoll_t;
 
-kerr_t epoll_add(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
+kerr_t kylin_epoll_add(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
 {
     kerr_t ret = KYLIN_ERROR_OK;
     struct epoll_event ev = { 0 };
@@ -40,7 +40,7 @@ kerr_t epoll_add(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
     return ret;
 }
 
-kerr_t epoll_del(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
+kerr_t kylin_epoll_del(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
 {
     kerr_t ret = KYLIN_ERROR_OK;
     struct epoll_event ev = { 0 };
@@ -71,7 +71,7 @@ kerr_t epoll_del(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
     return ret;
 }
 
-kerr_t epoll_mod(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
+kerr_t kylin_epoll_mod(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
 {
     kerr_t ret = KYLIN_ERROR_OK;
     kevent_event_t *event = NULL;
@@ -80,14 +80,14 @@ kerr_t epoll_mod(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
     if(!event)
         return KYLIN_ERROR_NOENT;
 
-    ret = epoll_del(guard, fd, event->flags);
+    ret = kylin_epoll_del(guard, fd, event->flags);
     if(ret != KYLIN_ERROR_OK)
         return ret;
 
-    return epoll_add(guard, fd, flags);
+    return kylin_epoll_add(guard, fd, flags);
 }
 
-kerr_t epoll_proc(kevent_t *guard, uint64_t timeout)
+kerr_t kylin_epoll_proc(kevent_t *guard, uint64_t timeout)
 {
     int      nevents;
     kfd_t    fd;
@@ -107,20 +107,20 @@ kerr_t epoll_proc(kevent_t *guard, uint64_t timeout)
 
 		if (flags & (EPOLLHUP|EPOLLERR)) {
 			if(eopts->action.error)
-				eopts->action.error(fd, eopts->data);
+				eopts->action.error(fd, eopts->priv);
 		} 
         else {
 			if (flags & EPOLLIN) {
 				if(eopts->action.recv)
-					eopts->action.recv(fd, eopts->data);
+					eopts->action.recv(fd, eopts->priv);
 			}
 			if (flags & EPOLLOUT) {
 				if(eopts->action.send)
-                	eopts->action.send(fd, eopts->data);
+                	eopts->action.send(fd, eopts->priv);
 			}
 			if (flags & EPOLLRDHUP) {
 				if(eopts->action.error)
-					eopts->action.error(fd, eopts->data);
+					eopts->action.error(fd, eopts->priv);
 			}
 		}
     }
@@ -128,7 +128,7 @@ kerr_t epoll_proc(kevent_t *guard, uint64_t timeout)
     return KYLIN_ERROR_OK;
 }
 
-void *epoll_create(void)
+void *kylin_epoll_create(void)
 {
     kevent_epoll_t *event_epoll = NULL;
 
@@ -155,7 +155,7 @@ void *epoll_create(void)
     return event_epoll;
 }
 
-void epoll_destroy(void *priv)
+void kylin_epoll_destroy(void *priv)
 {
     kevent_epoll_t *event_epoll = (kevent_epoll_t *)priv;
     close(event_epoll->cfd);
@@ -163,12 +163,12 @@ void epoll_destroy(void *priv)
     free(event_epoll);
 }
 
-kerr_t epoll_init(void)
+kerr_t kylin_epoll_init(void)
 {
     return KYLIN_ERROR_OK;
 }
 
-void epoll_fini(void)
+void kylin_epoll_fini(void)
 {
     return;
 }

@@ -13,7 +13,7 @@ typedef struct {
     kset_t   *fd_set[SELECT_FDSET_TYPE_NUM]; /*存放排好序的套接字*/
 } kevent_select_t;
 
-kerr_t select_add(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
+kerr_t kylin_select_add(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
 {
     kerr_t ret = KYLIN_ERROR_OK;
     kevent_select_t *event_select = NULL;
@@ -46,7 +46,7 @@ kerr_t select_add(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
     return ret;
 }
 
-kerr_t select_del(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
+kerr_t kylin_select_del(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
 {
     kerr_t ret = KYLIN_ERROR_OK;
     kevent_select_t *event_select = NULL;
@@ -79,7 +79,7 @@ kerr_t select_del(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
     return ret;
 }
 
-kerr_t select_mod(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
+kerr_t kylin_select_mod(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
 {
     kerr_t ret = KYLIN_ERROR_OK;
     kevent_select_t *event_select = NULL;
@@ -142,10 +142,10 @@ kerr_t select_mod(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
     return ret;
 }
 
-kerr_t select_proc(kevent_t *guard, uint64_t timeout)
+kerr_t kylin_select_proc(kevent_t *guard, uint64_t timeout)
 {
-    int max_fd;
-    struct timeval time;
+    int            max_fd;
+    struct timeval tv;
     void            *val          = NULL;
     kevent_opts_t   *eopts        = NULL;
     kevent_select_t *event_select = NULL;
@@ -155,7 +155,7 @@ kerr_t select_proc(kevent_t *guard, uint64_t timeout)
     if(!eopts && !event_select)
         return KYLIN_ERROR_NOENT;
 
-    max_fd = KYLIN_MAX(KYIN_MAX(*(kfd_t *)kylin_set_last(event_select->fd_set[0]),
+    max_fd = KYLIN_MAX(KYLIN_MAX(*(kfd_t *)kylin_set_last(event_select->fd_set[0]),
             *(kfd_t *)kylin_set_last(event_select->fd_set[1])), 
             *(kfd_t *)kylin_set_last(event_select->fd_set[2]));
 
@@ -169,17 +169,17 @@ kerr_t select_proc(kevent_t *guard, uint64_t timeout)
 
         KYLIN_SET_FOREACH(event_select->fd_set[0], val) {
             if(FD_ISSET(*(kfd_t *)val, event_select->rdsets) && eopts->action.recv)
-                eopts->action.recv(*(kfd_t *)val, eopts->data);
+                eopts->action.recv(*(kfd_t *)val, eopts->priv);
         }
 
         KYLIN_SET_FOREACH(event_select->fd_set[1], val) {
             if(FD_ISSET(*(kfd_t *)val, event_select->wtsets) && eopts->action.send)
-                eopts->action.send(*(kfd_t *)val, eopts->data);
+                eopts->action.send(*(kfd_t *)val, eopts->priv);
         }
 
         KYLIN_SET_FOREACH(event_select->fd_set[2], val) {
             if(FD_ISSET(*(kfd_t *)val, event_select->exsets) && eopts->action.error)
-                eopts->action.error(*(kfd_t *)val, eopts->data);
+                eopts->action.error(*(kfd_t *)val, eopts->priv);
         }
     }
 
@@ -207,7 +207,7 @@ static int __fd_compare(const void *v1, const void *v2)
     return 0;
 }
 
-void *select_create(void)
+void *kylin_select_create(void)
 {
     kevent_select_t *event_select = NULL;
     kset_opts_t fdset_opts = {
@@ -245,7 +245,7 @@ void *select_create(void)
     return event_select;
 }
 
-void select_destroy(void *priv)
+void kylin_select_destroy(void *priv)
 {
     kevent_select_t *event_select = (kevent_select_t *)priv;
 
@@ -255,12 +255,12 @@ void select_destroy(void *priv)
     free(event_select);
 }
 
-kerr_t select_init(void)
+kerr_t kylin_select_init(void)
 {
     return KYLIN_ERROR_OK;
 }
 
-void select_fini(void)
+void kylin_select_fini(void)
 {
     return;
 }

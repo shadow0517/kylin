@@ -6,22 +6,22 @@ typedef struct {
     uint32_t pending;
 }kevent_poll_t;
 
-kerr_t poll_add(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
+kerr_t kylin_poll_add(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
 {
     return KYLIN_ERROR_OK;
 }
 
-kerr_t poll_del(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
+kerr_t kylin_poll_del(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
 {
     return KYLIN_ERROR_OK;
 }
 
-kerr_t poll_mod(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
+kerr_t kylin_poll_mod(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
 {
     return KYLIN_ERROR_OK;
 }
 
-kerr_t poll_proc(kevent_t *guard, uint64_t timeout)
+kerr_t kylin_poll_proc(kevent_t *guard, uint64_t timeout)
 {
     int             index = 0;
     int             nevents;
@@ -57,17 +57,17 @@ kerr_t poll_proc(kevent_t *guard, uint64_t timeout)
         for(int i = 0; i < ecnt; i++) {
             if(fds[i].revents & POLLIN){
                 if(eopts->action.recv)
-                    eopts->action.recv(fds[i].fd, eopts->data);
+                    eopts->action.recv(fds[i].fd, eopts->priv);
             }
 
             if(fds[i].revents & POLLOUT){
                 if(eopts->action.send)
-                    eopts->action.send(fds[i].fd, eopts->data);
+                    eopts->action.send(fds[i].fd, eopts->priv);
             }
 
             if(fds[i].revents & (POLLERR | POLLHUP | POLLNVAL)){
                 if(eopts->action.error)
-                    eopts->action.error(fds[i].fd, eopts->data);
+                    eopts->action.error(fds[i].fd, eopts->priv);
             }
         }
     }
@@ -77,29 +77,29 @@ kerr_t poll_proc(kevent_t *guard, uint64_t timeout)
     return KYLIN_ERROR_OK;
 }
 
-void *poll_create(void)
+void *kylin_poll_create(void)
 {
     kevent_poll_t *event_poll = NULL;
 
-    event_poll = malloc(sizeof(kevent_epoll_t));
+    event_poll = malloc(sizeof(kevent_poll_t));
     if(!event_poll)
         return NULL;
 
     return event_poll;
 }
 
-void poll_destroy(void *priv)
+void kylin_poll_destroy(void *priv)
 {
     kevent_poll_t *event_poll = (kevent_poll_t *)priv;
     free(event_poll);
 }
 
-kerr_t poll_init(void)
+kerr_t kylin_poll_init(void)
 {
     return KYLIN_ERROR_OK;
 }
 
-void poll_fini(void)
+void kylin_poll_fini(void)
 {
     return;
 }

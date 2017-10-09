@@ -9,7 +9,7 @@ typedef struct {
     struct kevent *events;
 } kevent_kqueue_t;
 
-kerr_t kqueue_add(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
+kerr_t kylin_kqueue_add(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
 {
     int kev_count = 0;
     struct kevent kev[2];
@@ -35,7 +35,7 @@ kerr_t kqueue_add(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
         return errno;
 }
 
-kerr_t kqueue_del(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
+kerr_t kylin_kqueue_del(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
 {
     uint32_t filter = 0;
     struct kevent kev;
@@ -57,7 +57,7 @@ kerr_t kqueue_del(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
         return errno;
 }
 
-kerr_t kqueue_mod(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
+kerr_t kylin_kqueue_mod(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
 {
     kerr_t ret = KYLIN_ERROR_OK;
     kevent_event_t *event = NULL;
@@ -66,14 +66,14 @@ kerr_t kqueue_mod(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
     if(!event)
         return KYLIN_ERROR_NOENT;
 
-    ret = kqueue_del(guard, fd, event->flags);
+    ret = kylin_kqueue_del(guard, fd, event->flags);
     if(ret != KYLIN_ERROR_OK)
         return ret;
 
-    return kqueue_add(guard, fd, flags);
+    return kylin_kqueue_add(guard, fd, flags);
 }
 
-kerr_t kqueue_proc(kevent_t *guard, uint64_t timeout)
+kerr_t kylin_kqueue_proc(kevent_t *guard, uint64_t timeout)
 {
     int             nevents;
     struct timespec ts;
@@ -117,7 +117,7 @@ kerr_t kqueue_proc(kevent_t *guard, uint64_t timeout)
     return KYLIN_ERROR_OK;
 }
 
-void *kqueue_create(void)
+void *kylin_kqueue_create(void)
 {
     kevent_kqueue_t *event_kqueue = NULL;
 
@@ -143,7 +143,7 @@ void *kqueue_create(void)
     return event_kqueue;
 }
 
-void kqueue_destroy(void *priv)
+void kylin_kqueue_destroy(void *priv)
 {
     kevent_kqueue_t *event_kqueue = (kevent_kqueue_t *)priv;
     close(event_kqueue->cfd);
@@ -151,12 +151,12 @@ void kqueue_destroy(void *priv)
     free(event_kqueue);
 }
 
-kerr_t kqueue_init(void)
+kerr_t kylin_kqueue_init(void)
 {
     return KYLIN_ERROR_OK;
 }
 
-void kqueue_fini(void)
+void kylin_kqueue_fini(void)
 {
     return;
 }

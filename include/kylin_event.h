@@ -1,6 +1,9 @@
 #ifndef _KYLIN_EVENT_H_
 #define _KYLIN_EVENT_H_
 
+#include <kylin/include/kylin.h>
+#include <kylin/include/utils/kylin_error.h>
+
 /*
  * 事件驱动模块
  * 系统默认提供select, poll, epoll和kqueue四种事件驱动机制，
@@ -50,7 +53,7 @@ extern void kylin_event_destroy(kevent_t *);
 extern kerr_t kylin_event_add(kevent_t *, kfd_t, kevent_flag_t);
 extern kerr_t kylin_event_del(kevent_t *, kfd_t, kevent_flag_t);
 
-extern kerr_t kylin_event_process(kevent *);
+extern kerr_t kylin_event_process(kevent_t *);
 
 extern void *kylin_event_get_priv_data(kevent_t *);
 extern kevent_opts_t *kylin_event_get_opts(kevent_t *);
@@ -62,7 +65,7 @@ extern kevent_event_t *kylin_event_event_get_by_fd(kevent_t *, kfd_t);
 #define KYLIN_EVENT_EVENT_FOREACH(guard, event)               \
     for(event = kylin_event_event_get_first(guard);           \
             event != NULL;                                    \
-            event = kylin_event_event_get_next(gaurd, event))
+            event = kylin_event_event_get_next(guard, event))
 
 /*
  * 注册事件驱动机制的接口

@@ -21,44 +21,44 @@ kevent_plugin_t eplugin[KEVENT_TYPE_MAX] = {
 #if defined(__linux__)
     {
         .type = KEVENT_TYPE_SELECT, 
-        .ref  = 0;
+        .ref  = 0,
         .reg  = {
-            .add     = select_add,
-            .del     = select_del,
-            .mod     = select_mod,
-            .proc    = select_proc,
-            .create  = select_create,
-            .destroy = select_destroy,
-            .init    = select_init,
-            .fini    = select_fini
+            .add     = kylin_select_add,
+            .del     = kylin_select_del,
+            .mod     = kylin_select_mod,
+            .proc    = kylin_select_proc,
+            .create  = kylin_select_create,
+            .destroy = kylin_select_destroy,
+            .init    = kylin_select_init,
+            .fini    = kylin_select_fini
         }
     },
     {
         .type = KEVENT_TYPE_POLL, 
-        .ref  = 0;
+        .ref  = 0,
         .reg  = {
-            .add     = poll_add,
-            .del     = poll_del,
-            .mod     = poll_mod,
-            .proc    = poll_proc,
-            .create  = poll_create,
-            .destroy = poll_destroy,
-            .init    = poll_init,
-            .fini    = poll_fini
+            .add     = kylin_poll_add,
+            .del     = kylin_poll_del,
+            .mod     = kylin_poll_mod,
+            .proc    = kylin_poll_proc,
+            .create  = kylin_poll_create,
+            .destroy = kylin_poll_destroy,
+            .init    = kylin_poll_init,
+            .fini    = kylin_poll_fini
         }
     },
     {
         .type = KEVENT_TYPE_EPOLL, 
-        .ref  = 0;
+        .ref  = 0,
         .reg  = {
-            .add     = epoll_add,
-            .del     = epoll_del,
-            .mod     = epoll_mod,
-            .proc    = epoll_proc,
-            .create  = epoll_create,
-            .destroy = epoll_destroy,
-            .init    = epoll_init,
-            .fini    = epoll_fini
+            .add     = kylin_epoll_add,
+            .del     = kylin_epoll_del,
+            .mod     = kylin_epoll_mod,
+            .proc    = kylin_epoll_proc,
+            .create  = kylin_epoll_create,
+            .destroy = kylin_epoll_destroy,
+            .init    = kylin_epoll_init,
+            .fini    = kylin_epoll_fini
         }
     },
     {
@@ -76,16 +76,16 @@ kevent_plugin_t eplugin[KEVENT_TYPE_MAX] = {
     },
     {
         .type = KEVENT_TYPE_KQUEUE, 
-        .ref  = 0;
+        .ref  = 0,
         .reg  = {
-            .add     = kqueue_add,
-            .del     = kqueue_del,
-            .mod     = kqueue_mod,
-            .proc    = kqueue_proc,
-            .create  = kqueue_create,
-            .destroy = kqueue_destroy,
-            .init    = kqueue_init,
-            .fini    = kqueue_fini
+            .add     = kylin_kqueue_add,
+            .del     = kylin_kqueue_del,
+            .mod     = kylin_kqueue_mod,
+            .proc    = kylin_kqueue_proc,
+            .create  = kylin_kqueue_create,
+            .destroy = kylin_kqueue_destroy,
+            .init    = kylin_kqueue_init,
+            .fini    = kylin_kqueue_fini
         }
 
     }
