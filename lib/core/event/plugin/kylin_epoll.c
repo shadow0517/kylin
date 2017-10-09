@@ -92,12 +92,12 @@ kerr_t epoll_proc(kevent_t *guard, uint64_t timeout)
     int      nevents;
     kfd_t    fd;
     uint32_t flags;
-    kevent_opts_t  *event_opts  = NULL;
+    kevent_opts_t  *eopts       = NULL;
     kevent_epoll_t *event_epoll = NULL;
 
-    event_opts  = kylin_event_get_opts(guard);
+    eopts       = (kevent_opts_t *)kylin_event_get_opts(guard);
     event_epoll = (kevent_epoll_t *)kylin_event_get_priv_data(guard);
-    if(!event_opts || !event_epoll)
+    if(!eopts || !event_epoll)
         return KYLIN_ERROR_NOENT;
 
     nevents = epoll_wait(event_epoll->cfd, event_epoll->events, event_epoll->maxevents, timeout);
@@ -106,21 +106,21 @@ kerr_t epoll_proc(kevent_t *guard, uint64_t timeout)
         flags = event_epoll->events[i].events;
 
 		if (flags & (EPOLLHUP|EPOLLERR)) {
-			if(event_opts->action.error)
-				event_opts->action.error(fd, event_opts->data);
+			if(eopts->action.error)
+				eopts->action.error(fd, eopts->data);
 		} 
         else {
 			if (flags & EPOLLIN) {
-				if(event_opts->action.recv)
-					event_opts->action.recv(fd, event_opts->data);
+				if(eopts->action.recv)
+					eopts->action.recv(fd, eopts->data);
 			}
 			if (flags & EPOLLOUT) {
-				if(event_opts->action.send)
-                	event_opts->action.send(fd, event_opts->data);
+				if(eopts->action.send)
+                	eopts->action.send(fd, eopts->data);
 			}
 			if (flags & EPOLLRDHUP) {
-				if(event_opts->action.error)
-					event_opts->action.error(fd, event_opts->data);
+				if(eopts->action.error)
+					eopts->action.error(fd, eopts->data);
 			}
 		}
     }

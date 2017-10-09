@@ -77,12 +77,12 @@ kerr_t kqueue_proc(kevent_t *guard, uint64_t timeout)
 {
     int             nevents;
     struct timespec ts;
-    kevent_opts_t   *event_opts  = NULL;
+    kevent_opts_t   *eopts        = NULL;
     kevent_kqueue_t *event_kqueue = NULL;
 
-    event_opts  = kylin_event_get_opts(guard);
+    eopts        = (kevent_opts_t *)kylin_event_get_opts(guard);
     event_kqueue = (kevent_kqueue_t *)kylin_event_get_priv_data(guard);
-    if(!event_opts || !event_kqueue)
+    if(!eopts || !event_kqueue)
         return KYLIN_ERROR_NOENT;
 
     ts.tv_sec = timeout;
@@ -93,23 +93,24 @@ kerr_t kqueue_proc(kevent_t *guard, uint64_t timeout)
     for(int i = 0; i < nevents; i++) {
         if(event_kqueue->events[i].filter == EVFILT_READ) {
             if( event_kqueue->events[i].flags & EV_EOF || event_kqueue->events[i].flags & EV_ERROR) {
-                if(event_opts->action.error)
-                    event_opts->action.error(event_kqueue->events[i].ident, event_opts->data);
+                if(eopts->action.error)
+                    eopts->action.error(event_kqueue->events[i].ident, eopts->data);
             }
-            else if(event_opts->action.recv) {
-                event_opts->action.recv(event_kqueue->events[i].ident, event_opts->data);
+            else if(eopts->action.recv) {
+                eopts->action.recv(event_kqueue->events[i].ident, eopts->data);
             }
         }
         else if(event_kqueue->events[i].filter == EVFILT_WRITE) {
             if( event_kqueue->events[i].flags & EV_EOF || event_kqueue->events[i].flags & EV_ERROR) {
-                if(event_opts->action.error)
-                    event_opts->action.error(event_kqueue->events[i].ident, event_opts->data);
+                if(eopts->action.error)
+                    eopts->action.error(event_kqueue->events[i].ident, eopts->data);
             }
-            else if(event_opts->action.send)
-                event_opts->action.send(event_kqueue->events[i].ident, event_opts->data);
+            else if(eopts->action.send)
+                eopts->action.send(event_kqueue->events[i].ident, eopts->data);
         }
         else if(event_kqueue->events[i].filter == EVFILT_TIMER) {
-            event_opts->action.timeout(event_kqueue->events[i].ident, event_opts->data);
+            if(eopts->action.timeout)
+                eopts->action.timeout(event_kqueue->events[i].ident, eopts->data);
         }
     }
 

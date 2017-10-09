@@ -147,12 +147,12 @@ kerr_t select_proc(kevent_t *guard, uint64_t timeout)
     int max_fd;
     struct timeval time;
     void            *val          = NULL;
-    kevent_opts_t   *event_opts   = NULL;
+    kevent_opts_t   *eopts        = NULL;
     kevent_select_t *event_select = NULL;
 
-    event_opts   = (kevent_opts_t *)kylin_event_get_opts(guard);
+    eopts        = (kevent_opts_t *)kylin_event_get_opts(guard);
     event_select = (kevent_select_t *)kylin_event_get_priv_data(guard);
-    if(!event_opts && !event_select)
+    if(!eopts && !event_select)
         return KYLIN_ERROR_NOENT;
 
     max_fd = KYLIN_MAX(KYIN_MAX(*(kfd_t *)kylin_set_last(event_select->fd_set[0]),
@@ -168,18 +168,18 @@ kerr_t select_proc(kevent_t *guard, uint64_t timeout)
                 event_select->exsets, &tv)) {
 
         KYLIN_SET_FOREACH(event_select->fd_set[0], val) {
-            if(FD_ISSET(*(kfd_t *)val, event_select->rdsets) && event_opts->action.recv)
-                event_opts->action.recv(*(kfd_t *)val, event_opts->data);
+            if(FD_ISSET(*(kfd_t *)val, event_select->rdsets) && eopts->action.recv)
+                eopts->action.recv(*(kfd_t *)val, eopts->data);
         }
 
         KYLIN_SET_FOREACH(event_select->fd_set[1], val) {
-            if(FD_ISSET(*(kfd_t *)val, event_select->wtsets) && event_opts->action.send)
-                event_opts->action.send(*(kfd_t *)val, event_opts->data);
+            if(FD_ISSET(*(kfd_t *)val, event_select->wtsets) && eopts->action.send)
+                eopts->action.send(*(kfd_t *)val, eopts->data);
         }
 
         KYLIN_SET_FOREACH(event_select->fd_set[2], val) {
-            if(FD_ISSET(*(kfd_t *)val, event_select->exsets) && event_opts->action.error)
-                event_opts->action.error(*(kfd_t *)val, event_opts->data);
+            if(FD_ISSET(*(kfd_t *)val, event_select->exsets) && eopts->action.error)
+                eopts->action.error(*(kfd_t *)val, eopts->data);
         }
     }
 

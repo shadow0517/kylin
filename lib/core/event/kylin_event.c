@@ -173,6 +173,11 @@ kevent_opts_t *kylin_event_get_opts(kevent_t *guard)
     return &guard->opts;
 }
 
+uint32_t kylin_event_event_count(kevent_t *guard)
+{
+    return kylin_set_count(guard->events);
+}
+
 kevent_event_t *kylin_event_event_get_first(kevent_t *guard)
 {
     return (kevent_event_t *)kylin_set_first(guard->events);

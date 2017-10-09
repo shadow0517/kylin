@@ -54,6 +54,7 @@ extern kerr_t kylin_event_process(kevent *);
 
 extern void *kylin_event_get_priv_data(kevent_t *);
 extern kevent_opts_t *kylin_event_get_opts(kevent_t *);
+extern uint32_t kylin_event_event_count(kevent_t *);
 extern kevent_event_t *kylin_event_event_get_first(kevent_t *);
 extern kevent_event_t *kylin_event_event_get_next(kevent_t *, kevent_event_t *);
 extern kevent_event_t *kylin_event_event_get_by_fd(kevent_t *, kfd_t);
