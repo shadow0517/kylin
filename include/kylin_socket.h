@@ -16,7 +16,7 @@ typedef enum {
     KYLIN_SOCK_CLIENT_UDP   = 0x11,
     KYLIN_SOCK_CLIENT_UNIX  = 0x12,
     KYLIN_SOCK_CLIENT_MAX   = 0x1F, /*允许注册最多15个client套接字类型*/
-    KSOCK_TYPE_MAX          = 0x20
+    KYLIN_SOCK_MAX          = 0x20
 } ksock_type_t;
 
 typedef struct {
@@ -45,21 +45,21 @@ extern void kylin_socket_destroy(ksock_t *);
 extern kerr_t kylin_socket_accept(ksock_t *);
 extern kerr_t kylin_socket_connect(ksock_t *);
 
-extern size_t kylin_socket_recv(ksock_t *, void *, size_t);
-extern size_t kylin_socket_send(ksock_t *, const void *, size_t);
+extern ssize_t kylin_socket_recv(ksock_t *, void *, size_t);
+extern ssize_t kylin_socket_send(ksock_t *, const void *, size_t);
 
 extern void *kylin_socket_get_priv(ksock_t *);
 extern ksock_opts_t *kylin_socket_get_opts(ksock_t *);
 
 typedef struct {
-    int (*create)(ksock_t *);
-    int (*destroy)(ksock_t *);
+    void *(*create)(ksock_t *);
+    void  (*destroy)(void *);
 
-    int (*connect)(ksock_t *); /*client*/
-    int (*accept)(ksock_t *);  /*server*/
+    kerr_t (*connect)(ksock_t *); /*client*/
+    kerr_t (*accept)(ksock_t *);  /*server*/
 
-    ssize_t (*recv)(ksock_t *, void *buff, size_t len);
-    ssize_t (*send)(ksock_t *, void *buff, size_t len);
+    ssize_t (*recv)(ksock_t *, void *, size_t);
+    ssize_t (*send)(ksock_t *, const void *, size_t);
 
     kerr_t (*init)(void);
     void (*fini)(void);

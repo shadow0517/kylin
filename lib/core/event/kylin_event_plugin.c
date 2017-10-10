@@ -92,7 +92,7 @@ kevent_plugin_t eplugin[KEVENT_TYPE_MAX] = {
 #endif /*__SYS_LINUX__*/
 };
 
-kerr_t kylin_event_register(const kevent_type_t type, const kevent_reg_t *reg)
+kerr_t kylin_event_register(kevent_type_t type, const kevent_reg_t *reg)
 {
     kerr_t ret = KYLIN_ERROR_OK;
 
@@ -115,7 +115,7 @@ kerr_t kylin_event_register(const kevent_type_t type, const kevent_reg_t *reg)
     return KYLIN_ERROR_OK;
 }
 
-kerr_t kylin_event_unregister(const kevent_type_t type)
+kerr_t kylin_event_unregister(kevent_type_t type)
 {
     if(eplugin[type].type == KEVENT_TYPE_MAX)
         return KYLIN_ERROR_NOENT;

@@ -84,7 +84,7 @@ typedef struct {
     void   (*fini)(void);
 } kevent_reg_t;
 
-extern kerr_t kylin_event_register(const kevent_type_t, const kevent_reg_t *);
-extern kerr_t kylin_event_unregister(const kevent_type_t);
+extern kerr_t kylin_event_register(kevent_type_t, const kevent_reg_t *);
+extern kerr_t kylin_event_unregister(kevent_type_t);
 
 #endif /*_KYLIN_EVENT_H_*/
