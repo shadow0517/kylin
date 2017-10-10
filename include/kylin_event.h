@@ -38,7 +38,7 @@ typedef struct {
  * 使用事件驱动机制的接口
  */
 typedef struct {
-    void               *priv;
+    void *priv;
     struct {
         void (*recv)(kfd_t, void *);
         void (*send)(kfd_t, void *);
