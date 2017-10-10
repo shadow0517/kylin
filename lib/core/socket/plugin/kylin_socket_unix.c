@@ -13,7 +13,7 @@ void *unix_create(ksock_t *guard)
 
 }
 
-void  unix_destroy(void *priv)
+void unix_destroy(void *priv)
 {
 
 }
@@ -23,7 +23,7 @@ kerr_t unix_connect(ksock_t *guard)
 
 }
 
-kerr_t unix_accept(ksock_t *guard)
+ksock_conn_t *unix_accept(ksock_t *guard)
 {
 
 }

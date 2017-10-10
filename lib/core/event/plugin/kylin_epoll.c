@@ -158,9 +158,14 @@ void *kylin_epoll_create(void)
 void kylin_epoll_destroy(void *priv)
 {
     kevent_epoll_t *event_epoll = (kevent_epoll_t *)priv;
-    close(event_epoll->cfd);
-    free(event_epoll->events);
-    free(event_epoll);
+
+    if(event_epoll) {
+        close(event_epoll->cfd);
+        free(event_epoll->events);
+        free(event_epoll);
+    }
+
+    return;
 }
 
 kerr_t kylin_epoll_init(void)

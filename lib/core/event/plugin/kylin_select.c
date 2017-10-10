@@ -249,10 +249,14 @@ void kylin_select_destroy(void *priv)
 {
     kevent_select_t *event_select = (kevent_select_t *)priv;
 
-    for(int i = SELECT_FDSET_TYPE_NUM - 1; i >= 0; i--) 
-        kylin_set_destroy(event_select->fd_set[i]);
+    if(event_select) {
+        for(int i = SELECT_FDSET_TYPE_NUM - 1; i >= 0; i--) 
+            kylin_set_destroy(event_select->fd_set[i]);
 
-    free(event_select);
+        free(event_select);
+    }
+
+    return;
 }
 
 kerr_t kylin_select_init(void)

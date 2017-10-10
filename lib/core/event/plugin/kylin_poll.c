@@ -91,7 +91,12 @@ void *kylin_poll_create(void)
 void kylin_poll_destroy(void *priv)
 {
     kevent_poll_t *event_poll = (kevent_poll_t *)priv;
-    free(event_poll);
+
+    if(event_poll) {
+        free(event_poll);
+    }
+
+    return;
 }
 
 kerr_t kylin_poll_init(void)

@@ -5,16 +5,16 @@
 #include <kylin/include/kylin_socket.h>
 #include <kylin/include/utils/kylin_error.h>
 
-void *udp_create(ksock_t *);
-void  udp_destroy(void *);
+extern void *udp_create(ksock_t *);
+extern void  udp_destroy(void *);
 
-kerr_t udp_connect(ksock_t *); /*client*/
-kerr_t udp_accept(ksock_t *);  /*server*/
+extern kerr_t        udp_connect(ksock_t *); /*client*/
+extern ksock_conn_t *udp_accept(ksock_t *);  /*server*/
 
-ssize_t udp_recv(ksock_t *, void *, size_t);
-ssize_t udp_send(ksock_t *, const void *, size_t);
+extern ssize_t udp_recv(ksock_t *, void *, size_t);
+extern ssize_t udp_send(ksock_t *, const void *, size_t);
 
-kerr_t udp_init(void);
-void udp_fini(void);
+extern kerr_t udp_init(void);
+extern void   udp_fini(void);
 
 #endif /*_KYLIN_CORE_SOCKET_PLUGIN_UDP_H_*/

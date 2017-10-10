@@ -5,7 +5,9 @@
 #include <kylin/include/utils/kylin_error.h>
 
 struct kylin_socket;
-typedef struct kylin_socket ksock_t;
+struct kylin_socket_connection;
+typedef struct kylin_socket            ksock_t;
+typedef struct kylin_socket_connection ksock_conn_t;
 
 typedef enum {
     KYLIN_SOCK_SERVER_TCP   = 0x00,
@@ -30,10 +32,10 @@ typedef struct {
 typedef struct {
     union {
         struct {
-            ksock_addr_t addr;
+            int          backlog;
+            ksock_addr_t local;
         } server;
         struct {
-            ksock_addr_t local;
             ksock_addr_t remote;
         } client;
     } config;
@@ -42,13 +44,27 @@ typedef struct {
 extern ksock_t *kylin_socket_create(ksock_type_t, const ksock_opts_t *);
 extern void kylin_socket_destroy(ksock_t *);
 
-extern kerr_t kylin_socket_accept(ksock_t *);
+extern ksock_conn_t *kylin_socket_accept(ksock_t *);
+
+extern kfd_t kylin_socket_connection_get_fd(ksock_conn_t *);
+extern ksock_addr_t *kylin_socket_connection_get_server(ksock_conn_t *);
+extern ksock_addr_t *kylin_socket_connection_get_client(ksock_conn_t *);
+extern ksock_conn_t *kylin_socket_connection_get_first(ksock_t *);
+extern ksock_conn_t *kylin_socket_connection_get_next(ksock_t *, ksock_conn_t *);
+extern void kylin_socket_connection_destroy(ksock_t *, ksock_conn_t *);
+
+#define KYLIN_SOCKET_CONNECTION_FOREACH(guard, conn)              \
+    for(conn = kylin_socket_connection_get_first(guard);          \
+            conn != NULL;                                         \
+            conn = kylin_socket_connection_get_next(guard, conn))
+
 extern kerr_t kylin_socket_connect(ksock_t *);
 
-extern ssize_t kylin_socket_recv(ksock_t *, void *, size_t);
-extern ssize_t kylin_socket_send(ksock_t *, const void *, size_t);
+extern ssize_t kylin_socket_recv(ksock_t *, kfd_t, void *, size_t);
+extern ssize_t kylin_socket_send(ksock_t *, kfd_t, const void *, size_t);
 
 extern void *kylin_socket_get_priv(ksock_t *);
+extern ksock_type_t kylin_socket_get_type(ksock_t *); 
 extern ksock_opts_t *kylin_socket_get_opts(ksock_t *);
 
 typedef struct {
@@ -56,10 +72,10 @@ typedef struct {
     void  (*destroy)(void *);
 
     kerr_t (*connect)(ksock_t *); /*client*/
-    kerr_t (*accept)(ksock_t *);  /*server*/
+    ksock_conn_t *(*accept)(ksock_t *);  /*server*/
 
-    ssize_t (*recv)(ksock_t *, void *, size_t);
-    ssize_t (*send)(ksock_t *, const void *, size_t);
+    ssize_t (*recv)(ksock_t *, kfd_t, void *, size_t);
+    ssize_t (*send)(ksock_t *, kfd_t, const void *, size_t);
 
     kerr_t (*init)(void);
     void (*fini)(void);

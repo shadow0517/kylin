@@ -13,7 +13,7 @@ void *udp_create(ksock_t *guard)
 
 }
 
-void  udp_destroy(void *priv)
+void udp_destroy(void *priv)
 {
 
 }
@@ -23,7 +23,7 @@ kerr_t udp_connect(ksock_t *guard)
 
 }
 
-kerr_t udp_accept(ksock_t *guard)
+ksock_conn_t *udp_accept(ksock_t *guard)
 {
 
 }

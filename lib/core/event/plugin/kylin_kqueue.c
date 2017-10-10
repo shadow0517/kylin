@@ -146,9 +146,14 @@ void *kylin_kqueue_create(void)
 void kylin_kqueue_destroy(void *priv)
 {
     kevent_kqueue_t *event_kqueue = (kevent_kqueue_t *)priv;
-    close(event_kqueue->cfd);
-    free(event_kqueue->events);
-    free(event_kqueue);
+
+    if(event_kqueue) {
+        close(event_kqueue->cfd);
+        free(event_kqueue->events);
+        free(event_kqueue);
+    }
+
+    return;
 }
 
 kerr_t kylin_kqueue_init(void)
