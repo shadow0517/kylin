@@ -5,9 +5,7 @@
 #include <kylin/include/utils/kylin_error.h>
 
 struct kylin_socket;
-struct kylin_socket_connection;
 typedef struct kylin_socket            ksock_t;
-typedef struct kylin_socket_connection ksock_conn_t;
 
 typedef enum {
     KYLIN_SOCK_SERVER_TCP   = 0x00,
@@ -29,6 +27,13 @@ typedef struct {
     } addr;
 } ksock_addr_t;
 
+/*对于流类型的套接字，该结构表示一个连接*/
+typedef struct {
+    kfd_t        fd;
+    ksock_addr_t server; 
+    ksock_addr_t client;  
+} ksock_conn_t;
+
 typedef struct {
     union {
         struct {
@@ -46,17 +51,7 @@ extern void kylin_socket_destroy(ksock_t *);
 
 extern ksock_conn_t *kylin_socket_accept(ksock_t *);
 
-extern kfd_t kylin_socket_connection_get_fd(ksock_conn_t *);
-extern ksock_addr_t *kylin_socket_connection_get_server(ksock_conn_t *);
-extern ksock_addr_t *kylin_socket_connection_get_client(ksock_conn_t *);
-extern ksock_conn_t *kylin_socket_connection_get_first(ksock_t *);
-extern ksock_conn_t *kylin_socket_connection_get_next(ksock_t *, ksock_conn_t *);
 extern void kylin_socket_connection_destroy(ksock_t *, ksock_conn_t *);
-
-#define KYLIN_SOCKET_CONNECTION_FOREACH(guard, conn)              \
-    for(conn = kylin_socket_connection_get_first(guard);          \
-            conn != NULL;                                         \
-            conn = kylin_socket_connection_get_next(guard, conn))
 
 extern kerr_t kylin_socket_connect(ksock_t *);
 
@@ -76,6 +71,12 @@ typedef struct {
 
     ssize_t (*recv)(ksock_t *, kfd_t, void *, size_t);
     ssize_t (*send)(ksock_t *, kfd_t, const void *, size_t);
+
+    /*connection api*/
+    uint32_t (*conn_count)(ksock_t *);
+    ksock_conn_t *(*conn_get_first)(ksock_t *);
+    ksock_conn_t *(*conn_get_next)(ksock_t *, ksock_conn_t *);
+    void (*conn_destroy)(ksock_t *, ksock_conn_t *);
 
     kerr_t (*init)(void);
     void (*fini)(void);

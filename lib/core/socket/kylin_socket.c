@@ -3,18 +3,11 @@
 
 #include <kylin/lib/core/socket/kylin_socket_plugin.h>
 
-struct kylin_socket_connection {
-    kfd_t        fd;
-    ksock_addr_t server; 
-    ksock_addr_t client;  
-};
-
 struct kylin_socket {
     uint32_t     id;
     ksock_type_t type;
     ksock_opts_t opts
     void        *priv;  /*每个套接字的私有数据，由create生成，destroy销毁*/
-    klist_t     *conns; /*对于流类型套接字，该字段存储所有的连接*/
 };
 
 static uint32_t      sid = 0;
@@ -73,40 +66,24 @@ void kylin_socket_destroy(ksock_t *guard)
 
 ksock_conn_t *kylin_socket_accept(ksock_t *guard)
 {
+    ksock_conn_t *conn = NULL;
+
     if(splugin[guard->type].type == KYLIN_SOCK_MAX)
-        return KYLIN_ERROR_NOENT;
+        return NULL;
 
-    return splugin[guard->type].reg.accept(guard);
-}
+    conn = splugin[guard->type].reg.accept(guard);
+    if(!conn)
+        return NULL;
 
-kfd_t kylin_socket_connection_get_fd(ksock_conn_t *conn)
-{
-
-}
-
-ksock_addr_t *kylin_socket_connection_get_server(ksock_conn_t *conn)
-{
-
-}
-
-ksock_addr_t *kylin_socket_connection_get_client(ksock_conn_t *conn)
-{
-
-}
-
-ksock_conn_t *kylin_socket_connection_get_first(ksock_t *guard)
-{
-
-}
-
-ksock_conn_t *kylin_socket_connection_get_next(ksock_t *guard, ksock_conn_t *conn)
-{
-
+    return conn;
 }
 
 void kylin_socket_connection_destroy(ksock_t *guard, ksock_conn_t *conn)
 {
+    if(splugin[guard->type].type == KYLIN_SOCK_MAX)
+        return;
 
+    splugin[guard->type].reg.conn_destroy(guard, conn);
 }
 
 kerr_t kylin_socket_connect(ksock_t *guard)
@@ -117,20 +94,20 @@ kerr_t kylin_socket_connect(ksock_t *guard)
     return splugin[guard->type].reg.connect(guard);
 }
 
-ssize_t kylin_socket_recv(ksock_t *guard, void *buf, size_t len)
+ssize_t kylin_socket_recv(ksock_t *guard, kfd_t fd, void *buf, size_t len)
 {
     if(splugin[guard->type].type == KYLIN_SOCK_MAX)
         return KYLIN_ERROR_NOENT;
 
-    return splugin[guard->type].reg.recv(guard, buf, len);
+    return splugin[guard->type].reg.recv(guard, fd, buf, len);
 }
 
-ssize_t kylin_socket_send(ksock_t *guard, const void *buf, size_t len)
+ssize_t kylin_socket_send(ksock_t *guard, kfd_t fd, const void *buf, size_t len)
 {
     if(splugin[guard->type].type == KYLIN_SOCK_MAX)
         return KYLIN_ERROR_NOENT;
 
-    return splugin[guard->type].reg.send(guard, buf, len);
+    return splugin[guard->type].reg.send(guard, fd, buf, len);
 }
 
 void *kylin_socket_get_priv(ksock_t *guard)

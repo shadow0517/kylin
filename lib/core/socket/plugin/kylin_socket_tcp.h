@@ -11,10 +11,15 @@ extern void  tcp_destroy(void *);
 extern kerr_t tcp_connect(ksock_t *); /*client*/
 extern ksock_conn_t *tcp_accept(ksock_t *);  /*server*/
 
-ssize_t tcp_recv(kfd_t, void *, size_t);
-ssize_t tcp_send(kfd_t, const void *, size_t);
+extern ssize_t tcp_recv(ksock_t *, kfd_t, void *, size_t);
+extern ssize_t tcp_send(ksock_t *, kfd_t, const void *, size_t);
 
-kerr_t tcp_init(void);
-void tcp_fini(void);
+extern uint32_t tcp_conn_count(ksock_t *);
+extern ksock_conn_t *tcp_conn_get_first(ksock_t *);
+extern ksock_conn_t *tcp_conn_get_next(ksock_t *, ksock_conn_t *);
+extern void tcp_conn_destroy(ksock_t *, ksock_conn_t *);
+
+extern kerr_t tcp_init(void);
+extern void tcp_fini(void);
 
 #endif /*_KYLIN_CORE_SOCKET_PLUGIN_TCP_H_*/
