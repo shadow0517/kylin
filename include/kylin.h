@@ -73,9 +73,6 @@ typedef int kaddr_t;
 /*字类型*/
 typedef unsigned long kword_t;
 
-/*套接字类型 */
-typedef int ksock_t;
-
 /*文件描述符类型*/
 typedef int kfd_t;
 

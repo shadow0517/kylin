@@ -34,14 +34,12 @@ void *tcp_create(ksock_t *guard)
     ksock_type_t  type;
 
     type = kylin_socket_get_type(guard);
-    if(type != KYLIN_SOCK_SERVER_TCP ||
+    if(type != KYLIN_SOCK_SERVER_TCP &&
             type != KYLIN_SOCK_CLIENT_TCP)
         return NULL;
 
     opts = kylin_socket_get_opts(guard);
-    if(!opts || 
-            !opts->config.server.addr.len ||
-            !opts->config.server.backlog) 
+    if(!opts) 
         return NULL;
 
     sock_tcp = malloc(sizeof(ksock_tcp_t));
@@ -56,8 +54,8 @@ void *tcp_create(ksock_t *guard)
 
     if(type == KYLIN_SOCK_SERVER_TCP) { /*server socket*/
         if(bind(sock_tcp->fd, 
-                    (struct sockaddr *)&opts->config.server.addr.addr.in, 
-                    opts->config.server.addr.len) != 0) {
+                    (struct sockaddr *)&opts->config.server.local.addr.in, 
+                    opts->config.server.local.len) != 0) {
             close(sock_tcp->fd);
             free(sock_tcp);
             return NULL;
@@ -68,13 +66,13 @@ void *tcp_create(ksock_t *guard)
             free(sock_tcp);
             return NULL;
         }
-    }
 
-    sock_tcp->conns = kylin_list_create(&conns_opts);
-    if(!sock_tcp->conns) {
-        close(sock_tcp->fd);
-        free(sock_tcp);
-        return NULL;
+        sock_tcp->conns = kylin_list_create(&conns_opts);
+        if(!sock_tcp->conns) {
+            close(sock_tcp->fd);
+            free(sock_tcp);
+            return NULL;
+        }
     }
 
     return sock_tcp;
@@ -106,7 +104,7 @@ kerr_t tcp_connect(ksock_t *guard)
         return KYLIN_ERROR_INVAL;
 
     opts = kylin_socket_get_opts(guard);
-    if(!opts || !opts->config.client.remote.len) 
+    if(!opts || !opts->config.server.local.len) 
         return KYLIN_ERROR_NOENT;
 
     sock_tcp = (ksock_tcp_t *)kylin_socket_get_priv(guard);
@@ -114,8 +112,8 @@ kerr_t tcp_connect(ksock_t *guard)
         return KYLIN_ERROR_IO;
 
     if(connect(sock_tcp->fd, 
-            (struct sockaddr *)&opts->config.client.remote.addr.in, 
-            opts->config.client.remote.len) != 0)
+            (struct sockaddr *)&opts->config.server.local.addr.in, 
+            opts->config.server.local.len) != 0)
         return errno;
 
     return KYLIN_ERROR_OK;
@@ -154,7 +152,7 @@ ksock_conn_t *tcp_accept(ksock_t *guard)
 
     conn->fd         = fd;
     conn->client.len = len;
-    memcpy(&conn->clinet.addr.in, &client, sizeof(struct sockaddr_in));
+    memcpy(&conn->client.addr.in, &client, sizeof(struct sockaddr_in));
     memcpy(&conn->server, &opts->config.server.local, sizeof(ksock_addr_t));
 
     if(kylin_list_insert_head(sock_tcp->conns, conn) != KYLIN_ERROR_OK) {
@@ -189,31 +187,50 @@ uint32_t tcp_conn_count(ksock_t *guard)
 
 ksock_conn_t *tcp_conn_get_first(ksock_t *guard)
 {
-    ksock_tcp_t *sock_tcp = NULL;
+    klist_node_t *node     = NULL;
+    ksock_tcp_t  *sock_tcp = NULL;
 
     sock_tcp = (ksock_tcp_t *)kylin_socket_get_priv(guard);
     if(!sock_tcp || !sock_tcp->conns)
         return NULL;
 
-    return (ksock_conn_t *)kylin_list_first(sock_tcp->conns);
+    node = kylin_list_first(sock_tcp->conns);
+    if(!node)
+        return NULL;
+
+    return (ksock_conn_t *)kylin_list_val(sock_tcp->conns, node);
 }
 
 ksock_conn_t *tcp_conn_get_next(ksock_t *guard, ksock_conn_t *conn)
 {
-    ksock_tcp_t *sock_tcp = NULL;
+    klist_node_t *node     = NULL;
+    ksock_tcp_t  *sock_tcp = NULL;
 
     sock_tcp = (ksock_tcp_t *)kylin_socket_get_priv(guard);
     if(!sock_tcp || !sock_tcp->conns)
         return NULL;
 
-    return (ksock_conn_t *)kylin_list_next(sock_tcp->conns, conn);
+    node = kylin_list_find(sock_tcp->conns, conn);
+    if(!node)
+        return NULL;
+
+    node = kylin_list_next(sock_tcp->conns, node);
+    if(!node)
+        return NULL;
+
+    return (ksock_conn_t *)kylin_list_val(sock_tcp->conns, node);
 }
 
 void tcp_conn_destroy(ksock_t *guard, ksock_conn_t *conn)
 {
     klist_node_t *node = NULL;
+    ksock_tcp_t *sock_tcp = NULL;
 
-    node = kylin_list_unlink(guard, conn);
+    sock_tcp = (ksock_tcp_t *)kylin_socket_get_priv(guard);
+    if(!sock_tcp || !sock_tcp->conns)
+        return;
+
+    node = kylin_list_unlink(sock_tcp->conns, conn);
     if(!node)
         return;
 

@@ -5,7 +5,7 @@
 #include <kylin/include/utils/kylin_error.h>
 
 struct kylin_socket;
-typedef struct kylin_socket            ksock_t;
+typedef struct kylin_socket ksock_t;
 
 typedef enum {
     KYLIN_SOCK_SERVER_TCP   = 0x00,
@@ -35,6 +35,7 @@ typedef struct {
 } ksock_conn_t;
 
 typedef struct {
+    int type; /*SOCK_STREAM, SOCK_DGRAM and so on*/
     union {
         struct {
             int          backlog;
@@ -69,6 +70,7 @@ typedef struct {
     kerr_t (*connect)(ksock_t *); /*client*/
     ksock_conn_t *(*accept)(ksock_t *);  /*server*/
 
+    /*TODO:对于数据报套接字，调用这两个函数会造成数据错乱*/
     ssize_t (*recv)(ksock_t *, kfd_t, void *, size_t);
     ssize_t (*send)(ksock_t *, kfd_t, const void *, size_t);
 

@@ -14,7 +14,7 @@ typedef struct {
 /*
  * 全局的套接字模块
  */
-extern ksock_plugin_t splugin[KSOCK_TYPE_MAX]; 
+extern ksock_plugin_t splugin[KYLIN_SOCK_MAX]; 
 
 extern kerr_t kylin_socket_plugin_init(void);
 extern void kylin_socket_plugin_fini(void);

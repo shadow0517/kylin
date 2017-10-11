@@ -8,11 +8,8 @@
 extern void *udp_create(ksock_t *);
 extern void  udp_destroy(void *);
 
-extern kerr_t        udp_connect(ksock_t *); /*client*/
-extern ksock_conn_t *udp_accept(ksock_t *);  /*server*/
-
-extern ssize_t udp_recv(ksock_t *, void *, size_t);
-extern ssize_t udp_send(ksock_t *, const void *, size_t);
+extern ssize_t udp_recv(ksock_t *, kfd_t, void *, size_t);
+extern ssize_t udp_send(ksock_t *, kfd_t, const void *, size_t);
 
 extern kerr_t udp_init(void);
 extern void   udp_fini(void);

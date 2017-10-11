@@ -1,12 +1,15 @@
 #include <kylin/include/kylin.h>
 #include <kylin/include/kylin_socket.h>
+#include <kylin/include/math/kylin_list.h>
+#include <kylin/include/utils/kylin_error.h>
 
+#include <kylin/lib/core/socket/kylin_socket.h>
 #include <kylin/lib/core/socket/kylin_socket_plugin.h>
 
 struct kylin_socket {
     uint32_t     id;
     ksock_type_t type;
-    ksock_opts_t opts
+    ksock_opts_t opts;
     void        *priv;  /*每个套接字的私有数据，由create生成，destroy销毁*/
 };
 
@@ -24,12 +27,12 @@ ksock_t *kylin_socket_create(ksock_type_t type, const ksock_opts_t *opts)
     if(!guard)
         return NULL;
 
-    guard->id   = eid++;
+    guard->id   = sid++;
     guard->type = type;
     memcpy(&guard->opts, opts, sizeof(ksock_opts_t));
 
     if(splugin[type].reg.create) {
-        guard->priv = eplugin[type].reg.create(guard); 
+        guard->priv = splugin[type].reg.create(guard); 
         if(!guard->priv) {
             free(guard);
             return NULL;
@@ -71,9 +74,11 @@ ksock_conn_t *kylin_socket_accept(ksock_t *guard)
     if(splugin[guard->type].type == KYLIN_SOCK_MAX)
         return NULL;
 
-    conn = splugin[guard->type].reg.accept(guard);
-    if(!conn)
-        return NULL;
+    if(splugin[guard->type].reg.accept) {
+        conn = splugin[guard->type].reg.accept(guard);
+        if(!conn)
+            return NULL;
+    }
 
     return conn;
 }
@@ -83,7 +88,8 @@ void kylin_socket_connection_destroy(ksock_t *guard, ksock_conn_t *conn)
     if(splugin[guard->type].type == KYLIN_SOCK_MAX)
         return;
 
-    splugin[guard->type].reg.conn_destroy(guard, conn);
+    if(splugin[guard->type].reg.conn_destroy)
+        splugin[guard->type].reg.conn_destroy(guard, conn);
 }
 
 kerr_t kylin_socket_connect(ksock_t *guard)
@@ -91,7 +97,10 @@ kerr_t kylin_socket_connect(ksock_t *guard)
     if(splugin[guard->type].type == KYLIN_SOCK_MAX)
         return KYLIN_ERROR_NOENT;
 
-    return splugin[guard->type].reg.connect(guard);
+    if(splugin[guard->type].reg.connect)
+        return splugin[guard->type].reg.connect(guard);
+
+    return KYLIN_ERROR_FAULT;
 }
 
 ssize_t kylin_socket_recv(ksock_t *guard, kfd_t fd, void *buf, size_t len)
@@ -99,7 +108,10 @@ ssize_t kylin_socket_recv(ksock_t *guard, kfd_t fd, void *buf, size_t len)
     if(splugin[guard->type].type == KYLIN_SOCK_MAX)
         return KYLIN_ERROR_NOENT;
 
-    return splugin[guard->type].reg.recv(guard, fd, buf, len);
+    if(splugin[guard->type].reg.recv)
+        return splugin[guard->type].reg.recv(guard, fd, buf, len);
+
+    return KYLIN_ERROR_FAULT;
 }
 
 ssize_t kylin_socket_send(ksock_t *guard, kfd_t fd, const void *buf, size_t len)
@@ -107,7 +119,10 @@ ssize_t kylin_socket_send(ksock_t *guard, kfd_t fd, const void *buf, size_t len)
     if(splugin[guard->type].type == KYLIN_SOCK_MAX)
         return KYLIN_ERROR_NOENT;
 
-    return splugin[guard->type].reg.send(guard, fd, buf, len);
+    if(splugin[guard->type].reg.send)
+        return splugin[guard->type].reg.send(guard, fd, buf, len);
+
+    return KYLIN_ERROR_FAULT;
 }
 
 void *kylin_socket_get_priv(ksock_t *guard)
@@ -123,6 +138,18 @@ ksock_type_t kylin_socket_get_type(ksock_t *guard)
 ksock_opts_t *kylin_socket_get_opts(ksock_t *guard)
 {
     return &guard->opts;
+}
+
+static int __slist_match(const void *val, const void *key)
+{
+    const ksock_t *guard = val;
+    const ksock_t *cmp   = key;
+
+    if(guard->id > cmp->id)
+        return 1;
+    if(guard->id < cmp->id)
+        return -1;
+    return 0;
 }
 
 kerr_t kylin_socket_init(void)
