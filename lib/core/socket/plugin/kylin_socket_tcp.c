@@ -29,6 +29,7 @@ static klist_opts_t conns_opts = {
 
 void *tcp_create(ksock_t *guard)
 {
+    int set = 1;
     ksock_tcp_t  *sock_tcp = NULL;
     ksock_opts_t *opts = NULL;
     ksock_type_t  type;
@@ -51,6 +52,18 @@ void *tcp_create(ksock_t *guard)
         free(sock_tcp);
         return NULL;
     }
+
+    setsockopt(sock_tcp->fd, SOL_SOCKET, SO_REUSEADDR, (const void *)&set, sizeof(int));
+    setsockopt(sock_tcp->fd, SOL_SOCKET, MSG_NOSIGNAL, (void *)&set, sizeof(int));
+    setsockopt(sock_tcp->fd, IPPROTO_TCP, TCP_NODELAY, (void *)&set, sizeof(int));
+
+#if defined(__linux__)
+    fcntl(sock_tcp->fd, F_SETFL, fcntl(sock_tcp->fd, F_GETFL, 0) | O_NONBLOCK);
+#elif defined(__FreeBSD__)
+    int flags = fcntl(sock_tcp->fd, F_GETFL);
+    flags |= O_NONBLOCK;
+    fcntl(sock_tcp->fd, F_SETFL, flags);
+#endif
 
     if(type == KYLIN_SOCK_SERVER_TCP) { /*server socket*/
         if(bind(sock_tcp->fd, 
@@ -121,6 +134,7 @@ kerr_t tcp_connect(ksock_t *guard)
 
 ksock_conn_t *tcp_accept(ksock_t *guard)
 {
+    int                set = 1;
     kfd_t              fd;
     socklen_t          len;
     struct sockaddr_in client;
@@ -136,6 +150,7 @@ ksock_conn_t *tcp_accept(ksock_t *guard)
     fd = accept(sock_tcp->fd, (struct sockaddr *)&client, &len);
     if(fd == -1)
         return NULL;
+    setsockopt(fd, SOL_SOCKET, MSG_NOSIGNAL, (void *)&set, sizeof(int));
 
     opts = kylin_socket_get_opts(guard);
     if(!opts || !opts->config.server.local.len) {

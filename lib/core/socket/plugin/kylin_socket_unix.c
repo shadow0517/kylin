@@ -69,6 +69,14 @@ void *unix_create(ksock_t *guard)
         setsockopt(sock_unix->fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
 #endif
 
+#if defined(__linux__)
+        fcntl(sock_unix->fd, F_SETFL, fcntl(sock_unix->fd, F_GETFL, 0) | O_NONBLOCK);
+#elif defined(__FreeBSD__)
+        int flags = fcntl(sock_unix->fd, F_GETFL);
+        flags |= O_NONBLOCK;
+        fcntl(sock_unix->fd, F_SETFL, flags);
+#endif
+
         if(listen(sock_unix->fd, opts->config.server.backlog) != 0) {
             close(sock_unix->fd);
             free(sock_unix);

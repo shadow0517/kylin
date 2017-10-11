@@ -10,6 +10,7 @@ typedef struct {
 
 void *udp_create(ksock_t *guard)
 {
+    int set = 1;
     ksock_udp_t  *sock_udp = NULL;
     ksock_opts_t *opts = NULL;
     ksock_type_t  type;
@@ -32,6 +33,15 @@ void *udp_create(ksock_t *guard)
         free(sock_udp);
         return NULL;
     }
+
+    setsockopt(sock_udp->fd, SOL_SOCKET, SO_REUSEADDR, (const void *)&set, sizeof(int));
+#if defined(__linux__)
+    fcntl(sock_udp->fd, F_SETFL, fcntl(sock_udp->fd, F_GETFL, 0) | O_NONBLOCK);
+#elif defined(__FreeBSD__)
+    int flags = fcntl(sock_udp->fd, F_GETFL);
+    flags |= O_NONBLOCK;
+    fcntl(sock_udp->fd, F_SETFL, flags);
+#endif
 
     if(type == KYLIN_SOCK_SERVER_UDP) { /*server socket*/
         if(bind(sock_udp->fd, 
@@ -113,7 +123,6 @@ ssize_t udp_send(ksock_t *guard, kfd_t fd, const void *buf, size_t len)
     }
 
     return 0;
-
 }
 
 kerr_t udp_init(void)
