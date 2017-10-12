@@ -125,6 +125,17 @@ ssize_t udp_send(ksock_t *guard, kfd_t fd, const void *buf, size_t len)
     return 0;
 }
 
+kfd_t udp_get_sockfd(ksock_t *guard)
+{
+    ksock_udp_t *sock_udp = NULL;
+
+    sock_udp = (ksock_udp_t *)kylin_socket_get_priv(guard);
+    if(!sock_udp)
+        return -1;
+
+    return sock_udp->fd;
+}
+
 kerr_t udp_init(void)
 {
     return KYLIN_ERROR_OK;

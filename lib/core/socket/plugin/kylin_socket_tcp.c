@@ -253,6 +253,17 @@ void tcp_conn_destroy(ksock_t *guard, ksock_conn_t *conn)
     free(conn);
 }
 
+kfd_t tcp_get_sockfd(ksock_t *guard)
+{
+    ksock_tcp_t *sock_tcp = NULL;
+
+    sock_tcp = (ksock_tcp_t *)kylin_socket_get_priv(guard);
+    if(!sock_tcp)
+        return -1;
+
+    return sock_tcp->fd;
+}
+
 static int __tcp_connection_match(const void *val, const void *key)
 {
     const ksock_conn_t *conn1 = val;

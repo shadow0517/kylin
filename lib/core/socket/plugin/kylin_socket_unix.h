@@ -19,6 +19,8 @@ extern ksock_conn_t *unix_conn_get_first(ksock_t *);
 extern ksock_conn_t *unix_conn_get_next(ksock_t *, ksock_conn_t *);
 extern void unix_conn_destroy(ksock_t *, ksock_conn_t *);
 
+extern kfd_t unix_get_sockfd(ksock_t *);
+
 extern kerr_t unix_init(void);
 extern void   unix_fini(void);
 

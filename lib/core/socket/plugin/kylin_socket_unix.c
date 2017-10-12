@@ -315,6 +315,17 @@ void unix_conn_destroy(ksock_t *guard, ksock_conn_t *conn)
     free(conn);
 }
 
+kfd_t unix_get_sockfd(ksock_t *guard)
+{
+    ksock_unix_t *sock_unix = NULL;
+
+    sock_unix = (ksock_unix_t *)kylin_socket_get_priv(guard);
+    if(!sock_unix)
+        return -1;
+
+    return sock_unix->fd;
+}
+
 static int __unix_connection_match(const void *val, const void *key)
 {
     const ksock_conn_t *conn1 = val;

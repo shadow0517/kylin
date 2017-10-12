@@ -25,6 +25,7 @@ ksock_plugin_t splugin[KYLIN_SOCK_MAX] = {
             .conn_get_first = tcp_conn_get_first,
             .conn_get_next  = tcp_conn_get_next,
             .conn_destroy   = tcp_conn_destroy,
+            .get_sockfd     = tcp_get_sockfd,
             .init           = tcp_init,
             .fini           = tcp_fini
         }
@@ -43,6 +44,7 @@ ksock_plugin_t splugin[KYLIN_SOCK_MAX] = {
             .conn_get_first = NULL,
             .conn_get_next  = NULL,
             .conn_destroy   = NULL,
+            .get_sockfd     = udp_get_sockfd,
             .init           = udp_init,
             .fini           = udp_fini
         }
@@ -61,6 +63,7 @@ ksock_plugin_t splugin[KYLIN_SOCK_MAX] = {
             .conn_get_first = unix_conn_get_first,
             .conn_get_next  = unix_conn_get_next,
             .conn_destroy   = unix_conn_destroy,
+            .get_sockfd     = unix_get_sockfd,
             .init           = unix_init,
             .fini           = unix_fini
         }
@@ -92,6 +95,7 @@ ksock_plugin_t splugin[KYLIN_SOCK_MAX] = {
             .conn_get_first = NULL,
             .conn_get_next  = NULL,
             .conn_destroy   = NULL,
+            .get_sockfd     = tcp_get_sockfd,
             .init           = tcp_init,
             .fini           = tcp_fini
         }
@@ -110,6 +114,7 @@ ksock_plugin_t splugin[KYLIN_SOCK_MAX] = {
             .conn_get_first = NULL,
             .conn_get_next  = NULL,
             .conn_destroy   = NULL,
+            .get_sockfd     = udp_get_sockfd,
             .init           = udp_init,
             .fini           = udp_fini
         }
@@ -128,6 +133,7 @@ ksock_plugin_t splugin[KYLIN_SOCK_MAX] = {
             .conn_get_first = NULL,
             .conn_get_next  = NULL,
             .conn_destroy   = NULL,
+            .get_sockfd     = unix_get_sockfd,
             .init           = unix_init,
             .fini           = unix_fini
         }

@@ -19,6 +19,8 @@ extern ksock_conn_t *tcp_conn_get_first(ksock_t *);
 extern ksock_conn_t *tcp_conn_get_next(ksock_t *, ksock_conn_t *);
 extern void tcp_conn_destroy(ksock_t *, ksock_conn_t *);
 
+extern kfd_t tcp_get_sockfd(ksock_t *);
+
 extern kerr_t tcp_init(void);
 extern void tcp_fini(void);
 

@@ -35,7 +35,7 @@ typedef struct {
 } ksock_conn_t;
 
 typedef struct {
-    int type; /*SOCK_STREAM, SOCK_DGRAM and so on*/
+    int type; /*SOCK_STREAM, SOCK_DGRAM and so on, unixsock should set*/
     union {
         struct {
             int          backlog;
@@ -49,6 +49,8 @@ typedef struct {
 
 extern ksock_t *kylin_socket_create(ksock_type_t, const ksock_opts_t *);
 extern void kylin_socket_destroy(ksock_t *);
+
+extern kfd_t kylin_socket_get_fd(ksock_t *);
 
 extern ksock_conn_t *kylin_socket_accept(ksock_t *);
 
@@ -79,6 +81,8 @@ typedef struct {
     ksock_conn_t *(*conn_get_first)(ksock_t *);
     ksock_conn_t *(*conn_get_next)(ksock_t *, ksock_conn_t *);
     void (*conn_destroy)(ksock_t *, ksock_conn_t *);
+
+    kfd_t (*get_sockfd)(ksock_t *);
 
     kerr_t (*init)(void);
     void (*fini)(void);

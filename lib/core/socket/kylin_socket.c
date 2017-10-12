@@ -67,6 +67,17 @@ void kylin_socket_destroy(ksock_t *guard)
     return;
 }
 
+kfd_t kylin_socket_get_fd(ksock_t *guard)
+{
+    if(splugin[guard->type].type == KYLIN_SOCK_MAX)
+        return -1;
+
+    if(splugin[guard->type].reg.get_sockfd)
+        return splugin[guard->type].reg.get_sockfd(guard);
+
+    return -1;
+}
+
 ksock_conn_t *kylin_socket_accept(ksock_t *guard)
 {
     ksock_conn_t *conn = NULL;
