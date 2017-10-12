@@ -29,9 +29,10 @@ typedef struct {
 
 /*对于流类型的套接字，该结构表示一个连接*/
 typedef struct {
-    kfd_t        fd;
-    ksock_addr_t server; 
-    ksock_addr_t client;  
+    kfd_t         fd;
+    ksock_t      *sock;    /*server socket*/
+    ksock_addr_t  server; 
+    ksock_addr_t  client;  
 } ksock_conn_t;
 
 typedef struct {

@@ -166,6 +166,7 @@ ksock_conn_t *tcp_accept(ksock_t *guard)
     memset(conn, 0, sizeof(ksock_conn_t));
 
     conn->fd         = fd;
+    conn->sock       = guard;
     conn->client.len = len;
     memcpy(&conn->client.addr.in, &client, sizeof(struct sockaddr_in));
     memcpy(&conn->server, &opts->config.server.local, sizeof(ksock_addr_t));
