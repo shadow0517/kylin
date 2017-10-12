@@ -40,34 +40,32 @@ kusock_client_t *kylin_usock_client_open(const char *name)
     memset(cli, 0, sizeof(kusock_client_t));
 
     cli->sock = kylin_socket_create(KYLIN_SOCK_CLIENT_UNIX, &sock_opts);
-    if(!cli->sock) {
-        free(cli);
-        return NULL;
-    }
+    if(!cli->sock) 
+        goto error;
 
     cli->fd = kylin_socket_get_fd(cli->sock);
-    if(cli->fd == -1) {
-        kylin_socket_destroy(cli->sock);
-        free(cli);
-        return NULL;
-    }
+    if(cli->fd == -1) 
+        goto error;
 
-    if(kylin_socket_connect(cli->sock) != KYLIN_ERROR_OK) {
-        kylin_socket_destroy(cli->sock);
-        free(cli);
-        return NULL;
-    }
+    if(kylin_socket_connect(cli->sock) != KYLIN_ERROR_OK) 
+        goto error;
 
     memcpy(cli->name, name, strlen(name));
     kylin_spinlock_init(&cli->lock);
 
-    if(!kylin_rb_insert(cli_rb, cli)) {
-        kylin_socket_destroy(cli->sock);
-        free(cli);
-        return NULL;
-    }
+    if(!kylin_rb_insert(cli_rb, cli)) 
+        goto error;
 
     return cli;
+
+error:
+    if(cli && cli->sock)
+        kylin_socket_destroy(cli->sock);
+
+    if(cli)
+        free(cli);
+
+    return NULL;
 }
 
 void kylin_usock_client_close(kusock_client_t *cli)

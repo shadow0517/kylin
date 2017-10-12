@@ -74,31 +74,19 @@ kusock_server_t *kylin_usock_server_create(const char *name, int mode,
     memset(serv, 0, sizeof(kusock_server_t));
 
     serv->sock = kylin_socket_create(KYLIN_SOCK_SERVER_UNIX, &sock_opts);
-    if(!serv->sock) {
-        free(serv);
-        return NULL;
-    }
+    if(!serv->sock) 
+        goto error;
 
     serv->fd = kylin_socket_get_fd(serv->sock);
-    if(serv->fd == -1) {
-        kylin_socket_destroy(serv->sock);
-        free(serv);
-        return NULL;
-    }
+    if(serv->fd == -1)
+        goto error;
 
-    if(kylin_event_add(accept_event, serv->fd, KEVENT_FLAG_READ) != KYLIN_ERROR_OK) {
-        kylin_socket_destroy(serv->sock);
-        free(serv);
-        return NULL;
-    }
+    if(kylin_event_add(accept_event, serv->fd, KEVENT_FLAG_READ) != KYLIN_ERROR_OK) 
+        goto error;
 
     serv->acpt_q = kylin_list_create(&acpt_opts); 
-    if(!serv->acpt_q) {
-        kylin_socket_destroy(serv->sock);
-        kylin_event_del(accept_event, serv->fd, KEVENT_FLAG_READ);
-        free(serv);
-        return NULL;
-    }
+    if(!serv->acpt_q) 
+        goto error;
 
     memcpy(serv->name, name, strlen(name));
     kylin_spinlock_init(&serv->lock);
@@ -106,18 +94,27 @@ kusock_server_t *kylin_usock_server_create(const char *name, int mode,
     serv->fini = fini;
     serv->proc = proc;
 
-    if(!kylin_rb_insert(serv_rb, serv)) {
-        kylin_list_destroy(serv->acpt_q);
-        kylin_socket_destroy(serv->sock);
-        kylin_event_del(accept_event, serv->fd, KEVENT_FLAG_READ);
-        free(serv);
-        return NULL;
-    }
+    if(!kylin_rb_insert(serv_rb, serv)) 
+        goto error;
 
     if(serv->init)
         serv->init(serv);
 
     return serv;
+error:
+    if(serv && serv->acpt_q)
+        kylin_list_destroy(serv->acpt_q);
+
+    if(serv && serv->sock) 
+        kylin_socket_destroy(serv->sock);
+
+    if(serv && serv->fd) 
+        kylin_event_del(accept_event, serv->fd, KEVENT_FLAG_READ);
+
+    if(serv)
+        free(serv);
+
+    return NULL;
 }
 
 void kylin_usock_server_destroy(kusock_server_t *serv)
