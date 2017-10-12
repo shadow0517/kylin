@@ -35,10 +35,7 @@ static krb_t *obj_rb = NULL;
 
 kerr_t object_insert(klog_t *obj)
 {
-    krb_node_t *node = NULL;
-
-    node = kylin_rb_insert(obj_rb, obj);
-    if(!node)
+    if(!kylin_rb_insert(obj_rb, obj))
         return KYLIN_ERROR_NOMEM;
 
     return KYLIN_ERROR_OK;
@@ -47,16 +44,16 @@ kerr_t object_insert(klog_t *obj)
 kerr_t object_remove(uint32_t id)
 {
     klog_t cmp;
-    krb_node_t *node = NULL;
+    klog_t *obj = NULL;
 
     memset(&cmp, 0, sizeof(klog_t));
     cmp.id = id;
 
-    node = kylin_rb_find(obj_rb, &cmp);
-    if(!node)
+    obj = kylin_rb_find(obj_rb, &cmp);
+    if(!obj)
         return KYLIN_ERROR_NOENT;
 
-    kylin_rb_remove(obj_rb, node);
+    kylin_rb_remove(obj_rb, obj);
 
     return KYLIN_ERROR_OK;
 }
@@ -64,16 +61,16 @@ kerr_t object_remove(uint32_t id)
 klog_t *object_find(uint32_t id)
 {
     klog_t cmp;
-    krb_node_t *node = NULL;
+    klog_t *obj = NULL;
 
     memset(&cmp, 0, sizeof(klog_t));
     cmp.id = id;
 
-    node = kylin_rb_find(obj_rb, &cmp);
-    if(!node)
+    obj = kylin_rb_find(obj_rb, &cmp);
+    if(!obj)
         return NULL;
 
-    return (klog_t *)kylin_rb_val(obj_rb, node);
+    return obj;
 }
 
 kerr_t object_init(void)
