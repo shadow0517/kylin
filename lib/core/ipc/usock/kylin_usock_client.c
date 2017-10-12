@@ -10,12 +10,28 @@ static krb_t *cli_rb = NULL;
 
 kusock_client_t *kylin_usock_client_open(const char *name)
 {
-    int len;
     struct sockaddr_un remote;
     kusock_client_t *cli = NULL;
 
     if(strlen(name) > KYLIN_NAME_LENGTH)
         return NULL;
+
+    remote.sun_family = AF_UNIX;
+    sprintf(remote.sun_path, "%s/%s", KYLIN_USOCK_LOCAL, name);
+
+    ksock_opts_t sock_opts = {
+        .type   = SOCK_STREAM,
+        .config = {
+            .client = {
+                .remote = {
+                    .len  = sizeof(remote.sun_family) + strlen(remote.sun_path) + 1,
+                    .addr = {
+                        .un = remote
+                    }
+                }
+            }
+        }
+    };
 
     cli = malloc(sizeof(kusock_client_t));
     if(!cli)
@@ -23,24 +39,21 @@ kusock_client_t *kylin_usock_client_open(const char *name)
 
     memset(cli, 0, sizeof(kusock_client_t));
 
-    cli->sock = socket(AF_UNIX, SOCK_STREAM, 0);
-    if(cli->sock == -1) {
+    cli->sock = kylin_socket_create(KYLIN_SOCK_CLIENT_UNIX, &sock_opts);
+    if(!cli->sock) {
         free(cli);
         return NULL;
     }
 
-#ifdef SO_NOSIGPIPE
-    int set = 1;
-    setsockopt(cli->sock, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
-#endif
+    cli->fd = kylin_socket_get_fd(cli->sock);
+    if(cli->fd == -1) {
+        kylin_socket_destroy(cli->sock);
+        free(cli);
+        return NULL;
+    }
 
-    memset(&remote, 0, sizeof(struct sockaddr_un));
-    remote.sun_family = AF_UNIX;
-    sprintf(remote.sun_path, "%s/%s", KYLIN_USOCK_LOCAL, name);
-    len = sizeof(remote.sun_family ) + strlen(remote.sun_path) + 1;
-
-    if(connect(cli->sock, (struct sockaddr *)&remote, len) == -1) {
-        close(cli->sock);
+    if(kylin_socket_connect(cli->sock) != KYLIN_ERROR_OK) {
+        kylin_socket_destroy(cli->sock);
         free(cli);
         return NULL;
     }
@@ -49,7 +62,7 @@ kusock_client_t *kylin_usock_client_open(const char *name)
     kylin_spinlock_init(&cli->lock);
 
     if(!kylin_rb_insert(cli_rb, cli)) {
-        close(cli->sock);
+        kylin_socket_destroy(cli->sock);
         free(cli);
         return NULL;
     }
@@ -59,11 +72,11 @@ kusock_client_t *kylin_usock_client_open(const char *name)
 
 void kylin_usock_client_close(kusock_client_t *cli)
 {
-    close(cli->sock);
-    kylin_rb_remove(cli_rb, kylin_rb_find(cli_rb, cli));
+    kylin_socket_destroy(cli->sock);
+    kylin_rb_remove(cli_rb, cli);
 }
 
-static kerr_t __send_request_pdu(kfd_t fd, uint32_t cmd, void *data, int length)
+static kerr_t __send_request_pdu(kusock_client_t *cli, uint32_t cmd, void *data, int length)
 {
     int len;
     usock_pdu_hdr_t hdr;
@@ -79,13 +92,13 @@ static kerr_t __send_request_pdu(kfd_t fd, uint32_t cmd, void *data, int length)
     hdr.err     = KYLIN_ERROR_OK;
 
     /*send pdu header*/
-    len = send(fd, &hdr, sizeof(usock_pdu_hdr_t), 0);
+    len = kylin_socket_send(cli->sock, cli->fd, &hdr, sizeof(usock_pdu_hdr_t));
     if(len != sizeof(usock_pdu_hdr_t)) 
         return errno;
 
     /*send pdu payload*/
     if(hdr.len > 0) {
-        len = send(fd, data, hdr.len, 0);
+        len = kylin_socket_send(cli->sock, cli->fd, data, hdr.len);
         if(len != hdr.len)
             return errno;
     }
@@ -93,19 +106,19 @@ static kerr_t __send_request_pdu(kfd_t fd, uint32_t cmd, void *data, int length)
     return KYLIN_ERROR_OK;
 }
 
-static kerr_t __recv_response_pdu(kfd_t fd, void *data)
+static kerr_t __recv_response_pdu(kusock_client_t *cli, void *data)
 {
     int len;
     usock_pdu_hdr_t hdr;
 
-    len = recv(fd, &hdr, sizeof(usock_pdu_hdr_t), 0);
+    len = kylin_socket_recv(cli->sock, cli->fd, &hdr, sizeof(usock_pdu_hdr_t));
     if(len != sizeof(usock_pdu_hdr_t)) 
         return KYLIN_ERROR_INVAL;
 
     if(hdr.err != KYLIN_ERROR_OK)
         return hdr.err;
 
-    len = recv(fd, data, hdr.len, 0);
+    len = kylin_socket_recv(cli->sock, cli->fd, data, hdr.len);
     if(len != hdr.len)
         return errno;
 
@@ -125,11 +138,11 @@ kerr_t kylin_usock_client_request(kusock_client_t *cli, unsigned long cmd, void 
 
     kylin_spinlock_lock(&cli->lock);
 
-    ret = __send_request_pdu(cli->sock, cmd, data, request_len); 
+    ret = __send_request_pdu(cli, cmd, data, request_len); 
     if(ret != KYLIN_ERROR_OK)
         goto exit;
 
-    ret = __recv_response_pdu(cli->sock, data);
+    ret = __recv_response_pdu(cli, data);
 
 exit:
     kylin_spinlock_unlock(&cli->lock);
@@ -141,9 +154,9 @@ static int __cli_compare(const void *c1, const void *c2)
     const kusock_client_t *comp1 = c1;
     const kusock_client_t *comp2 = c2;
 
-    if(comp1->sock > comp2->sock)
+    if(comp1->fd > comp2->fd )
         return 1;
-    if(comp1->sock < comp2->sock)
+    if(comp1->fd < comp2->fd)
         return -1;
     return 0;
 }

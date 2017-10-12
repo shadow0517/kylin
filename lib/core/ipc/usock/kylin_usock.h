@@ -22,7 +22,7 @@ typedef struct {
 } __kylin_packed usock_pdu_hdr_t;
 
 typedef struct {
-    usock_pdu_hdr_t  head;
+    usock_pdu_hdr_t  hdr;
     uint8_t          data[];
 } __kylin_packed usock_pdu_t;
 

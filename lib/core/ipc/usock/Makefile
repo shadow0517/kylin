@@ -16,5 +16,5 @@ library:
 
 distclean: clean
 clean:
-	rm -f usock/*.o *.so
+	rm -f *.o *.so
 

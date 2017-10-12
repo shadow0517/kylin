@@ -2,6 +2,7 @@
 #define _KYLIN_CORE_IPC_UNIXSOCK_SERVER_H_
 
 #include <kylin/include/kylin.h>
+#include <kylin/include/kylin_socket.h>
 #include <kylin/include/ipc/kylin_usock.h>
 #include <kylin/include/arch/x86/kylin_spinlock.h>
 #include <kylin/include/math/kylin_list.h>
@@ -11,7 +12,8 @@
 #include <kylin/lib/core/ipc/usock/kylin_usock.h>
 
 typedef struct {
-    kfd_t            sock;
+    kfd_t            fd;
+    ksock_t         *sock;
     int              pdu_pos;
     usock_pdu_t     *pdu;
     kusock_server_t *server;
@@ -19,7 +21,8 @@ typedef struct {
 
 struct kylin_usock_server {
     char             name[KYLIN_NAME_LENGTH];
-    kfd_t            sock;
+    ksock_t         *sock;
+    kfd_t            fd;     /*跟sock字段意义重合，但是有存在的必要*/
     klist_t         *acpt_q; /*accept 队列*/
     kspinlock_t      lock;
 
