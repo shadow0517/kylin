@@ -17,12 +17,11 @@ struct kylin_thread {
 };
 
 extern kerr_t kylin_thread_insert(kthread_t *);
-extern kerr_t kylin_thread_remove(kthread_t *);
+extern void kylin_thread_remove(kthread_t *);
 
 extern kthread_t *kylin_thread_unlink(kthread_t *);
 
-extern kthread_t *kylin_thread_find(uint32_t);
-extern kthread_t *kylin_thread_find_by_tid(pthread_t);
+extern kthread_t *kylin_thread_find(pthread_t);
 extern kthread_t *kylin_thread_find_by_name(char *);
 
 extern kthread_t *kylin_thread_get_first(void);

@@ -7,7 +7,8 @@
 struct kylin_thread;
 typedef struct kylin_thread kthread_t;
 
-extern kthread_t *kylin_thread_create(char *, void (*exec)(kthread_t *thread), void *, int)
+extern kthread_t *kylin_thread_create(char *, 
+        void (*exec)(kthread_t *thread), void *, int)
     __THROWNL __nonnull ((1, 2));
 extern void kylin_thread_destroy(kthread_t *) 
     __THROWNL __nonnull ((1));

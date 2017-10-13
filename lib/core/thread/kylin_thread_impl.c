@@ -4,6 +4,15 @@
 
 #include <kylin/lib/core/thread/kylin_thread.h>
 
+static void * __thread_proc(void *param) 
+{
+    kthread_t *thread = param;
+
+    thread->exec(thread);
+
+    return NULL;
+}
+
 kthread_t *kylin_thread_create(char *name, 
         void (*exec)(kthread_t *thread), void *param, int param_size)
 {
@@ -44,7 +53,7 @@ kerr_t kylin_thread_start(kthread_t *thread)
 {
     int ret;
 
-    ret = pthread_create(&thread->thread_id, NULL, thread->exec, thread);
+    ret = pthread_create(&thread->thread_id, NULL, __thread_proc, thread);
     if(ret == 0) {
 #if defined(__linux__)
         pthread_setname_np(thread->thread_id, thread->name);
@@ -102,10 +111,11 @@ void kylin_thread_name_set(kthread_t *thread, char *name)
 
 uint8_t kylin_thread_priority(kthread_t *thread)
 {
+    int policy;
     struct sched_param param;
 
     memset(&param, 0, sizeof(struct sched_param));
-    pthread_getschedparam(thread->thread_id, SCHED_RR, &param);
+    pthread_getschedparam(thread->thread_id, &policy, &param);
 
     return param.sched_priority;
 }
@@ -130,7 +140,7 @@ kerr_t kylin_thread_affinity_set(kthread_t *thread, uint8_t cpuid)
     kcpuset_t cpu_mask;
 
     CPU_ZERO(&cpu_mask);
-    CPU_SET(cpu_id, &cpu_mask);
+    CPU_SET(cpuid, &cpu_mask);
 
     return pthread_setaffinity_np(thread->thread_id, sizeof(cpu_mask), &cpu_mask);
 }

@@ -85,8 +85,11 @@ extern void kylin_rb_remove_raw(krb_t *, krb_node_t *);
 extern krb_node_t *kylin_rb_unlink(krb_t *, void *cmp);
 extern krb_node_t *kylin_rb_unlink_raw(krb_t *, krb_node_t *);
 
-extern krb_node_t *kylin_rb_next(krb_node_t *);
-extern krb_node_t *kylin_rb_prev(krb_node_t *);
+extern krb_node_t *kylin_rb_next(krb_t *, void *cmp);
+extern krb_node_t *kylin_rb_prev(krb_t *, void *cmp);
+
+extern krb_node_t *kylin_rb_next_raw(krb_t *, krb_node_t *);
+extern krb_node_t *kylin_rb_prev_raw(krb_t *, krb_node_t *);
 
 extern void *kylin_rb_find(krb_t *, void *cmp);
 extern void *kylin_rb_find_or_next(krb_t *, void *cmp);
@@ -95,6 +98,6 @@ extern krb_node_t *kylin_rb_find_raw(krb_t *, void *cmp);
 extern krb_node_t *kylin_rb_find_or_next_raw(krb_t *, void *cmp);
 
 #define KYLIN_RB_FOREACH(root, node) \
-    for(node = kylin_rb_min(root); node != NULL; node = kylin_rb_next(node))
+    for(node = kylin_rb_min(root); node != NULL; node = kylin_rb_next(root, node))
 
 #endif /*_KYLIN_MATH_RB_H_*/
