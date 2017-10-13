@@ -176,7 +176,7 @@ static void __server_accept(kfd_t fd, void *priv)
         return;
 
     if(kylin_event_add(process_event, conn->fd, 
-                KEVENT_FLAG_READ | KEVENT_FLAG_WRITE | KEVENT_FLAG_WRITE) 
+                KEVENT_FLAG_READ | KEVENT_FLAG_WRITE | KEVENT_FLAG_ERROR) 
             != KYLIN_ERROR_OK) {
         goto error;
     }
