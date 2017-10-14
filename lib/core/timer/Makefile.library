@@ -1,0 +1,18 @@
+SHELL=/bin/sh
+# Where you want it installed when you do 'make install'
+PREFIX=/usr/local/
+
+CFLAGS = ${KYLIN_CFLAGS} -I/usr/local/include -I${KYLIN_LIB_SRC}
+LDFLAGS += -L/usr/local/lib -pthread
+
+all: libcore_timer
+
+LIB_OBJS = kylin_timer.o kylin_timer_source.o 
+
+libcore_timer: $(LIB_OBJS)
+	${CC} ${CFLAGS} ${LIB_OBJS} -shared -o libcore_timer.so ${LDFLAGS}
+
+distclean: clean
+clean:
+	rm -f *.o libcore_timer.so
+
