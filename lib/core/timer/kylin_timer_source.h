@@ -9,7 +9,7 @@ typedef struct {
     uint64_t (*get_cycle)(void);
 } ktimer_source_t;
 
-extern ktimer_source_t timersource[KTIMER_SRC_MAX];
+extern ktimer_source_t timer_source[KTIMER_SRC_MAX];
 
 extern kerr_t kylin_timer_source_init(void);
 extern void kylin_timer_source_fini(void);

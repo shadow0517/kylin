@@ -7,7 +7,7 @@ static uint64_t __tsc_get_cycle(void);
 static uint64_t __hpet_get_cycle(void);
 static uint64_t __soft_get_cycle(void);
 
-ktimer_source_t timersource[KTIMER_SRC_MAX] = {
+ktimer_source_t timer_source[KTIMER_SRC_MAX] = {
     {
         .src = KTIMER_SRC_TSC,
         .get_cycle = __tsc_get_cycle
@@ -24,26 +24,26 @@ ktimer_source_t timersource[KTIMER_SRC_MAX] = {
 
 static uint64_t __tsc_get_cycle(void)
 {
-
+    return 0;
 }
 
 static uint64_t __hpet_get_cycle(void)
 {
-
+    return 0;
 }
 
 static uint64_t __soft_get_cycle(void)
 {
-
+    return 0;
 }
 
 kerr_t kylin_timer_source_init(void)
 {
-
+    return KYLIN_ERROR_OK;
 }
 
 void kylin_timer_source_fini(void)
 {
-
+    return;
 }
 

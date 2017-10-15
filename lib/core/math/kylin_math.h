@@ -150,9 +150,9 @@ static __kylin_inline void *kmath_val_get(kmath_val_t *val, kobj_t type)
         case KOBJ_KSET:
         case KOBJ_KSTR:
         case KOBJ_OTHERS:
-            return val->v;
+            return val ? val->v : NULL;
         default:
-            return val->v;
+            return val ? val->v : NULL;
     }
     return NULL;
 }

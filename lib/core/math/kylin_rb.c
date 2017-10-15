@@ -25,15 +25,15 @@ struct kylin_rb
 #define RB_RED                (KYLIN_TRUE)
 #define RB_BLACK              (KYLIN_FALSE)
 
-#define RB_LEFT(node)         (node)->left
-#define RB_RIGHT(node)        (node)->right
-#define RB_PARENT(node)       (node)->parent
-#define RB_COLOR(node)        (node)->color
-#define RB_VAL(node)          (node)->val
-#define RB_MIN(guard)         (guard)->min
-#define RB_MAX(guard)         (guard)->max
-#define RB_CNT(guard)         (guard)->count
-#define RB_ROOT(guard)        (guard)->root
+#define RB_LEFT(node)         (node) ? (node)->left   : NULL
+#define RB_RIGHT(node)        (node) ? (node)->right  : NULL
+#define RB_PARENT(node)       (node) ? (node)->parent : NULL
+#define RB_COLOR(node)        (node) ? (node)->color  : NULL
+#define RB_VAL(node)          (node) ? (node)->val    : NULL
+#define RB_MIN(guard)         (guard) ? (guard)->min   : NULL
+#define RB_MAX(guard)         (guard) ? (guard)->max   : NULL
+#define RB_CNT(guard)         (guard) ? (guard)->count : NULL
+#define RB_ROOT(guard)        (guard) ? (guard)->root  : NULL
 #define RB_EMPTY(guard)       (RB_ROOT(guard) == NULL)
 #define RB_COMPARE(guard)     ((guard)->opts.compare)
 
@@ -297,8 +297,10 @@ krb_node_t *kylin_rb_insert(krb_t *guard, void *elm)
             tmp = RB_LEFT(tmp);
         else if(result > 0)
             tmp = RB_RIGHT(tmp);
-        else
-            return tmp;
+        else {
+            RB_NODE_FREE(&guard->opts)(node);
+            return NULL; /*有相似的结点存在*/
+        }
     }
 
     RB_PARENT(node) = parent;
@@ -399,7 +401,7 @@ color:
     return ;
 }
 
-krb_node_t *kylin_rb_unlink(krb_t *guard, void *cmp)
+void *kylin_rb_unlink(krb_t *guard, void *cmp)
 {
     return NULL;
 }
