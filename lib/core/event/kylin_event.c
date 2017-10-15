@@ -229,14 +229,7 @@ kerr_t kylin_event_init(void)
         .val_type  = KOBJ_OTHERS,
         .val_size  = sizeof(kevent_t),
         .match     = __elist_match,
-        .allocator = {
-            .val_ctor   = NULL, /*值所在的内存由调用者分配*/
-            .val_dtor   = NULL,
-            .node_ctor  = NULL,
-            .node_dtor  = NULL, 
-            .guard_ctor = NULL,
-            .guard_dtor = NULL
-        }
+        .allocator = KLIST_OPTS_ALLOCATOR_NULL
     };
 
     elist = kylin_list_create(&elist_opts);

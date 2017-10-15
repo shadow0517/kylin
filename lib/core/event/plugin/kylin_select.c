@@ -216,12 +216,7 @@ void *kylin_select_create(void)
         .val_type  = KOBJ_INT32,
         .val_size  = 4,
         .compare   = __fd_compare,
-        .allocator = {
-            .val_ctor   = malloc,
-            .val_dtor   = NULL,
-            .guard_ctor = NULL,
-            .guard_dtor = NULL
-        }
+        .allocator = KSET_OPTS_ALLOCATOR_VAL(malloc)
     };
 
     event_select = malloc(sizeof(kevent_select_t));
