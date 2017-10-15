@@ -166,14 +166,7 @@ kerr_t client_init(void)
         .val_type  = KOBJ_OTHERS,
         .val_size  = sizeof(kusock_client_t),
         .compare   = __cli_compare,
-        .allocator = {
-            .val_ctor   = NULL, /*值所在的内存由调用者分配*/
-            .val_dtor   = NULL,
-            .node_ctor  = NULL,
-            .node_dtor  = NULL,
-            .guard_ctor = NULL,
-            .guard_dtor = NULL
-        }
+        .allocator = KRB_OPTS_ALLOCATOR_NULL
     };
 
     cli_rb = kylin_rb_create(&usock_cli_opts);

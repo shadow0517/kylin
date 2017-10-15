@@ -58,14 +58,7 @@ kusock_server_t *kylin_usock_server_create(const char *name, int mode,
         .val_type  = KOBJ_OTHERS,
         .val_size  = sizeof(usock_accept_t),
         .match     = __accept_node_match,
-        .allocator = {
-            .val_ctor   = malloc, /*值所在的内存由list分配*/
-            .val_dtor   = NULL,
-            .node_ctor  = NULL,
-            .node_dtor  = NULL,
-            .guard_ctor = NULL,
-            .guard_dtor = NULL
-        }
+        .allocator = KLIST_OPTS_ALLOCATOR_VAL(malloc)
     };
 
     serv = malloc(sizeof(kusock_server_t));
@@ -327,14 +320,7 @@ kerr_t server_init(void)
         .val_type  = KOBJ_OTHERS,
         .val_size  = sizeof(kusock_server_t),
         .compare   = __serv_compare,
-        .allocator = {
-            .val_ctor   = NULL, /*值所在的内存由调用者分配*/
-            .val_dtor   = NULL,
-            .node_ctor  = NULL,
-            .node_dtor  = NULL,
-            .guard_ctor = NULL,
-            .guard_dtor = NULL
-        }
+        .allocator = KRB_OPTS_ALLOCATOR_NULL
     };
 
     kevent_opts_t acpt_event_opts = {
