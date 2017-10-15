@@ -25,6 +25,8 @@ typedef struct {
     } allocator;
 } kstr_opts_t;
 
+#define KSTRING_OPTS_ALLOCATOR_NULL {.guard_ctor = NULL, .guard_dtor = NULL}
+
 extern kstr_t *kylin_string_create(const kstr_opts_t *opts);
 extern void kylin_string_destroy(kstr_t *);
 

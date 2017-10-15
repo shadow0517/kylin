@@ -20,6 +20,8 @@ typedef struct {
     } allocator;
 } klifo_opts_t;
 
+#define KLIFO_OPTS_ALLOCATOR_NULL {.guard_ctor = NULL, .guard_dtor = NULL}
+
 extern klifo_t *kylin_lifo_create(const klifo_opts_t *opts);
 extern void kylin_lifo_destroy(klifo_t *);
 

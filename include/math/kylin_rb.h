@@ -53,6 +53,26 @@ typedef struct {
     } allocator;
 } krb_opts_t;
 
+#define KRB_OPTS_ALLOCATOR_NULL     \
+{                                   \
+    .val_ctor   = NULL,             \
+    .val_dtor   = NULL,             \
+    .node_ctor  = NULL,             \
+    .node_dtor  = NULL,             \
+    .guard_ctor = NULL,             \
+    .guard_dtor = NULL              \
+}
+
+#define KRB_OPTS_ALLOCATOR_VAL(ctor)    \
+{                                       \
+    .val_ctor   = ctor,                 \
+    .val_dtor   = NULL,                 \
+    .node_ctor  = NULL,                 \
+    .node_dtor  = NULL,                 \
+    .guard_ctor = NULL,                 \
+    .guard_dtor = NULL                  \
+}
+
 extern krb_t *kylin_rb_create(const krb_opts_t *opts);
 extern void kylin_rb_destroy(krb_t *);
 extern void kylin_rb_clear(krb_t *);

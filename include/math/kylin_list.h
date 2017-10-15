@@ -30,6 +30,26 @@ typedef struct {
     } allocator;
 } klist_opts_t;
 
+#define KLIST_OPTS_ALLOCATOR_NULL   \
+{                                   \
+    .val_ctor   = NULL,             \
+    .val_dtor   = NULL,             \
+    .node_ctor  = NULL,             \
+    .node_dtor  = NULL,             \
+    .guard_ctor = NULL,             \
+    .guard_dtor = NULL              \
+}
+
+#define KLIST_OPTS_ALLOCATOR_VAL(ctor)  \
+{                                       \
+    .val_ctor   = ctor,                 \
+    .val_dtor   = NULL,                 \
+    .node_ctor  = NULL,                 \
+    .node_dtor  = NULL,                 \
+    .guard_ctor = NULL,                 \
+    .guard_dtor = NULL                  \
+}
+
 extern klist_t *kylin_list_create(const klist_opts_t *opts);
 extern void kylin_list_destroy(klist_t *);
 extern void kylin_list_clear(klist_t *);

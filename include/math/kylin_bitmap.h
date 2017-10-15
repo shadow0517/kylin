@@ -29,6 +29,8 @@ typedef struct {
     } allocator;
 } kbitmap_opts_t;
 
+#define KBITMAP_OPTS_ALLOCATOR_NULL {.guard_ctor = NULL, .guard_dtor = NULL}
+
 extern kbitmap_t *kylin_bitmap_create(const kbitmap_opts_t *opts);
 extern void kylin_bitmap_destroy(kbitmap_t *);
 

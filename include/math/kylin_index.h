@@ -32,6 +32,26 @@ typedef struct {
     } allocator;
 } kindex_opts_t;
 
+#define KINDEX_OPTS_ALLOCATOR_NULL  \
+{                                   \
+    .val_ctor   = NULL,             \
+    .val_dtor   = NULL,             \
+    .node_ctor  = NULL,             \
+    .node_dtor  = NULL,             \
+    .guard_ctor = NULL,             \
+    .guard_dtor = NULL              \
+}
+
+#define KINDEX_OPTS_ALLOCATOR_VAL(ctor) \
+{                                       \
+    .val_ctor   = ctor,                 \
+    .val_dtor   = NULL,                 \
+    .node_ctor  = NULL,                 \
+    .node_dtor  = NULL,                 \
+    .guard_ctor = NULL,                 \
+    .guard_dtor = NULL                  \
+}
+
 extern kindex_t *kylin_index_create(const kindex_opts_t *opts);
 extern void kylin_index_destroy(kindex_t *);
 

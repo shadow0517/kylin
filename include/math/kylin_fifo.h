@@ -18,6 +18,8 @@ typedef struct {
     } allocator;
 } kfifo_opts_t;
 
+#define KFIFO_OPTS_ALLOCATOR_NULL {.guard_ctor = NULL, .guard_dtor = NULL}
+
 extern kfifo_t *kylin_fifo_create(const kfifo_opts_t *opts);
 extern void kylin_fifo_destroy(kfifo_t *);
 

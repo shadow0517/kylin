@@ -26,6 +26,22 @@ typedef struct {
     } allocator;
 } kring_opts_t;
 
+#define KRING_OPTS_ALLOCATOR_NULL   \
+{                                   \
+    .val_ctor   = NULL,             \
+    .val_dtor   = NULL,             \
+    .guard_ctor = NULL,             \
+    .guard_dtor = NULL              \
+}
+
+#define KRING_OPTS_ALLOCATOR_VAL(ctor)  \
+{                                       \
+    .val_ctor   = ctor,                 \
+    .val_dtor   = NULL,                 \
+    .guard_ctor = NULL,                 \
+    .guard_dtor = NULL                  \
+}
+
 extern kring_t *kylin_ring_create(kring_opts_t *opts);
 extern void kylin_ring_destroy(kring_t *);
 

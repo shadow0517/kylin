@@ -30,6 +30,22 @@ typedef struct {
     } allocator;
 } kset_opts_t;
 
+#define KSET_OPTS_ALLOCATOR_NULL    \
+{                                   \
+    .val_ctor   = NULL,             \
+    .val_dtor   = NULL,             \
+    .guard_ctor = NULL,             \
+    .guard_dtor = NULL              \
+}
+
+#define KSET_OPTS_ALLOCATOR_VAL(ctor)   \
+{                                       \
+    .val_ctor   = ctor,                 \
+    .val_dtor   = NULL,                 \
+    .guard_ctor = NULL,                 \
+    .guard_dtor = NULL                  \
+}
+
 extern kset_t *kylin_set_create(const kset_opts_t *opts);
 extern void kylin_set_destroy(kset_t *);
 extern void kylin_set_clear(kset_t *);

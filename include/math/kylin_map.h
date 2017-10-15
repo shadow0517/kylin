@@ -36,6 +36,31 @@ typedef struct {
     } allocator;
 } kmap_opts_t;
 
+#define KMAP_OPTS_ALLOCATOR_NULL    \
+{                                   \
+    .key_ctor   = NULL,             \
+    .key_dtor   = NULL,             \
+    .val_ctor   = NULL,             \
+    .val_dtor   = NULL,             \
+    .node_ctor  = NULL,             \
+    .node_dtor  = NULL,             \
+    .guard_ctor = NULL,             \
+    .guard_dtor = NULL              \
+}
+
+#define KLIST_OPTS_ALLOCATOR_KEY_VAL(kctor, vctor)  \
+{                                                   \
+    .key_ctor   = kctor,                            \
+    .key_dtor   = NULL,                             \
+    .val_ctor   = vctor,                            \
+    .val_dtor   = NULL,                             \
+    .node_ctor  = NULL,                             \
+    .node_dtor  = NULL,                             \
+    .guard_ctor = NULL,                             \
+    .guard_dtor = NULL                              \
+}
+
+
 extern kmap_t *kylin_map_create(const kmap_opts_t *opts);
 extern void kylin_map_destroy(kmap_t *);
 extern void kylin_map_clear(kmap_t *);
