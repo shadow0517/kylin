@@ -73,9 +73,8 @@ extern kindex_node_t *kylin_index_insert_raw(kindex_t *, kindex_node_t *);
 extern kerr_t kylin_index_remove(kindex_t *, void *cmp);
 extern kerr_t kylin_index_remove_raw(kindex_t *, kindex_node_t *);
 
-extern kindex_node_t *kylin_index_unlink(kindex_t *, void *);
+extern void *kylin_index_unlink(kindex_t *, void *);
 extern kindex_node_t *kylin_index_unlink_raw(kindex_t *, kindex_node_t *);
-
 
 extern kindex_node_t *kylin_index_replace(kindex_t *, void *val);
 

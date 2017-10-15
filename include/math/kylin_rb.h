@@ -102,7 +102,7 @@ extern krb_node_t *kylin_rb_insert_raw(krb_t *, krb_node_t *);
 extern void kylin_rb_remove(krb_t *, void *cmp);
 extern void kylin_rb_remove_raw(krb_t *, krb_node_t *);
 
-extern krb_node_t *kylin_rb_unlink(krb_t *, void *cmp);
+extern void *kylin_rb_unlink(krb_t *, void *cmp);
 extern krb_node_t *kylin_rb_unlink_raw(krb_t *, krb_node_t *);
 
 extern krb_node_t *kylin_rb_next(krb_t *, void *cmp);

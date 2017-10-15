@@ -80,7 +80,7 @@ extern kmap_node_t *kylin_map_insert_raw(kmap_t *, kmap_node_t *);
 extern kerr_t kylin_map_remove(kmap_t *, void *);
 extern kerr_t kylin_map_remove_raw(kmap_t *, kmap_node_t *);
 
-extern kmap_node_t *kylin_map_unlink(kmap_t *, void *key);
+extern void *kylin_map_unlink(kmap_t *, void *key);
 extern kmap_node_t *kylin_map_unlink_raw(kmap_t *, kmap_node_t *);
 
 extern kmap_node_t *kylin_map_replace(kmap_t *, void *key, void *val, kobj_t val_type, size_t size);

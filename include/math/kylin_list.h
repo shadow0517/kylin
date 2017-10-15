@@ -80,7 +80,7 @@ extern klist_node_t *kylin_list_insert_raw(klist_t *, klist_node_t *before, klis
 extern void kylin_list_remove(klist_t *, void *);
 extern void kylin_list_remove_raw(klist_t *, klist_node_t *);
 
-extern klist_node_t *kylin_list_unlink(klist_t *, void *);
+extern void *kylin_list_unlink(klist_t *, void *);
 extern klist_node_t *kylin_list_unlink_raw(klist_t *, klist_node_t *);
 
 extern klist_node_t *kylin_list_find(const klist_t *, void *key);
