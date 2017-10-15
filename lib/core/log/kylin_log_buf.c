@@ -17,12 +17,7 @@ static kring_opts_t log_ring_opts = {
     .cap       = 1024,
     .val_type  = KOBJ_OTHERS,
     .val_size  = sizeof(klog_buffer_t),
-    .allocator = {
-        .val_ctor   = malloc,
-        .val_dtor   = NULL,
-        .guard_ctor = NULL,
-        .guard_dtor = NULL
-    }
+    .allocator = KRING_OPTS_ALLOCATOR_VAL(malloc)
 };
 
 kerr_t buffer_enqueue(klog_buffer_t *buf)
@@ -104,7 +99,7 @@ kerr_t buffer_init(void)
 
 void buffer_fini(void)
 {
-    pthread_cancel(log_tid);
+    pthread_join(log_tid, NULL);
 
     for(int i = 0; i < KYLIN_LOG_MAX; i++) {
         kylin_ring_destroy(log_ring[i]);

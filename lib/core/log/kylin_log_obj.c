@@ -21,14 +21,7 @@ static krb_opts_t log_obj_opts = {
     .val_type  = KOBJ_OTHERS,
     .val_size  = sizeof(klog_t),
     .compare   = __obj_compare,
-    .allocator = {
-        .val_ctor   = NULL, /*值所在的内存由调用者分配*/
-        .val_dtor   = NULL,
-        .node_ctor  = NULL,
-        .node_dtor  = NULL,
-        .guard_ctor = NULL,
-        .guard_dtor = NULL
-    }
+    .allocator = KRB_OPTS_ALLOCATOR_NULL
 };
 
 static krb_t *obj_rb = NULL;
