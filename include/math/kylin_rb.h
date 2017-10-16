@@ -9,10 +9,8 @@
 
 struct kylin_rb;
 struct kylin_rb_node;
-/*struct kylin_rb_iterator;*/
 typedef struct kylin_rb          krb_t;
 typedef struct kylin_rb_node     krb_node_t;
-/*typedef struct kylin_rb_iterator krb_iter_t;*/
 
 typedef struct {
     const char *name;
@@ -73,9 +71,12 @@ typedef struct {
     .guard_dtor = NULL                  \
 }
 
-extern krb_t *kylin_rb_create(const krb_opts_t *opts);
-extern void kylin_rb_destroy(krb_t *);
-extern void kylin_rb_clear(krb_t *);
+extern krb_t *kylin_rb_create(const krb_opts_t *opts) 
+    __kylin_nonnull((1));
+extern void kylin_rb_destroy(krb_t *) 
+    __kylin_nonnull((1));
+extern void kylin_rb_clear(krb_t *) 
+    __kylin_nonnull((1));
 
 /*
  * TODO: 对于配置类的信息，可以采取这种方式替代小型数据库
@@ -90,32 +91,50 @@ extern kerr_t kylin_rb_loadf(krb_t *);
 extern kerr_t kylin_rb_flash(krb_t *, kword_t flags);
 */
 
-extern void *kylin_rb_val(const krb_t *, krb_node_t *);
-extern size_t kylin_rb_count(krb_t *);
+extern void *kylin_rb_val(const krb_t *, krb_node_t *) 
+    __kylin_nonnull((1, 2));
+extern size_t kylin_rb_count(krb_t *) 
+    __kylin_nonnull((1));
 
-extern krb_node_t *kylin_rb_min(krb_t *);
-extern krb_node_t *kylin_rb_max(krb_t *);
+extern krb_node_t *kylin_rb_min(krb_t *) 
+    __kylin_nonnull((1));
+extern krb_node_t *kylin_rb_max(krb_t *) 
+    __kylin_nonnull((1));
 
-extern krb_node_t *kylin_rb_insert(krb_t *, void *val);
-extern krb_node_t *kylin_rb_insert_raw(krb_t *, krb_node_t *);
+extern krb_node_t *kylin_rb_insert(krb_t *, void *val) 
+    __kylin_nonnull((1, 2));
+extern krb_node_t *kylin_rb_insert_raw(krb_t *, krb_node_t *) 
+    __kylin_nonnull((1, 2));
 
-extern void kylin_rb_remove(krb_t *, void *cmp);
-extern void kylin_rb_remove_raw(krb_t *, krb_node_t *);
+extern void kylin_rb_remove(krb_t *, void *cmp) 
+    __kylin_nonnull((1, 2));
+extern void kylin_rb_remove_raw(krb_t *, krb_node_t *) 
+    __kylin_nonnull((1, 2));
 
-extern void *kylin_rb_unlink(krb_t *, void *cmp);
-extern krb_node_t *kylin_rb_unlink_raw(krb_t *, krb_node_t *);
+extern void *kylin_rb_unlink(krb_t *, void *cmp) 
+    __kylin_nonnull((1, 2));
+extern krb_node_t *kylin_rb_unlink_raw(krb_t *, krb_node_t *) 
+    __kylin_nonnull((1, 2));
 
-extern krb_node_t *kylin_rb_next(krb_t *, void *cmp);
-extern krb_node_t *kylin_rb_prev(krb_t *, void *cmp);
+extern krb_node_t *kylin_rb_next(krb_t *, void *cmp) 
+    __kylin_nonnull((1, 2));
+extern krb_node_t *kylin_rb_prev(krb_t *, void *cmp) 
+    __kylin_nonnull((1, 2));
 
-extern krb_node_t *kylin_rb_next_raw(krb_t *, krb_node_t *);
-extern krb_node_t *kylin_rb_prev_raw(krb_t *, krb_node_t *);
+extern krb_node_t *kylin_rb_next_raw(krb_t *, krb_node_t *) 
+    __kylin_nonnull((1, 2));
+extern krb_node_t *kylin_rb_prev_raw(krb_t *, krb_node_t *) 
+    __kylin_nonnull((1, 2));
 
-extern void *kylin_rb_find(krb_t *, void *cmp);
-extern void *kylin_rb_find_or_next(krb_t *, void *cmp);
+extern void *kylin_rb_find(krb_t *, void *cmp) 
+    __kylin_nonnull((1, 2));
+extern void *kylin_rb_find_or_next(krb_t *, void *cmp) 
+    __kylin_nonnull((1, 2));
 
-extern krb_node_t *kylin_rb_find_raw(krb_t *, void *cmp);
-extern krb_node_t *kylin_rb_find_or_next_raw(krb_t *, void *cmp);
+extern krb_node_t *kylin_rb_find_raw(krb_t *, void *cmp) 
+    __kylin_nonnull((1, 2));
+extern krb_node_t *kylin_rb_find_or_next_raw(krb_t *, void *cmp) 
+    __kylin_nonnull((1, 2));
 
 #define KYLIN_RB_FOREACH(root, node) \
     for(node = kylin_rb_min(root); node != NULL; node = kylin_rb_next(root, node))

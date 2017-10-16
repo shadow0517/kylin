@@ -50,43 +50,67 @@ typedef struct {
     .guard_dtor = NULL                  \
 }
 
-extern klist_t *kylin_list_create(const klist_opts_t *opts);
-extern void kylin_list_destroy(klist_t *);
-extern void kylin_list_clear(klist_t *);
+extern klist_t *kylin_list_create(const klist_opts_t *opts) 
+    __kylin_nonnull((1));
+extern void kylin_list_destroy(klist_t *) 
+    __kylin_nonnull((1));
+extern void kylin_list_clear(klist_t *) 
+    __kylin_nonnull((1));
 
-extern klist_t *kylin_list_dup(const klist_t *);
+extern klist_t *kylin_list_dup(const klist_t *) 
+    __kylin_nonnull((1));
 
-extern size_t kylin_list_count(const klist_t *);
-extern void *kylin_list_val(const klist_t *, klist_node_t *);
+extern size_t kylin_list_count(const klist_t *) 
+    __kylin_nonnull((1));
+extern void *kylin_list_val(const klist_t *, klist_node_t *) 
+    __kylin_nonnull((1, 2));
 
-extern klist_node_t *kylin_list_first(const klist_t *);
-extern klist_node_t *kylin_list_last(const klist_t *);
-extern klist_node_t *kylin_list_prev(const klist_t *, const klist_node_t *);
-extern klist_node_t *kylin_list_next(const klist_t *, const klist_node_t *);
+extern klist_node_t *kylin_list_first(const klist_t *) 
+    __kylin_nonnull((1));
+extern klist_node_t *kylin_list_last(const klist_t *) 
+    __kylin_nonnull((1));
+extern klist_node_t *kylin_list_prev(const klist_t *, const klist_node_t *) 
+    __kylin_nonnull((1, 2));
+extern klist_node_t *kylin_list_next(const klist_t *, const klist_node_t *) 
+    __kylin_nonnull((1, 2));
 
 #define KYLIN_LIST_FOREACH(guard, node)          \
     for(node = kylin_list_first(guard);          \
             node != NULL;                        \
             node = kylin_list_next(guard, node))
 
-extern klist_node_t *kylin_list_insert_head(klist_t *, void *);
-extern klist_node_t *kylin_list_insert_tail(klist_t *, void *);
-extern klist_node_t *kylin_list_insert(klist_t *, klist_node_t *before, void *);
+extern klist_node_t *kylin_list_insert_head(klist_t *, void *) 
+    __kylin_nonnull((1, 2));
+extern klist_node_t *kylin_list_insert_tail(klist_t *, void *) 
+    __kylin_nonnull((1, 2));
+extern klist_node_t *kylin_list_insert(klist_t *, klist_node_t *before, void *) 
+    __kylin_nonnull((1, 2, 3));
 
-extern klist_node_t *kylin_list_insert_head_raw(klist_t *, klist_node_t *);
-extern klist_node_t *kylin_list_insert_tail_raw(klist_t *, klist_node_t *);
-extern klist_node_t *kylin_list_insert_raw(klist_t *, klist_node_t *before, klist_node_t *);
+extern klist_node_t *kylin_list_insert_head_raw(klist_t *, klist_node_t *) 
+    __kylin_nonnull((1, 2));
+extern klist_node_t *kylin_list_insert_tail_raw(klist_t *, klist_node_t *) 
+    __kylin_nonnull((1, 2));
+extern klist_node_t *kylin_list_insert_raw(klist_t *, klist_node_t *before, klist_node_t *) 
+    __kylin_nonnull((1, 2, 3));
 
-extern void kylin_list_remove(klist_t *, void *);
-extern void kylin_list_remove_raw(klist_t *, klist_node_t *);
+extern void kylin_list_remove(klist_t *, void *) 
+    __kylin_nonnull((1, 2));
+extern void kylin_list_remove_raw(klist_t *, klist_node_t *) 
+    __kylin_nonnull((1, 2));
 
-extern void *kylin_list_unlink(klist_t *, void *);
-extern klist_node_t *kylin_list_unlink_raw(klist_t *, klist_node_t *);
+extern void *kylin_list_unlink(klist_t *, void *) 
+    __kylin_nonnull((1, 2));
+extern klist_node_t *kylin_list_unlink_raw(klist_t *, klist_node_t *) 
+    __kylin_nonnull((1, 2));
 
-extern klist_node_t *kylin_list_find(const klist_t *, void *key);
-extern klist_node_t *kylin_list_find_index(const klist_t *, int index);
+extern klist_node_t *kylin_list_find(const klist_t *, void *key) 
+    __kylin_nonnull((1, 2));
+extern klist_node_t *kylin_list_find_index(const klist_t *, int index) 
+    __kylin_nonnull((1));
 
-extern void kylin_list_rotate(klist_t *);
-extern void kylin_list_join(klist_t *, klist_t *);
+extern void kylin_list_rotate(klist_t *) 
+    __kylin_nonnull((1));
+extern void kylin_list_join(klist_t *, klist_t *) 
+    __kylin_nonnull((1, 2));
 
 #endif /*_KYLIN_MATH_LIST_H_*/

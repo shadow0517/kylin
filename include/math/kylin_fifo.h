@@ -20,11 +20,16 @@ typedef struct {
 
 #define KFIFO_OPTS_ALLOCATOR_NULL {.guard_ctor = NULL, .guard_dtor = NULL}
 
-extern kfifo_t *kylin_fifo_create(const kfifo_opts_t *opts);
-extern void kylin_fifo_destroy(kfifo_t *);
+extern kfifo_t *kylin_fifo_create(const kfifo_opts_t *opts) 
+    __kylin_nonnull((1));
+extern void kylin_fifo_destroy(kfifo_t *) 
+    __kylin_nonnull((1));
 
-extern int kylin_fifo_put(kfifo_t *, const kbyte_t *, size_t len);
-extern int kylin_fifo_get(kfifo_t *, kbyte_t *, size_t len);
-extern int kylin_fifo_peek(kfifo_t *, kbyte_t *, size_t len);
+extern int kylin_fifo_put(kfifo_t *, const kbyte_t *, size_t len) 
+    __kylin_nonnull((1, 2));
+extern int kylin_fifo_get(kfifo_t *, kbyte_t *, size_t len) 
+    __kylin_nonnull((1, 2));
+extern int kylin_fifo_peek(kfifo_t *, kbyte_t *, size_t len) 
+    __kylin_nonnull((1, 2));
 
 #endif /*_KYLIN_MATH_FIFO_H_*/

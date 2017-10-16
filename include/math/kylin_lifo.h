@@ -22,11 +22,16 @@ typedef struct {
 
 #define KLIFO_OPTS_ALLOCATOR_NULL {.guard_ctor = NULL, .guard_dtor = NULL}
 
-extern klifo_t *kylin_lifo_create(const klifo_opts_t *opts);
-extern void kylin_lifo_destroy(klifo_t *);
+extern klifo_t *kylin_lifo_create(const klifo_opts_t *opts) 
+    __kylin_nonnull((1));
+extern void kylin_lifo_destroy(klifo_t *) 
+    __kylin_nonnull((1));
 
-extern int kylin_lifo_push(klifo_t *, const kbyte_t *, size_t len);
-extern int kylin_lifo_pop(klifo_t *, kbyte_t *, size_t len);
-extern int kylin_lifo_top(klifo_t *, kbyte_t *, size_t len);
+extern int kylin_lifo_push(klifo_t *, const kbyte_t *, size_t len) 
+    __kylin_nonnull((1, 2));
+extern int kylin_lifo_pop(klifo_t *, kbyte_t *, size_t len) 
+    __kylin_nonnull((1, 2));
+extern int kylin_lifo_top(klifo_t *, kbyte_t *, size_t len) 
+    __kylin_nonnull((1, 2));
 
 #endif /*_KYLIN_MATH_LIFO_H_*/

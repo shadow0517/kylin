@@ -42,11 +42,16 @@ typedef struct {
     .guard_dtor = NULL                  \
 }
 
-extern kring_t *kylin_ring_create(kring_opts_t *opts);
-extern void kylin_ring_destroy(kring_t *);
+extern kring_t *kylin_ring_create(kring_opts_t *opts) 
+    __kylin_nonnull((1));
+extern void kylin_ring_destroy(kring_t *) 
+    __kylin_nonnull((1));
 
-extern kerr_t kylin_ring_enqueue(kring_t *, void *);
-extern void *kylin_ring_dequeue(kring_t *);
-extern void *kylin_ring_peek(kring_t *);
+extern kerr_t kylin_ring_enqueue(kring_t *, void *) 
+    __kylin_nonnull((1, 2));
+extern void *kylin_ring_dequeue(kring_t *) 
+    __kylin_nonnull((1));
+extern void *kylin_ring_peek(kring_t *) 
+    __kylin_nonnull((1));
 
 #endif /*_KYLIN_MATH_BUFRING_H_*/

@@ -52,36 +52,57 @@ typedef struct {
     .guard_dtor = NULL                  \
 }
 
-extern kindex_t *kylin_index_create(const kindex_opts_t *opts);
-extern void kylin_index_destroy(kindex_t *);
+extern kindex_t *kylin_index_create(const kindex_opts_t *opts) 
+    __kylin_nonnull((1));
+extern void kylin_index_destroy(kindex_t *) 
+    __kylin_nonnull((1));
 
-extern void *kylin_index_priv(kindex_t *);
+extern void *kylin_index_priv(kindex_t *) 
+    __kylin_nonnull((1));
 
-extern kobj_t kylin_index_val_type(kindex_t *);
-extern size_t kylin_index_val_size(kindex_t *);
+extern kobj_t kylin_index_val_type(kindex_t *) 
+    __kylin_nonnull((1));
+extern size_t kylin_index_val_size(kindex_t *) 
+    __kylin_nonnull((1));
 
-extern void *kylin_index_val(kindex_t *, kindex_node_t *);
+extern void *kylin_index_val(kindex_t *, kindex_node_t *) 
+    __kylin_nonnull((1, 2));
 
-extern size_t kylin_index_count(kindex_t *);
-extern kerr_t kylin_index_resize(kindex_t *, size_t);
+extern size_t kylin_index_count(kindex_t *) 
+    __kylin_nonnull((1));
+extern kerr_t kylin_index_resize(kindex_t *, size_t) 
+    __kylin_nonnull((1));
 
-extern void kylin_index_clear(kindex_t *);
+extern void kylin_index_clear(kindex_t *) 
+    __kylin_nonnull((1));
 
-extern kindex_node_t *kylin_index_insert(kindex_t *, void *val);
-extern kindex_node_t *kylin_index_insert_raw(kindex_t *, kindex_node_t *);
+extern kindex_node_t *kylin_index_insert(kindex_t *, void *val) 
+    __kylin_nonnull((1, 2));
+extern kindex_node_t *kylin_index_insert_raw(kindex_t *, kindex_node_t *) 
+    __kylin_nonnull((1, 2));
 
-extern kerr_t kylin_index_remove(kindex_t *, void *cmp);
-extern kerr_t kylin_index_remove_raw(kindex_t *, kindex_node_t *);
+extern kerr_t kylin_index_remove(kindex_t *, void *cmp) 
+    __kylin_nonnull((1, 2));
+extern kerr_t kylin_index_remove_raw(kindex_t *, kindex_node_t *) 
+    __kylin_nonnull((1, 2));
 
-extern void *kylin_index_unlink(kindex_t *, void *);
-extern kindex_node_t *kylin_index_unlink_raw(kindex_t *, kindex_node_t *);
+extern void *kylin_index_unlink(kindex_t *, void *) 
+    __kylin_nonnull((1, 2));
+extern kindex_node_t *kylin_index_unlink_raw(kindex_t *, kindex_node_t *) 
+    __kylin_nonnull((1, 2));
 
-extern kindex_node_t *kylin_index_replace(kindex_t *, void *val);
+extern kindex_node_t *kylin_index_replace(kindex_t *, void *val) 
+    __kylin_nonnull((1, 2));
 
-extern kindex_node_t *kylin_index_find(kindex_t *, void *key);
-extern kindex_node_t *kylin_index_first(kindex_t *);
-extern kindex_node_t *kylin_index_last(kindex_t *);
-extern kindex_node_t *kylin_index_next(kindex_t *, kindex_node_t *);
-extern kindex_node_t *kylin_index_prev(kindex_t *, kindex_node_t *);
+extern kindex_node_t *kylin_index_find(kindex_t *, void *key) 
+    __kylin_nonnull((1, 2));
+extern kindex_node_t *kylin_index_first(kindex_t *) 
+    __kylin_nonnull((1));
+extern kindex_node_t *kylin_index_last(kindex_t *) 
+    __kylin_nonnull((1));
+extern kindex_node_t *kylin_index_next(kindex_t *, kindex_node_t *) 
+    __kylin_nonnull((1, 2));
+extern kindex_node_t *kylin_index_prev(kindex_t *, kindex_node_t *) 
+    __kylin_nonnull((1, 2));
 
 #endif /*_KYLIN_MATH_INDEX_H_*/

@@ -61,36 +61,60 @@ typedef struct {
 }
 
 
-extern kmap_t *kylin_map_create(const kmap_opts_t *opts);
-extern void kylin_map_destroy(kmap_t *);
-extern void kylin_map_clear(kmap_t *);
+extern kmap_t *kylin_map_create(const kmap_opts_t *opts) 
+    __kylin_nonnull((1));
+extern void kylin_map_destroy(kmap_t *) 
+    __kylin_nonnull((1));
+extern void kylin_map_clear(kmap_t *) 
+    __kylin_nonnull((1));
 
-extern void *kylin_map_priv(kmap_t *);
+extern void *kylin_map_priv(kmap_t *) 
+    __kylin_nonnull((1));
 
-extern void *kylin_map_key(kmap_t *, kmap_node_t *);
-extern void *kylin_map_val(kmap_t *, kmap_node_t *);
-extern kobj_t kylin_map_val_type(kmap_t *, kmap_node_t *);
+extern void *kylin_map_key(kmap_t *, kmap_node_t *) 
+    __kylin_nonnull((1, 2));
+extern void *kylin_map_val(kmap_t *, kmap_node_t *) 
+    __kylin_nonnull((1, 2));
+extern kobj_t kylin_map_val_type(kmap_t *, kmap_node_t *) 
+    __kylin_nonnull((1, 2));
 
-extern size_t kylin_map_count(kmap_t *);
-extern kerr_t kylin_map_resize(kmap_t *, size_t);
+extern size_t kylin_map_count(kmap_t *) 
+    __kylin_nonnull((1));
+extern kerr_t kylin_map_resize(kmap_t *, size_t) 
+    __kylin_nonnull((1));
 
-extern kmap_node_t *kylin_map_insert(kmap_t *, void *key, void *val, kobj_t val_type, size_t size);
-extern kmap_node_t *kylin_map_insert_raw(kmap_t *, kmap_node_t *);
+extern kmap_node_t *kylin_map_insert(kmap_t *, void *key, 
+        void *val, kobj_t val_type, size_t size) 
+    __kylin_nonnull((1, 2, 3));
+extern kmap_node_t *kylin_map_insert_raw(kmap_t *, kmap_node_t *) 
+    __kylin_nonnull((1, 2));
 
-extern kerr_t kylin_map_remove(kmap_t *, void *);
-extern kerr_t kylin_map_remove_raw(kmap_t *, kmap_node_t *);
+extern kerr_t kylin_map_remove(kmap_t *, void *) 
+    __kylin_nonnull((1, 2));
+extern kerr_t kylin_map_remove_raw(kmap_t *, kmap_node_t *) 
+    __kylin_nonnull((1, 2));
 
-extern void *kylin_map_unlink(kmap_t *, void *key);
-extern kmap_node_t *kylin_map_unlink_raw(kmap_t *, kmap_node_t *);
+extern void *kylin_map_unlink(kmap_t *, void *key) 
+    __kylin_nonnull((1, 2));
+extern kmap_node_t *kylin_map_unlink_raw(kmap_t *, kmap_node_t *) 
+    __kylin_nonnull((1, 2));
 
-extern kmap_node_t *kylin_map_replace(kmap_t *, void *key, void *val, kobj_t val_type, size_t size);
+extern kmap_node_t *kylin_map_replace(kmap_t *, void *key, 
+        void *val, kobj_t val_type, size_t size) 
+    __kylin_nonnull((1, 2, 3));
 
-extern kmap_node_t *kylin_map_find(kmap_t *, void *key);
-extern kmap_node_t *kylin_map_first(kmap_t *);
-extern kmap_node_t *kylin_map_last(kmap_t *);
-extern kmap_node_t *kylin_map_next(kmap_t *, kmap_node_t *);
-extern kmap_node_t *kylin_map_prev(kmap_t *, kmap_node_t *);
+extern kmap_node_t *kylin_map_find(kmap_t *, void *key) 
+    __kylin_nonnull((1, 2));
+extern kmap_node_t *kylin_map_first(kmap_t *) 
+    __kylin_nonnull((1));
+extern kmap_node_t *kylin_map_last(kmap_t *) 
+    __kylin_nonnull((1));
+extern kmap_node_t *kylin_map_next(kmap_t *, kmap_node_t *) 
+    __kylin_nonnull((1, 2));
+extern kmap_node_t *kylin_map_prev(kmap_t *, kmap_node_t *) 
+    __kylin_nonnull((1, 2));
 
-extern void *kylin_map_fetch_val(kmap_t *, void *key);
+extern void *kylin_map_fetch_val(kmap_t *, void *key) 
+    __kylin_nonnull((1, 2));
 
 #endif /*_KYLIN_MATH_MAP_H_*/

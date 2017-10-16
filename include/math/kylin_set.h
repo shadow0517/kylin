@@ -46,30 +46,48 @@ typedef struct {
     .guard_dtor = NULL                  \
 }
 
-extern kset_t *kylin_set_create(const kset_opts_t *opts);
-extern void kylin_set_destroy(kset_t *);
-extern void kylin_set_clear(kset_t *);
+extern kset_t *kylin_set_create(const kset_opts_t *opts) 
+    __kylin_nonnull((1));
+extern void kylin_set_destroy(kset_t *) 
+    __kylin_nonnull((1));
+extern void kylin_set_clear(kset_t *) 
+    __kylin_nonnull((1));
 
-extern kobj_t kylin_set_val_type(kset_t *);
-extern size_t kylin_set_val_size(kset_t *);
-extern size_t kylin_set_count(kset_t *);
+extern kobj_t kylin_set_val_type(kset_t *) 
+    __kylin_nonnull((1));
+extern size_t kylin_set_val_size(kset_t *) 
+    __kylin_nonnull((1));
+extern size_t kylin_set_count(kset_t *) 
+    __kylin_nonnull((1));
 
-extern kerr_t kylin_set_insert(kset_t *, void *);
+extern kerr_t kylin_set_insert(kset_t *, void *) 
+    __kylin_nonnull((1, 2));
 
-extern kerr_t kylin_set_remove(kset_t *, void *);
-extern kerr_t kylin_set_remove_by_index(kset_t *, uint32_t);
+extern kerr_t kylin_set_remove(kset_t *, void *) 
+    __kylin_nonnull((1, 2));
+extern kerr_t kylin_set_remove_by_index(kset_t *, uint32_t) 
+    __kylin_nonnull((1));
 
-extern void *kylin_set_unlink(kset_t *, void *);
-extern void *kylin_set_unlink_by_index(kset_t *, uint32_t);
+extern void *kylin_set_unlink(kset_t *, void *) 
+    __kylin_nonnull((1, 2));
+extern void *kylin_set_unlink_by_index(kset_t *, uint32_t) 
+    __kylin_nonnull((1));
 
-extern void *kylin_set_find(kset_t *, void *);
-extern void *kylin_set_find_by_index(kset_t *, uint32_t);
+extern void *kylin_set_find(kset_t *, void *) 
+    __kylin_nonnull((1, 2));
+extern void *kylin_set_find_by_index(kset_t *, uint32_t) 
+    __kylin_nonnull((1));
 
-extern void *kylin_set_random(kset_t *);
-extern void *kylin_set_first(kset_t *);
-extern void *kylin_set_last(kset_t *);
-extern void *kylin_set_next(kset_t *, void *);
-extern void *kylin_set_prev(kset_t *, void *);
+extern void *kylin_set_random(kset_t *) 
+    __kylin_nonnull((1));
+extern void *kylin_set_first(kset_t *) 
+    __kylin_nonnull((1));
+extern void *kylin_set_last(kset_t *) 
+    __kylin_nonnull((1));
+extern void *kylin_set_next(kset_t *, void *) 
+    __kylin_nonnull((1, 2));
+extern void *kylin_set_prev(kset_t *, void *) 
+    __kylin_nonnull((1, 2));
 
 #define KYLIN_SET_FOREACH(guard, val)          \
     for(val = kylin_set_first(guard);          \
@@ -77,6 +95,7 @@ extern void *kylin_set_prev(kset_t *, void *);
             val = kylin_set_next(guard, val))
 
 /*排序, 对于非顺序的集合，该操作可能花费一定的时间*/
-extern kerr_t kylin_set_order(kset_t *);
+extern kerr_t kylin_set_order(kset_t *) 
+    __kylin_nonnull((1));
 
 #endif /*_KYLIN_MATH_SET_H_*/

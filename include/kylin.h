@@ -49,12 +49,14 @@
 #define MPLOCK "lock ; "
 
 /*编译属性*/
-#define __kylin_aligned(a)    __attribute__((__aligned__(a)))
-#define __kylin_packed        __attribute__((__packed__))
-#define __kylin_deprecated	  __attribute__((__deprecated__))
-#define __kylin_unused        __attribute__((__unused__))
-#define __kylin_inline inline __attribute__((always_inline))
-#define __kylin_noinline      __attribute__((noinline))
+#define __kylin_aligned(a)      __attribute__((__aligned__(a)))
+#define __kylin_packed          __attribute__((__packed__))
+#define __kylin_deprecated	    __attribute__((__deprecated__))
+#define __kylin_unused          __attribute__((__unused__))
+#define __kylin_inline   inline __attribute__((always_inline))
+#define __kylin_noinline        __attribute__((noinline))
+#define __kylin_nonnull(params) __attribute__((__nonnull__ params))
+#define __kylin_wur             __attribute__((warn_unused_result))
 
 /*判断一个数是否为编译时常量*/
 #define IS_CONSTANT(nr) (__builtin_constant_p(nr))
