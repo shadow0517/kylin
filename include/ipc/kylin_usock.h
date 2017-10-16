@@ -18,12 +18,17 @@ typedef int (*kusock_proc_t)(kusock_server_t *, unsigned long, void *);
 extern kusock_server_t *kylin_usock_server_create(const char *, int mode,
         kusock_init_t init,
         kusock_fini_t fini,
-        kusock_proc_t proc);
-extern void kylin_usock_server_destroy(kusock_server_t *);
+        kusock_proc_t proc) 
+    __kylin_nonnull((1, 5));
+extern void kylin_usock_server_destroy(kusock_server_t *) 
+    __kylin_nonnull((1));
 
-extern kusock_client_t *kylin_usock_client_open(const char *);
-extern void kylin_usock_client_close(kusock_client_t *);
+extern kusock_client_t *kylin_usock_client_open(const char *) 
+    __kylin_nonnull((1));
+extern void kylin_usock_client_close(kusock_client_t *) 
+    __kylin_nonnull((1));
 
-extern kerr_t kylin_usock_client_request(kusock_client_t *, unsigned long, void *); 
+extern kerr_t kylin_usock_client_request(kusock_client_t *, unsigned long, void *) 
+    __kylin_nonnull((1)); 
 
 #endif /*_KYLIN_IPC_UNIXSOCK_H_*/
