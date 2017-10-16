@@ -47,20 +47,31 @@ typedef struct {
     } action;
 } kevent_opts_t;
 
-extern kevent_t *kylin_event_create(const kevent_type_t, const kevent_opts_t *);
-extern void kylin_event_destroy(kevent_t *);
+extern kevent_t *kylin_event_create(const kevent_type_t, const kevent_opts_t *) 
+    __kylin_nonnull((2));
+extern void kylin_event_destroy(kevent_t *) 
+    __kylin_nonnull((1));
 
-extern kerr_t kylin_event_add(kevent_t *, kfd_t, kevent_flag_t);
-extern kerr_t kylin_event_del(kevent_t *, kfd_t, kevent_flag_t);
+extern kerr_t kylin_event_add(kevent_t *, kfd_t, kevent_flag_t) 
+    __kylin_nonnull((1));
+extern kerr_t kylin_event_del(kevent_t *, kfd_t, kevent_flag_t) 
+    __kylin_nonnull((1));
 
-extern kerr_t kylin_event_process(kevent_t *);
+extern kerr_t kylin_event_process(kevent_t *) 
+    __kylin_nonnull((1));
 
-extern void *kylin_event_get_priv_data(kevent_t *);
-extern kevent_opts_t *kylin_event_get_opts(kevent_t *);
-extern uint32_t kylin_event_event_count(kevent_t *);
-extern kevent_event_t *kylin_event_event_get_first(kevent_t *);
-extern kevent_event_t *kylin_event_event_get_next(kevent_t *, kevent_event_t *);
-extern kevent_event_t *kylin_event_event_get_by_fd(kevent_t *, kfd_t);
+extern void *kylin_event_get_priv_data(kevent_t *) 
+    __kylin_nonnull((1));
+extern kevent_opts_t *kylin_event_get_opts(kevent_t *) 
+    __kylin_nonnull((1));
+extern uint32_t kylin_event_event_count(kevent_t *) 
+    __kylin_nonnull((1));
+extern kevent_event_t *kylin_event_event_get_first(kevent_t *) 
+    __kylin_nonnull((1));
+extern kevent_event_t *kylin_event_event_get_next(kevent_t *, kevent_event_t *) 
+    __kylin_nonnull((1, 2));
+extern kevent_event_t *kylin_event_event_get_by_fd(kevent_t *, kfd_t) 
+    __kylin_nonnull((1));
 
 #define KYLIN_EVENT_EVENT_FOREACH(guard, event)               \
     for(event = kylin_event_event_get_first(guard);           \
@@ -84,7 +95,8 @@ typedef struct {
     void   (*fini)(void);
 } kevent_reg_t;
 
-extern kerr_t kylin_event_register(kevent_type_t, const kevent_reg_t *);
+extern kerr_t kylin_event_register(kevent_type_t, const kevent_reg_t *) 
+    __kylin_nonnull((2));
 extern kerr_t kylin_event_unregister(kevent_type_t);
 
 #endif /*_KYLIN_EVENT_H_*/
