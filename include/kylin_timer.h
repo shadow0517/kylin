@@ -31,19 +31,27 @@ typedef enum {
     KTIMER_STATE_RUNNING
 } ktimer_state_t;
 
-typedef void (*ktimer_exec_t)(ktimer_t *, void *);
+typedef void (*ktimer_exec_t)(ktimer_t *, void *) 
+    __kylin_nonnull((1));
 
 extern ktimer_t *kylin_timer_create(uint64_t, 
-        ktimer_src_t, ktimer_type_t, ktimer_exec_t, void *, int);
-extern void kylin_timer_destroy(ktimer_t *);
+        ktimer_src_t, ktimer_type_t, ktimer_exec_t, void *, int) 
+    __kylin_nonnull((4));
+extern void kylin_timer_destroy(ktimer_t *) 
+    __kylin_nonnull((1));
 
-extern kerr_t kylin_timer_start(ktimer_t *);
-extern kerr_t kylin_timer_start_sync(ktimer_t *);
+extern kerr_t kylin_timer_start(ktimer_t *) 
+    __kylin_nonnull((1));
+extern kerr_t kylin_timer_start_sync(ktimer_t *) 
+    __kylin_nonnull((1));
 
-extern kerr_t kylin_timer_stop(ktimer_t *);
-extern kerr_t kylin_timer_stop_sync(ktimer_t *);
+extern kerr_t kylin_timer_stop(ktimer_t *) 
+    __kylin_nonnull((1));
+extern kerr_t kylin_timer_stop_sync(ktimer_t *) 
+    __kylin_nonnull((1));
 
-extern kbool_t kylin_timer_is_pending(ktimer_t *);
+extern kbool_t kylin_timer_is_pending(ktimer_t *) 
+    __kylin_nonnull((1));
 
 #endif /*_KYLIN_TIMER_H_*/
 
