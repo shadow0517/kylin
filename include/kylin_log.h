@@ -89,25 +89,41 @@ typedef struct kylin_logger {
     kerr_t (*dtor)(void *);
 }klog_logger_t;
 
-extern klog_t *kylin_log_create(klog_logger_t logger[], size_t num);
-extern void kylin_log_destroy(klog_t *);
+extern klog_t *kylin_log_create(klog_logger_t logger[], size_t num) 
+    __kylin_nonnull((1));
+extern void kylin_log_destroy(klog_t *) 
+    __kylin_nonnull((1));
 
-extern klog_t *kylin_log_dup(const klog_t *);              /*日志对象副本*/
-extern kerr_t kylin_log_expand(klog_t *, klog_logger_t *); /*日志对象添加实例*/
-extern kerr_t kylin_log_reduce(klog_t *, klog_type_t);     /*日志对象缩减实例*/
+extern klog_t *kylin_log_dup(const klog_t *) 
+    __kylin_nonnull((1));              /*日志对象副本*/
+extern kerr_t kylin_log_expand(klog_t *, klog_logger_t *) 
+    __kylin_nonnull((1, 2));           /*日志对象添加实例*/
+extern kerr_t kylin_log_reduce(klog_t *, klog_type_t) 
+    __kylin_nonnull((1));              /*日志对象缩减实例*/
 
-extern klog_logger_t *kylin_log_logger_get(klog_t *, klog_type_t);
-extern klog_level_t kylin_log_level_get(klog_t *, klog_type_t);
+extern klog_logger_t *kylin_log_logger_get(klog_t *, klog_type_t) 
+    __kylin_nonnull((1));
+extern klog_level_t kylin_log_level_get(klog_t *, klog_type_t) 
+    __kylin_nonnull((1));
 
-extern kerr_t kylin_log_logger_set(klog_t *, klog_type_t, klog_logger_t *);
-extern kerr_t kylin_log_level_set(klog_t *, klog_type_t, klog_level_t);
+extern kerr_t kylin_log_logger_set(klog_t *, klog_type_t, klog_logger_t *) 
+    __kylin_nonnull((1, 3));
+extern kerr_t kylin_log_level_set(klog_t *, klog_type_t, klog_level_t) 
+    __kylin_nonnull((1));
 
-extern void kylin_log_debug(const klog_t *, const char *, ...)  _LOG_FORMAT_;
-extern void kylin_log_info(const klog_t *, const char *, ...)   _LOG_FORMAT_;
-extern void kylin_log_notice(const klog_t *, const char *, ...) _LOG_FORMAT_;
-extern void kylin_log_warn(const klog_t *, const char *, ...)   _LOG_FORMAT_;
-extern void kylin_log_error(const klog_t *, const char *, ...)  _LOG_FORMAT_;
-extern void kylin_log_crit(const klog_t *, const char *, ...)   _LOG_FORMAT_;
-extern void kylin_log_alert(const klog_t *, const char *, ...)  _LOG_FORMAT_;
+extern void kylin_log_debug(const klog_t *, const char *, ...)  
+    __kylin_nonnull((1, 2)) _LOG_FORMAT_;
+extern void kylin_log_info(const klog_t *, const char *, ...)   
+    __kylin_nonnull((1, 2)) _LOG_FORMAT_;
+extern void kylin_log_notice(const klog_t *, const char *, ...) 
+    __kylin_nonnull((1, 2)) _LOG_FORMAT_;
+extern void kylin_log_warn(const klog_t *, const char *, ...)   
+    __kylin_nonnull((1, 2)) _LOG_FORMAT_;
+extern void kylin_log_error(const klog_t *, const char *, ...)  
+    __kylin_nonnull((1, 2)) _LOG_FORMAT_;
+extern void kylin_log_crit(const klog_t *, const char *, ...)   
+    __kylin_nonnull((1, 2)) _LOG_FORMAT_;
+extern void kylin_log_alert(const klog_t *, const char *, ...)  
+    __kylin_nonnull((1, 2)) _LOG_FORMAT_;
 
 #endif /*_KYLIN_LOG_H_*/
