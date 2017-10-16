@@ -48,23 +48,34 @@ typedef struct {
     } config;
 } ksock_opts_t;
 
-extern ksock_t *kylin_socket_create(ksock_type_t, const ksock_opts_t *);
-extern void kylin_socket_destroy(ksock_t *);
+extern ksock_t *kylin_socket_create(ksock_type_t, const ksock_opts_t *) 
+    __kylin_nonnull((2));
+extern void kylin_socket_destroy(ksock_t *) 
+    __kylin_nonnull((1));
 
-extern kfd_t kylin_socket_get_fd(ksock_t *);
+extern kfd_t kylin_socket_get_fd(ksock_t *) 
+    __kylin_nonnull((1));
 
-extern ksock_conn_t *kylin_socket_accept(ksock_t *);
+extern ksock_conn_t *kylin_socket_accept(ksock_t *) 
+    __kylin_nonnull((1));
 
-extern void kylin_socket_connection_destroy(ksock_t *, ksock_conn_t *);
+extern void kylin_socket_connection_destroy(ksock_t *, ksock_conn_t *) 
+    __kylin_nonnull((1, 2));
 
-extern kerr_t kylin_socket_connect(ksock_t *);
+extern kerr_t kylin_socket_connect(ksock_t *) 
+    __kylin_nonnull((1));
 
-extern ssize_t kylin_socket_recv(ksock_t *, kfd_t, void *, size_t);
-extern ssize_t kylin_socket_send(ksock_t *, kfd_t, const void *, size_t);
+extern ssize_t kylin_socket_recv(ksock_t *, kfd_t, void *, size_t) 
+    __kylin_nonnull((1, 3));
+extern ssize_t kylin_socket_send(ksock_t *, kfd_t, const void *, size_t) 
+    __kylin_nonnull((1, 3));
 
-extern void *kylin_socket_get_priv(ksock_t *);
-extern ksock_type_t kylin_socket_get_type(ksock_t *); 
-extern ksock_opts_t *kylin_socket_get_opts(ksock_t *);
+extern void *kylin_socket_get_priv(ksock_t *) 
+    __kylin_nonnull((1));
+extern ksock_type_t kylin_socket_get_type(ksock_t *) 
+    __kylin_nonnull((1)); 
+extern ksock_opts_t *kylin_socket_get_opts(ksock_t *) 
+    __kylin_nonnull((1));
 
 typedef struct {
     void *(*create)(ksock_t *);
@@ -89,7 +100,8 @@ typedef struct {
     void (*fini)(void);
 } ksock_reg_t;
 
-extern int kylin_socket_register(ksock_type_t, ksock_reg_t *);
+extern int kylin_socket_register(ksock_type_t, ksock_reg_t *) 
+    __kylin_nonnull((2));
 extern void kylin_socket_unregister(ksock_type_t);
 
 #endif /*_KYLIN_SOCKET_H_*/
