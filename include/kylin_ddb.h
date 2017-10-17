@@ -1,0 +1,7 @@
+#ifndef _KYLIN_DAEMON_DEBUG_H_
+#define _KYLIN_DAEMON_DEBUG_H_
+
+
+
+
+#endif /*_KYLIN_DAEMON_DEBUG_H_*/

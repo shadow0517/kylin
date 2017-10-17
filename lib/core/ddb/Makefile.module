@@ -1,0 +1,19 @@
+SHELL=/bin/sh
+# Where you want it installed when you do 'make install'
+PREFIX=/usr/local/
+
+CFLAGS = ${KYLIN_CFLAGS} -DKYLIN_MODULE -I/usr/local/include -I${KYLIN_LIB_SRC}
+LDFLAGS += -L/usr/local/lib -rdynamic -lunwind -lunwind-x86_64 -ldwarf -lelf
+
+all: kylin_core_ddb
+
+LIB_OBJS = kylin_ddb.o kylin_ddb_callback.o kylin_ddb_symbol.o
+
+kylin_core_ddb: $(LIB_OBJS)
+	${CC} ${CFLAGS} ${LIB_OBJS} -shared -o kylin_core_ddb.so ${LDFLAGS}
+
+distclean: clean
+clean:
+	rm -f *.o kylin_core_ddb.so
+
+
