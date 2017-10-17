@@ -3,72 +3,101 @@
 #include <kylin/include/utils/kylin_limit.h>
 
 #include <kylin/include/ipc/kylin_shm.h>
-#include <kylin/lib/core/ipc/shm/kylin_shm.h>
-#include <kylin/lib/core/ipc/shm/kylin_shm_open.h>
 
+#include <kylin/lib/core/ipc/shm/kylin_shm.h>
+#include <kylin/lib/core/ipc/shm/kylin_shm_obj.h>
+#include <kylin/lib/core/ipc/shm/kylin_shm_open.h>
 
 struct kylin_shm {
     char         name[KYLIN_NAME_LENGTH];
-    uint32_t     index; /*overview中关于该module的索引*/
+    kfd_t        fd;
+    kspinlock_t  lock;
     size_t       cap;
     void        *addr;
 };
 
-kshm_t *kylin_shm_create(const char *name, size_t cap)
+kerr_t kylin_shm_create(const char *name, size_t cap)
 {
-    kfd_t fd    = -1;
-    void *base  = NULL;
-    kshm_t *shm = NULL;
+    kshm_obj_t obj;
 
-    if(strlen(name) > KYLIN_NAME_LENGTH)
-        goto exit;
+    if(strlen(name) > KYLIN_NAME_LENGTH )
+        return KYLIN_ERROR_INVAL;
+    if(object_find(name))
+        return KYLIN_ERROR_EXIST;
 
-    fd = kylin_shm_open(name, O_RDWR | O_CREAT, 00777);
-    if(fd == -1)
-        goto exit;
+    memset(&obj, 0, sizeof(kshm_obj_t));
+    memcpy(obj.name, name, strlen(name));
+    obj.cap    = cap;
+    obj.refcnt = 0;
 
-    if(ftruncate(fd, cap) == -1)
-        goto exit;
-
-    base = mmap(NULL, cap, PROT_WRITE | PROT_READ, MAP_SHARED, fd, SEEK_SET);
-    if(base == NULL)
-        goto exit;
-
-    memset(base, 0, cap);
-
-    shm = malloc(sizeof(kshm_t));
-    if(shm == NULL)
-        goto exit;
-
-    memcpy(shm->name, name, KYLIN_MIN(strlen(name), KYLIN_NAME_LENGTH));
-    shm->name[KYLIN_NAME_LENGTH - 1] = '\0';
-    kylin_spinlock_init(&shm->lock);
-    shm->cap = cap;
-    shm->fd = fd;
-    shm->addr = base;
-
-exit:
-    if(!shm && fd)
-        kylin_shm_unlink(name);
-    if(!shm && base)
-        munmap(base, cap);
-
-    return shm;
+    return object_insert(&obj);
 }
 
-void kylin_shm_destroy(kshm_t *shm)
+void kylin_shm_destroy(const char *name)
 {
+    kshm_obj_t *obj = NULL;
 
+    obj = object_find(name);
+    if(obj && --obj->refcnt == 0) 
+        object_delete(obj);
+
+    return;
 }
 
 kshm_t *kylin_shm_open(const char *name)
 {
+    kshm_t     *shm = NULL;
+    kshm_obj_t *obj = NULL;
 
+    if(strlen(name) > KYLIN_NAME_LENGTH ||
+            !(obj = object_find(name)))
+        return NULL;
+
+    shm = malloc(sizeof(kshm_t));
+    if(!shm)
+        return NULL;
+    memset(shm, 0, sizeof(kshm_t));
+
+    shm->fd = kshm_open(name, O_RDWR | O_CREAT, 00777);
+    if(shm->fd == -1 ||
+            ftruncate(shm->fd, obj->cap) == -1) {
+        kshm_unlink(name);
+        free(shm);
+        return NULL;
+    }
+
+    shm->addr = mmap(NULL, obj->cap, PROT_WRITE | PROT_READ, MAP_SHARED, shm->fd, SEEK_SET);
+    if(!shm->addr) {
+        kshm_unlink(name);
+        free(shm);
+        return NULL;
+    }
+
+    memset(shm->addr, 0, obj->cap);
+    memcpy(shm->name, name, strlen(name));
+    kylin_spinlock_init(&shm->lock);
+    shm->cap = obj->cap;
+
+    obj->refcnt++;
+
+    return shm;
 }
 
 void kylin_shm_close(kshm_t *shm)
 {
+    kshm_obj_t *obj = NULL;
 
+    obj = object_find(shm->name);
+    if(obj) {
+        obj->refcnt--;
+        if(shm->fd)
+            kshm_unlink(shm->name);
+        if(shm->addr)
+            munmap(shm->addr, shm->cap);
+        free(shm);
+    }
+
+    return;
 }
 
 void kylin_shm_lock(kshm_t *shm)
@@ -83,7 +112,7 @@ void kylin_shm_unlock(kshm_t *shm)
 
 int kylin_shm_trylock(kshm_t *shm)
 {
-    return kylin_spinlock_trylock(&shm->loca);
+    return kylin_spinlock_trylock(&shm->lock);
 }
 
 void *kylin_shm_addr(kshm_t *shm)
@@ -98,11 +127,11 @@ size_t kylin_shm_size(kshm_t *shm)
 
 kerr_t kylin_shm_init(void)
 {
-
+    return object_init();
 }
 
 void kylin_shm_fini(void)
 {
-
+    object_fini();
 }
 

@@ -1,14 +1,12 @@
 #include <kylin/include/kylin.h>
-#include <kylin/lib/core/ipc/shm/kylin_shm_opne.h>
+#include <kylin/lib/core/ipc/shm/kylin_shm_open.h>
 
-static size_t local_len = strlen(KYLIN_SHM_LOCAL); 
-
-kfd_t kylin_shm_open(const char *name, int flag, mode_t mode)
+kfd_t kshm_open(const char *name, int flag, mode_t mode)
 {
-    size_t name_len;
+    size_t name_len  = strlen(name);
+    size_t local_len = strlen(KYLIN_SHM_LOCAL);
     char *file_name;
 
-    name_len  = strlen(name);
     file_name = alloca(name_len + local_len + 1);
 
     memcpy(file_name, KYLIN_SHM_LOCAL, local_len);
@@ -17,12 +15,12 @@ kfd_t kylin_shm_open(const char *name, int flag, mode_t mode)
     return open(file_name, flag | O_NOFOLLOW, mode);
 }
 
-int kylin_shm_unlink(const char *name)
+int kshm_unlink(const char *name)
 {
-    size_t name_len;
+    size_t name_len  = strlen(name);
+    size_t local_len = strlen(KYLIN_SHM_LOCAL);
     char *file_name;
 
-    name_len  = strlen(name);
     file_name = alloca(name_len + local_len + 1);
 
     memcpy(file_name, KYLIN_SHM_LOCAL, local_len);

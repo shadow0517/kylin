@@ -2,13 +2,15 @@
 #define _KYLIN_IPC_SHM_H_
 
 #include <kylin/include/kylin.h>
+#include <kylin/include/utils/kylin_error.h>
 
 struct kylin_shm;
 typedef struct kylin_shm kshm_t;
 
-extern kshm_t *kylin_shm_create(const char *name, size_t) 
+/*创建共享内存的进程使用create/destroy，使用共享内存的进程使用open/close*/
+extern kerr_t kylin_shm_create(const char *name, size_t) 
     __kylin_nonnull((1));
-extern void kylin_shm_destroy(kshm_t *) 
+extern void kylin_shm_destroy(const char *name) 
     __kylin_nonnull((1));
 
 extern kshm_t *kylin_shm_open(const char *name) 
