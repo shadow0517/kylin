@@ -13,7 +13,7 @@ typedef struct {
     kset_t   *fd_set[SELECT_FDSET_TYPE_NUM]; /*存放排好序的套接字*/
 } kevent_select_t;
 
-kerr_t kylin_select_add(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
+kerr_t kselect_add(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
 {
     kerr_t ret = KYLIN_ERROR_OK;
     kevent_select_t *event_select = NULL;
@@ -46,7 +46,7 @@ kerr_t kylin_select_add(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
     return ret;
 }
 
-kerr_t kylin_select_del(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
+kerr_t kselect_del(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
 {
     kerr_t ret = KYLIN_ERROR_OK;
     kevent_select_t *event_select = NULL;
@@ -79,7 +79,7 @@ kerr_t kylin_select_del(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
     return ret;
 }
 
-kerr_t kylin_select_mod(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
+kerr_t kselect_mod(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
 {
     kerr_t ret = KYLIN_ERROR_OK;
     kevent_select_t *event_select = NULL;
@@ -142,7 +142,7 @@ kerr_t kylin_select_mod(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
     return ret;
 }
 
-kerr_t kylin_select_proc(kevent_t *guard, uint64_t timeout)
+kerr_t kselect_proc(kevent_t *guard, uint64_t timeout)
 {
     int            max_fd;
     struct timeval tv;
@@ -207,7 +207,7 @@ static int __fd_compare(const void *v1, const void *v2)
     return 0;
 }
 
-void *kylin_select_create(void)
+void *kselect_create(void)
 {
     kevent_select_t *event_select = NULL;
     kset_opts_t fdset_opts = {
@@ -240,7 +240,7 @@ void *kylin_select_create(void)
     return event_select;
 }
 
-void kylin_select_destroy(void *priv)
+void kselect_destroy(void *priv)
 {
     kevent_select_t *event_select = (kevent_select_t *)priv;
 
@@ -254,12 +254,12 @@ void kylin_select_destroy(void *priv)
     return;
 }
 
-kerr_t kylin_select_init(void)
+kerr_t kselect_init(void)
 {
     return KYLIN_ERROR_OK;
 }
 
-void kylin_select_fini(void)
+void kselect_fini(void)
 {
     return;
 }

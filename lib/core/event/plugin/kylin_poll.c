@@ -6,22 +6,22 @@ typedef struct {
     uint32_t pending;
 }kevent_poll_t;
 
-kerr_t kylin_poll_add(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
+kerr_t kpoll_add(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
 {
     return KYLIN_ERROR_OK;
 }
 
-kerr_t kylin_poll_del(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
+kerr_t kpoll_del(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
 {
     return KYLIN_ERROR_OK;
 }
 
-kerr_t kylin_poll_mod(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
+kerr_t kpoll_mod(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
 {
     return KYLIN_ERROR_OK;
 }
 
-kerr_t kylin_poll_proc(kevent_t *guard, uint64_t timeout)
+kerr_t kpoll_proc(kevent_t *guard, uint64_t timeout)
 {
     int             index = 0;
     int             nevents;
@@ -77,7 +77,7 @@ kerr_t kylin_poll_proc(kevent_t *guard, uint64_t timeout)
     return KYLIN_ERROR_OK;
 }
 
-void *kylin_poll_create(void)
+void *kpoll_create(void)
 {
     kevent_poll_t *event_poll = NULL;
 
@@ -88,7 +88,7 @@ void *kylin_poll_create(void)
     return event_poll;
 }
 
-void kylin_poll_destroy(void *priv)
+void kpoll_destroy(void *priv)
 {
     kevent_poll_t *event_poll = (kevent_poll_t *)priv;
 
@@ -99,12 +99,12 @@ void kylin_poll_destroy(void *priv)
     return;
 }
 
-kerr_t kylin_poll_init(void)
+kerr_t kpoll_init(void)
 {
     return KYLIN_ERROR_OK;
 }
 
-void kylin_poll_fini(void)
+void kpoll_fini(void)
 {
     return;
 }

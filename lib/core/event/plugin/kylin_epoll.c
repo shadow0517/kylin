@@ -9,7 +9,7 @@ typedef struct {
     struct epoll_event *events;
 }kevent_epoll_t;
 
-kerr_t kylin_epoll_add(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
+kerr_t kepoll_add(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
 {
     kerr_t ret = KYLIN_ERROR_OK;
     struct epoll_event ev = { 0 };
@@ -40,7 +40,7 @@ kerr_t kylin_epoll_add(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
     return ret;
 }
 
-kerr_t kylin_epoll_del(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
+kerr_t kepoll_del(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
 {
     kerr_t ret = KYLIN_ERROR_OK;
     struct epoll_event ev = { 0 };
@@ -71,7 +71,7 @@ kerr_t kylin_epoll_del(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
     return ret;
 }
 
-kerr_t kylin_epoll_mod(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
+kerr_t kepoll_mod(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
 {
     kerr_t ret = KYLIN_ERROR_OK;
     kevent_event_t *event = NULL;
@@ -80,14 +80,14 @@ kerr_t kylin_epoll_mod(kevent_t *guard, kfd_t fd, kevent_flag_t flags)
     if(!event)
         return KYLIN_ERROR_NOENT;
 
-    ret = kylin_epoll_del(guard, fd, event->flags);
+    ret = kepoll_del(guard, fd, event->flags);
     if(ret != KYLIN_ERROR_OK)
         return ret;
 
-    return kylin_epoll_add(guard, fd, flags);
+    return kepoll_add(guard, fd, flags);
 }
 
-kerr_t kylin_epoll_proc(kevent_t *guard, uint64_t timeout)
+kerr_t kepoll_proc(kevent_t *guard, uint64_t timeout)
 {
     int      nevents;
     kfd_t    fd;
@@ -128,7 +128,7 @@ kerr_t kylin_epoll_proc(kevent_t *guard, uint64_t timeout)
     return KYLIN_ERROR_OK;
 }
 
-void *kylin_epoll_create(void)
+void *kepoll_create(void)
 {
     kevent_epoll_t *event_epoll = NULL;
 
@@ -155,7 +155,7 @@ void *kylin_epoll_create(void)
     return event_epoll;
 }
 
-void kylin_epoll_destroy(void *priv)
+void kepoll_destroy(void *priv)
 {
     kevent_epoll_t *event_epoll = (kevent_epoll_t *)priv;
 
@@ -168,12 +168,12 @@ void kylin_epoll_destroy(void *priv)
     return;
 }
 
-kerr_t kylin_epoll_init(void)
+kerr_t kepoll_init(void)
 {
     return KYLIN_ERROR_OK;
 }
 
-void kylin_epoll_fini(void)
+void kepoll_fini(void)
 {
     return;
 }
