@@ -3,6 +3,6 @@
 
 #include <kylin/include/kylin_ddb.h>
 
-#include <kylin/lib/core/ddb/kylin_ddb_symbol.h>
+#include <kylin/lib/core/ddb/kylin_ddb_log.h>
 
 

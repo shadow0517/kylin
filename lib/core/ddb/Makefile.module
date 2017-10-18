@@ -7,7 +7,8 @@ LDFLAGS += -L/usr/local/lib -rdynamic -lunwind -lunwind-x86_64 -ldwarf -lelf
 
 all: kylin_core_ddb
 
-LIB_OBJS = kylin_ddb.o kylin_ddb_callback.o kylin_ddb_symbol.o
+LIB_OBJS = kylin_ddb.o kylin_ddb_service.o kylin_ddb_log.o \
+		   kylin_ddb_symbol.o kylin_ddb_symbol_mips_dwarf.o
 
 kylin_core_ddb: $(LIB_OBJS)
 	${CC} ${CFLAGS} ${LIB_OBJS} -shared -o kylin_core_ddb.so ${LDFLAGS}
