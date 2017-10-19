@@ -53,5 +53,12 @@ extern kerr_t kylin_timer_stop_sync(ktimer_t *)
 extern kbool_t kylin_timer_is_pending(ktimer_t *) 
     __kylin_nonnull((1));
 
+static __kylin_inline char *kylin_timer_get_ctime(void)
+{
+    time_t cur_time;
+    time(&cur_time);
+    return ctime(&cur_time);
+}
+
 #endif /*_KYLIN_TIMER_H_*/
 
