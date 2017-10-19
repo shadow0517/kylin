@@ -12,6 +12,7 @@
 #include <stddef.h>
 #include <stdarg.h>
 #include <string.h>
+#include <time.h>
 #include <assert.h>
 #include <errno.h>
 
