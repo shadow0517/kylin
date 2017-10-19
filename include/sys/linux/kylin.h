@@ -12,6 +12,7 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <poll.h>
+#include <sched.h>
 #include <sys/epoll.h>
 #include <sys/mman.h>
 #include <sys/select.h>
@@ -25,6 +26,9 @@
 
 #define KYLIN_PID    getpid()
 #define KYLIN_PNAME  program_invocation_short_name 
+
+extern __thread uint8_t kylin_cpu_id;
+#define KYLIN_CPU_ID sched_getcpu()
 
 typedef	cpu_set_t kcpuset_t;
 

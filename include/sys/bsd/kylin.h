@@ -81,6 +81,9 @@
 #define KYLIN_PID    getpid()
 #define KYLIN_PNAME  kinfo_getproc(getpid())->ki_comm 
 
+extern __thread uint8_t kylin_cpu_id;
+#define KYLIN_CPU_ID kylin_cpu_id
+
 #include <pthread_np.h>
 typedef cpuset_t kcpuset_t;
 
