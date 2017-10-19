@@ -23,7 +23,6 @@ void kylin_ddb_service_unregister(kddb_service_t *service)
 kddb_service_t *service_get_first(void)
 {
     klist_node_t   *node    = NULL;
-    kddb_service_t *service = NULL;
 
     node = kylin_list_first(service_list);
     if(!node)
@@ -35,7 +34,6 @@ kddb_service_t *service_get_first(void)
 kddb_service_t *service_get_next(kddb_service_t *service)
 {
     klist_node_t   *node    = NULL;
-    kddb_service_t *service = NULL;
 
     node = kylin_list_find(service_list, service);
     if(!node)
@@ -55,7 +53,7 @@ static int __service_match(const void *val, const void *key)
 
     if(s1->exec > s2->exec)
         return 1;
-    is(s1->exec < s2->exec)
+    if(s1->exec < s2->exec)
         return -1;
     return 0;
 }

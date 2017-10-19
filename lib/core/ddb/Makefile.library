@@ -2,8 +2,8 @@ SHELL=/bin/sh
 # Where you want it installed when you do 'make install'
 PREFIX=/usr/local/
 
-CFLAGS = ${KYLIN_CFLAGS} -I/usr/local/include -I${KYLIN_LIB_SRC}
-LDFLAGS += -L/usr/local/lib -rdynamic -lunwind -lunwind-x86_64 -ldwarf -lelf
+CFLAGS = ${KYLIN_CFLAGS} -I/usr/local/include -D_GNU_SOURCE -I${KYLIN_LIB_SRC}
+LDFLAGS += -L/usr/local/lib
 
 all: libcore_ddb
 

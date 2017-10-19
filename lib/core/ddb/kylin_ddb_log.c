@@ -31,8 +31,9 @@ int kylin_ddb_log(const char *fmt, ...)
     snprintf(logfile, PATH_MAX, "%s/%s-ddb.log", KYLIN_LOGFILE_DDB_DIR, KYLIN_PNAME);
     fd = open(logfile, O_APPEND | O_WRONLY, 00644);
     if(fd > 0) {
-        write(fd, logbuf, strlen(logbuf));
+        ret = write(fd, logbuf, strlen(logbuf));
         close(fd);
+        ret = 0;
     } 
     else 
         ret = errno;
@@ -50,7 +51,7 @@ static kerr_t __logfile_ddb_init(void)
     char ddb_logfile[PATH_MAX] = {0};
 
     snprintf(ddb_logfile, PATH_MAX, "%s/%s-ddb.log", KYLIN_LOGFILE_DDB_DIR, KYLIN_PNAME);
-    fd = open(ddb_logfile, O_CREAT | O_RDONLY);
+    fd = open(ddb_logfile, O_CREAT | O_RDONLY, 0x0644);
     if(fd == -1) 
         return errno;
     close(fd);
@@ -77,7 +78,6 @@ static kerr_t __logfile_daemon_init(void)
     char cmd[PATH_MAX]         = {0};
     char src_file[PATH_MAX]    = {0};
     char dst_file[PATH_MAX]    = {0};
-    char ddb_logfile[PATH_MAX] = {0};
 
     for(int i = KYLIN_LOGFILE_ARCH_MAX; i > 0; i--) {
         snprintf(dst_file, PATH_MAX, "%s/%s.log.%d", KYLIN_LOGFILE_DAEMON_DIR, KYLIN_PNAME, i);

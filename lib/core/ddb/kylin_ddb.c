@@ -2,6 +2,7 @@
 #include <kylin/include/utils/kylin_error.h>
 #include <kylin/include/ipc/kylin_shm.h>
 #include <kylin/include/kylin_ddb.h>
+#include <kylin/include/kylin_timer.h>
 
 #include <kylin/lib/core/ddb/kylin_ddb.h>
 #include <kylin/lib/core/ddb/kylin_ddb_log.h>
@@ -30,7 +31,7 @@ static void __signal_process_normal(int sig)
     char *sig_name = sys_signame[sig];
 #endif /*__SYS_LINUX__*/
 
-    kylin_ddb_printf("time: %s, process on core %d: recv sig: id: %d, name: %s\n", kylin_timer_get_ctime, KYLIN_CPU_ID, sig, sig_name);
+    kylin_ddb_log("time: %s, process on core %d: recv sig: id: %d, name: %s\n", kylin_timer_get_ctime(), KYLIN_CPU_ID, sig, sig_name);
 
     service_foreach(service) 
         service->exec();
@@ -126,7 +127,7 @@ static void __shm_fini(void)
             ddb_addr->proc[KYLIN_DDB_PROC_CURRENT].status = KDDB_STATUS_STOPPED; 
             ddb_addr->proc[KYLIN_DDB_PROC_CURRENT].stop   = time(NULL); 
         }
-        kylin_shm_close(shm);
+        kylin_shm_close(ddb_shm);
     }
 
     return;
@@ -143,6 +144,8 @@ kerr_t kylin_ddb_init(void)
     ret = log_init();
     if(ret != KYLIN_ERROR_OK)
         return ret;
+
+    __signal_init();
 
     return __shm_init();
 }
