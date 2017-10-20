@@ -35,7 +35,7 @@ kddb_service_t *service_get_next(kddb_service_t *service)
 {
     klist_node_t   *node    = NULL;
 
-    node = kylin_list_find(service_list, service);
+    node = kylin_list_find_raw(service_list, service);
     if(!node)
         return NULL;
 

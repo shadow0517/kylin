@@ -288,7 +288,7 @@ ksock_conn_t *unix_conn_get_next(ksock_t *guard, ksock_conn_t *conn)
     if(!sock_unix || !sock_unix->conns)
         return NULL;
 
-    node = kylin_list_find(sock_unix->conns, conn);
+    node = kylin_list_find_raw(sock_unix->conns, conn);
     if(!node)
         return NULL;
 

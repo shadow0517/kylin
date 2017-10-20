@@ -1,6 +1,9 @@
 #ifndef _KYLIN_CORE_H_
 #define _KYLIN_CORE_H_
 
+#include <kylin/include/kylin.h>
+#include <kylin/include/utils/kylin_error.h>
+
 extern kerr_t kylin_core_init(void);
 extern vlid kylin_core_fini(void);
 
@@ -22,11 +25,11 @@ typedef enum {
 
 typedef struct kylin_module {
 	char *name;
-    int (*handle)(kmod_action_t);
+    kerr_t (*handle)(kmod_action_t);
 } kmod_t;
 
 typedef struct kylin_module_depend {
-    char *depend;
+    char *name;
 } kmod_depend_t;
 
 #define KYLIN_MODULE_DECLARE_INCLUDE(name)                          \
@@ -53,7 +56,7 @@ typedef struct kylin_module_depend {
 
 #define	KYLIN_MODULE_DEPEND(module, depend)		                    \
 	static kmod_depend_t __##module##_depend_on_##depend = {        \
-		.depend = depend,			                                \
+		.name = depend,		    	                                \
 	};							                                    \
                                                                     \
     kmod_depend_t *module##_depend_on_##depend(void);               \

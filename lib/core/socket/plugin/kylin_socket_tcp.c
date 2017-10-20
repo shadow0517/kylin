@@ -226,7 +226,7 @@ ksock_conn_t *tcp_conn_get_next(ksock_t *guard, ksock_conn_t *conn)
     if(!sock_tcp || !sock_tcp->conns)
         return NULL;
 
-    node = kylin_list_find(sock_tcp->conns, conn);
+    node = kylin_list_find_raw(sock_tcp->conns, conn);
     if(!node)
         return NULL;
 
