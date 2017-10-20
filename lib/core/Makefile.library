@@ -1,0 +1,18 @@
+SHELL=/bin/sh
+# Where you want it installed when you do 'make install'
+PREFIX=/usr/local/
+
+CFLAGS = ${KYLIN_CFLAGS} -I/usr/local/include -D_GNU_SOURCE -I${KYLIN_LIB_SRC}
+LDFLAGS += -L/usr/local/lib
+
+all: libcore_ddb
+
+LIB_OBJS = kylin_ddb.o kylin_ddb_service.o kylin_ddb_log.o 
+
+libcore_ddb: $(LIB_OBJS)
+	${CC} ${CFLAGS} ${LIB_OBJS} -shared -o libcore_ddb.so ${LDFLAGS}
+
+distclean: clean
+clean:
+	rm -f *.o libcore_ddb.so
+

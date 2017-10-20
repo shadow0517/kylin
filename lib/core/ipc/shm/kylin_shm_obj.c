@@ -96,7 +96,7 @@ kerr_t object_init(void)
 
     shm_ov = mmap(NULL, sizeof(kshm_overview_t), PROT_WRITE | PROT_READ ,
             MAP_SHARED, fd, SEEK_SET);
-    if(!shm_ov) {
+    if(shm_ov == MAP_FAILED) {
         kshm_unlink(KYLIN_SHM_OBJ_OVERVIEW_FILE);
         return errno;
     }

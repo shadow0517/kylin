@@ -67,7 +67,7 @@ kshm_t *kylin_shm_open(const char *name)
     }
 
     shm->addr = mmap(NULL, obj->cap, PROT_WRITE | PROT_READ, MAP_SHARED, shm->fd, SEEK_SET);
-    if(!shm->addr) {
+    if(shm->addr == MAP_FAILED) {
         kshm_unlink(name);
         free(shm);
         return NULL;
@@ -92,7 +92,7 @@ void kylin_shm_close(kshm_t *shm)
         obj->refcnt--;
         if(shm->fd)
             kshm_unlink(shm->name);
-        if(shm->addr)
+        if(shm->addr != MAP_FAILED)
             munmap(shm->addr, shm->cap);
         free(shm);
     }
