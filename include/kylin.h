@@ -86,8 +86,31 @@ typedef int kfd_t;
 #define __kylin_format_print(a, b) __attribute__((__format__(__printf__, a, b)))
 typedef int (*kylin_print)(const char *, ...)  __kylin_format_print(1, 2);
 
-/*kylin errno*/
+/*kylin errno per thread*/
 extern __thread int kerrno;
+
+/*系统通用的内存分配和释放函数*/
+static __kylin_inline void *kylin_malloc(size_t) 
+    __kylin_wur;
+static __kylin_inline void kylin_free(void *) 
+    __kylin_nonnull((1));
+
+void *kylin_malloc(size_t size)
+{
+    void *mem = malloc(size);
+
+    if(!mem)
+        return NULL;
+    memset(mem, 0, size);
+
+    return mem;
+}
+
+void kylin_free(void *mem)
+{
+    free(mem);
+    mem = NULL;
+}
 
 /*
  * 2的幂次方运算，其余两个函数
