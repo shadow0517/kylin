@@ -132,7 +132,7 @@ void *kepoll_create(void)
 {
     kevent_epoll_t *event_epoll = NULL;
 
-    event_epoll = malloc(sizeof(kevent_epoll_t));
+    event_epoll = kylin_malloc(sizeof(kevent_epoll_t));
     if(!event_epoll)
         return NULL;
 
@@ -141,14 +141,14 @@ void *kepoll_create(void)
     /*The size field is ignored since 2.6.8*/
     event_epoll->cfd = epoll_create(event_epoll->maxevents); 
     if(event_epoll->cfd == -1) {
-        free(event_epoll);
+        kylin_free(event_epoll);
         return NULL;
     }
 
-    event_epoll->events = malloc(sizeof(struct epoll_event) * event_epoll->maxevents);
+    event_epoll->events = kylin_malloc(sizeof(struct epoll_event) * event_epoll->maxevents);
     if(!event_epoll) {
         close(event_epoll->cfd);
-        free(event_epoll);
+        kylin_free(event_epoll);
         return NULL;
     }
 
@@ -161,8 +161,8 @@ void kepoll_destroy(void *priv)
 
     if(event_epoll) {
         close(event_epoll->cfd);
-        free(event_epoll->events);
-        free(event_epoll);
+        kylin_free(event_epoll->events);
+        kylin_free(event_epoll);
     }
 
     return;

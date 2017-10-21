@@ -216,10 +216,10 @@ void *kselect_create(void)
         .val_type  = KOBJ_INT32,
         .val_size  = 4,
         .compare   = __fd_compare,
-        .allocator = KSET_OPTS_ALLOCATOR_VAL(malloc)
+        .allocator = KSET_OPTS_ALLOCATOR_VAL(kylin_malloc)
     };
 
-    event_select = malloc(sizeof(kevent_select_t));
+    event_select = kylin_malloc(sizeof(kevent_select_t));
     if(!event_select)
         return NULL;
 
@@ -228,7 +228,7 @@ void *kselect_create(void)
         if(!event_select->fd_set[i]) {
             while(i--)
                 kylin_set_destroy(event_select->fd_set[i]);
-            free(event_select);
+            kylin_free(event_select);
             return NULL;
         }
     }
@@ -248,7 +248,7 @@ void kselect_destroy(void *priv)
         for(int i = SELECT_FDSET_TYPE_NUM - 1; i >= 0; i--) 
             kylin_set_destroy(event_select->fd_set[i]);
 
-        free(event_select);
+        kylin_free(event_select);
     }
 
     return;

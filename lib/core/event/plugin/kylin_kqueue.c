@@ -121,7 +121,7 @@ void *kqueue_create(void)
 {
     kevent_kqueue_t *event_kqueue = NULL;
 
-    event_kqueue = malloc(sizeof(kevent_kqueue_t));
+    event_kqueue = kylin_malloc(sizeof(kevent_kqueue_t));
     if(!event_kqueue)
         return NULL;
 
@@ -129,14 +129,14 @@ void *kqueue_create(void)
 
     event_kqueue->cfd = kqueue(); 
     if(event_kqueue->cfd == -1) {
-        free(event_kqueue);
+        kylin_free(event_kqueue);
         return NULL;
     }
 
-    event_kqueue->events = malloc(sizeof(struct kevent) * event_kqueue->maxevents);
+    event_kqueue->events = kylin_malloc(sizeof(struct kevent) * event_kqueue->maxevents);
     if(!event_kqueue) {
         close(event_kqueue->cfd);
-        free(event_kqueue);
+        kylin_free(event_kqueue);
         return NULL;
     }
 
@@ -149,8 +149,8 @@ void kqueue_destroy(void *priv)
 
     if(event_kqueue) {
         close(event_kqueue->cfd);
-        free(event_kqueue->events);
-        free(event_kqueue);
+        kylin_free(event_kqueue->events);
+        kylin_free(event_kqueue);
     }
 
     return;

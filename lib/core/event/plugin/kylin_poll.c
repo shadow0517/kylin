@@ -35,10 +35,9 @@ kerr_t kpoll_proc(kevent_t *guard, uint64_t timeout)
     if(!eopts || ecnt == 0)
         return KYLIN_ERROR_NOENT;
 
-    fds = malloc(sizeof(struct pollfd) * ecnt);
+    fds = kylin_malloc(sizeof(struct pollfd) * ecnt);
     if(!fds)
         return KYLIN_ERROR_NOMEM;
-    memset(fds, 0, sizeof(struct pollfd) * ecnt);
 
     KYLIN_EVENT_EVENT_FOREACH(guard, event) {
         fds[index].fd = event->efd;
@@ -72,7 +71,7 @@ kerr_t kpoll_proc(kevent_t *guard, uint64_t timeout)
         }
     }
 
-    free(fds);
+    kylin_free(fds);
 
     return KYLIN_ERROR_OK;
 }
@@ -81,7 +80,7 @@ void *kpoll_create(void)
 {
     kevent_poll_t *event_poll = NULL;
 
-    event_poll = malloc(sizeof(kevent_poll_t));
+    event_poll = kylin_malloc(sizeof(kevent_poll_t));
     if(!event_poll)
         return NULL;
 
@@ -93,7 +92,7 @@ void kpoll_destroy(void *priv)
     kevent_poll_t *event_poll = (kevent_poll_t *)priv;
 
     if(event_poll) {
-        free(event_poll);
+        kylin_free(event_poll);
     }
 
     return;

@@ -1,4 +1,5 @@
 #include <kylin/include/kylin.h>
+#include <kylin/include/utils/kylin_error.h>
 #include <kylin/include/kylin_event.h>
 
 #include <kylin/include/math/kylin_list.h>
@@ -35,21 +36,16 @@ kevent_t *kylin_event_create(const kevent_type_t type, const kevent_opts_t *opts
         .val_type  = KOBJ_OTHERS,
         .val_size  = sizeof(kevent_event_t),
         .compare   = __events_compare,
-        .allocator = {
-            .val_ctor   = malloc, /*值所在的内存由set模块分配*/
-            .val_dtor   = NULL,
-            .guard_ctor = NULL,
-            .guard_dtor = NULL
-        }
+        .allocator = KSET_OPTS_ALLOCATOR_VAL(kylin_malloc)
     };
 
-    guard = malloc(sizeof(kevent_t));
+    guard = kylin_malloc(sizeof(kevent_t));
     if(!guard)
         return NULL;
 
     guard->events = kylin_set_create(&events_opts);
     if(!guard->events) {
-        free(guard);
+        kylin_free(guard);
         return NULL;
     }
 
@@ -57,7 +53,7 @@ kevent_t *kylin_event_create(const kevent_type_t type, const kevent_opts_t *opts
         guard->priv = eplugin[type].reg.create(); 
         if(!guard->priv) {
             kylin_set_destroy(guard->events);
-            free(guard);
+            kylin_free(guard);
             return NULL;
         }
     }
@@ -68,7 +64,7 @@ kevent_t *kylin_event_create(const kevent_type_t type, const kevent_opts_t *opts
         if(eplugin[type].reg.destroy)
             eplugin[type].reg.destroy(guard->priv);
         kylin_set_destroy(guard->events);
-        free(guard);
+        kylin_free(guard);
         return NULL;
     }
 
@@ -90,7 +86,7 @@ void kylin_event_destroy(kevent_t *guard)
 
     eplugin[guard->type].ref--;
     kylin_set_destroy(guard->events);
-    free(guard);
+    kylin_free(guard);
 
     return;
 }
