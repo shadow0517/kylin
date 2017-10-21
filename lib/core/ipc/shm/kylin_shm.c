@@ -53,23 +53,22 @@ kshm_t *kylin_shm_open(const char *name)
             !(obj = object_find(name)))
         return NULL;
 
-    shm = malloc(sizeof(kshm_t));
+    shm = kylin_malloc(sizeof(kshm_t));
     if(!shm)
         return NULL;
-    memset(shm, 0, sizeof(kshm_t));
 
     shm->fd = kshm_open(name, O_RDWR | O_CREAT, 00777);
     if(shm->fd == -1 ||
             ftruncate(shm->fd, obj->cap) == -1) {
         kshm_unlink(name);
-        free(shm);
+        kylin_free(shm);
         return NULL;
     }
 
     shm->addr = mmap(NULL, obj->cap, PROT_WRITE | PROT_READ, MAP_SHARED, shm->fd, SEEK_SET);
     if(shm->addr == MAP_FAILED) {
         kshm_unlink(name);
-        free(shm);
+        kylin_free(shm);
         return NULL;
     }
 
@@ -94,7 +93,7 @@ void kylin_shm_close(kshm_t *shm)
             kshm_unlink(shm->name);
         if(shm->addr != MAP_FAILED)
             munmap(shm->addr, shm->cap);
-        free(shm);
+        kylin_free(shm);
     }
 
     return;
