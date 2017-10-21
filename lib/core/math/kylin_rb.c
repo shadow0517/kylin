@@ -38,11 +38,11 @@ struct kylin_rb
 #define RB_COMPARE(guard)     ((guard)->opts.compare)
 
 #define RB_VAL_MALLOC(opts)   ((opts)->allocator.val_ctor)
-#define RB_VAL_FREE(opts)     ((opts)->allocator.val_dtor   ? (opts)->allocator.val_dtor   : free)
-#define RB_NODE_MALLOC(opts)  ((opts)->allocator.node_ctor  ? (opts)->allocator.node_ctor  : malloc)
-#define RB_NODE_FREE(opts)    ((opts)->allocator.node_dtor  ? (opts)->allocator.node_dtor  : free)
-#define RB_GUARD_MALLOC(opts) ((opts)->allocator.guard_ctor ? (opts)->allocator.guard_ctor : malloc)
-#define RB_GUARD_FREE(opts)   ((opts)->allocator.guard_dtor ? (opts)->allocator.guard_dtor : free)
+#define RB_VAL_FREE(opts)     ((opts)->allocator.val_dtor   ? (opts)->allocator.val_dtor   : kylin_free)
+#define RB_NODE_MALLOC(opts)  ((opts)->allocator.node_ctor  ? (opts)->allocator.node_ctor  : kylin_malloc)
+#define RB_NODE_FREE(opts)    ((opts)->allocator.node_dtor  ? (opts)->allocator.node_dtor  : kylin_free)
+#define RB_GUARD_MALLOC(opts) ((opts)->allocator.guard_ctor ? (opts)->allocator.guard_ctor : kylin_malloc)
+#define RB_GUARD_FREE(opts)   ((opts)->allocator.guard_dtor ? (opts)->allocator.guard_dtor : kylin_free)
 
 static __kylin_inline void _rotate_left(krb_t *guard, krb_node_t *node, krb_node_t *tmp)
 {
@@ -244,9 +244,10 @@ krb_t *kylin_rb_create(const krb_opts_t *opts)
     krb_t *rb = NULL;
 
     rb = RB_GUARD_MALLOC(opts)(sizeof(krb_t));
-    if(rb == NULL)
+    if(rb == NULL) {
+        kerrno = KYLIN_ERROR_NOMEM;
         return NULL;
-    memset(rb, 0, sizeof(krb_t));
+    }
 
     memcpy(&rb->opts, opts, sizeof(krb_opts_t));
 
@@ -262,6 +263,7 @@ void kylin_rb_destroy(krb_t *guard)
         kmath_val_dtor(&RB_VAL(node), guard->opts.val_type, RB_VAL_FREE(&guard->opts));
         kylin_rb_remove(guard, node);
     } while(node);
+    
     RB_GUARD_FREE(&guard->opts)(guard);
 }
 
@@ -281,9 +283,10 @@ krb_node_t *kylin_rb_insert(krb_t *guard, void *elm)
     int result = 0;
 
     node = RB_NODE_MALLOC(&guard->opts)(sizeof(krb_node_t));
-    if(!node)
+    if(!node) {
+        kerrno = KYLIN_ERROR_NOMEM;
         return NULL;
-    memset(node, 0, sizeof(krb_node_t));
+    }
 
     kmath_val_ctor(&RB_VAL(node), elm, guard->opts.val_type, 
             guard->opts.val_size, RB_VAL_MALLOC(&guard->opts));
@@ -317,6 +320,7 @@ krb_node_t *kylin_rb_insert(krb_t *guard, void *elm)
         RB_ROOT(guard) = node;
 
     _insert_color(guard, node);
+
     return node;
 }
 
@@ -398,6 +402,7 @@ color:
         _remove_color(guard, parent, child);
 
     RB_NODE_FREE(&guard->opts)(old);
+
     return ;
 }
 

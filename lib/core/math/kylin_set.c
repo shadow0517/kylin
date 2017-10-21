@@ -10,17 +10,19 @@ struct kylin_set {
 };
 
 #define SET_VAL_MALLOC(opts)    ((opts)->allocator.val_ctor)
-#define SET_VAL_FREE(opts)      ((opts)->allocator.val_dtor   ? (opts)->allocator.val_dtor   : free)
-#define SET_GUARD_MALLOC(opts)  ((opts)->allocator.guard_ctor ? (opts)->allocator.guard_ctor : malloc)
-#define SET_GUARD_FREE(opts)    ((opts)->allocator.guard_dtor ? (opts)->allocator.guard_dtor : free)
+#define SET_VAL_FREE(opts)      ((opts)->allocator.val_dtor   ? (opts)->allocator.val_dtor   : kylin_free)
+#define SET_GUARD_MALLOC(opts)  ((opts)->allocator.guard_ctor ? (opts)->allocator.guard_ctor : kylin_malloc)
+#define SET_GUARD_FREE(opts)    ((opts)->allocator.guard_dtor ? (opts)->allocator.guard_dtor : kylin_free)
 
 kset_t *kylin_set_create(const kset_opts_t *opts)
 {
     kset_t *set = NULL;
 
     set = SET_GUARD_MALLOC(opts)(sizeof(kset_t) + (sizeof(kmath_val_t) * opts->cap));
-    if(!set)
+    if(!set) {
+        kerrno = KYLIN_ERROR_NOMEM;
         return NULL;
+    }
 
     memcpy(&set->opts, opts, sizeof(kset_opts_t));
     memset(set->val, 0, sizeof(kmath_val_t) * opts->cap);

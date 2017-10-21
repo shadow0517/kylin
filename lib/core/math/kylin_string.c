@@ -7,16 +7,18 @@ struct kylin_string {
     char        val[];
 };
 
-#define STRING_GUARD_MALLOC(opts) ((opts)->allocator.guard_ctor ? (opts)->allocator.guard_ctor : malloc)
-#define STRING_GUARD_FREE(opts)   ((opts)->allocator.guard_dtor ? (opts)->allocator.guard_dtor : free)
+#define STRING_GUARD_MALLOC(opts) ((opts)->allocator.guard_ctor ? (opts)->allocator.guard_ctor : kylin_malloc)
+#define STRING_GUARD_FREE(opts)   ((opts)->allocator.guard_dtor ? (opts)->allocator.guard_dtor : kylin_free)
 
 kstr_t *kylin_string_create(const kstr_opts_t *opts)
 {
     kstr_t *str = NULL;
 
     str = STRING_GUARD_MALLOC(opts)(sizeof(kstr_t) + (__SIZEOF_CHAR__ * opts->cap + 1));
-    if(!str)
+    if(!str) {
+        kerrno = KYLIN_ERROR_NOMEM;
         return NULL;
+    }
 
     memcpy(&str->opts, opts, sizeof(kstr_opts_t));
     memset(str->val, 0, (__SIZEOF_CHAR__ * opts->cap + 1));
@@ -74,9 +76,11 @@ char *kylin_strndup_raw(const kstr_t *s, size_t n)
 {
     char *s_dup = NULL;
 
-    s_dup = malloc(__SIZEOF_CHAR__ * KYLIN_MIN(s->used, n) + 1);
-    if(!s_dup)
+    s_dup = kylin_malloc(__SIZEOF_CHAR__ * KYLIN_MIN(s->used, n) + 1);
+    if(!s_dup) {
+        kerrno = KYLIN_ERROR_NOMEM;
         return NULL;
+    }
 
     memcpy(s_dup, s->val, KYLIN_MIN(s->used, n));
     s_dup[KYLIN_MIN(s->used, n)] = '\0';
@@ -106,8 +110,10 @@ int kylin_strncmp_raw(const kstr_t *s1, const char *s2, size_t n)
 
 kstr_t *kylin_strcpy(kstr_t *dest, const kstr_t *src)
 {
-    if(src->used > dest->opts.cap)
+    if(src->used > dest->opts.cap) {
+        kerrno = KYLIN_ERROR_INVAL;
         return NULL;
+    }
 
     memcpy(dest->val, src->val, src->used);
     dest->used = src->used;
@@ -118,8 +124,11 @@ kstr_t *kylin_strcpy(kstr_t *dest, const kstr_t *src)
 kstr_t *kylin_strcpy_raw(kstr_t *dest, const char *src)
 {
     size_t len = strlen(src);
-    if(len > dest->opts.cap)
+
+    if(len > dest->opts.cap) {
+        kerrno = KYLIN_ERROR_INVAL;
         return NULL;
+    }
 
     memcpy(dest->val, src, len);
     dest->used = len;
@@ -129,8 +138,10 @@ kstr_t *kylin_strcpy_raw(kstr_t *dest, const char *src)
 
 kstr_t *kylin_strncpy(kstr_t *dest, const kstr_t *src, size_t n)
 {
-    if(n > src->used || n > dest->opts.cap)
+    if(n > src->used || n > dest->opts.cap) {
+        kerrno = KYLIN_ERROR_INVAL;
         return NULL;
+    }
 
     memcpy(dest->val, src->val, n);
     dest->used = n;
@@ -142,8 +153,10 @@ kstr_t *kylin_strncpy_raw(kstr_t *dest, const char *src, size_t n)
 {
     size_t len = strlen(src);
 
-    if(n > len || n > dest->opts.cap)
+    if(n > len || n > dest->opts.cap) {
+        kerrno = KYLIN_ERROR_INVAL;
         return NULL;
+    }
 
     memcpy(dest->val, src, n);
     dest->used = n;
@@ -163,8 +176,10 @@ kstr_t *kylin_strcat_raw(kstr_t *dest, const char *src)
 
 kstr_t *kylin_strncat(kstr_t *dest, const kstr_t *src, size_t n)
 {
-    if(n > src->used || n > (dest->opts.cap - dest->used))
+    if(n > src->used || n > (dest->opts.cap - dest->used)) {
+        kerrno = KYLIN_ERROR_INVAL;
         return NULL;
+    }
 
     memcpy(dest->val + dest->used, src->val, n);
 
@@ -175,8 +190,10 @@ kstr_t *kylin_strncat_raw(kstr_t *dest, const char *src, size_t n)
 {
     size_t len = strlen(src);
 
-    if(n > len || n > (dest->opts.cap - dest->used))
+    if(n > len || n > (dest->opts.cap - dest->used)) {
+        kerrno = KYLIN_ERROR_INVAL;
         return NULL;
+    }
 
     memcpy(dest->val + dest->used, src, len);
 
@@ -219,8 +236,10 @@ char *kylin_strpbrk(kstr_t *s, const char *acpt)
 
 char *kylin_strstr(kstr_t *s, const kstr_t *acpt)
 {
-    if(acpt->used > s->used)
+    if(acpt->used > s->used) {
+        kerrno = KYLIN_ERROR_INVAL;
         return NULL;
+    }
 
     for(int i = 0; s->val[i] == acpt->val[0]; i++) {
         if(kylin_strncmp_raw(acpt, (s->val + i), acpt->used) == 0)
@@ -234,8 +253,10 @@ char *kylin_strstr_raw(kstr_t *s, const char *acpt)
 {
     size_t len = strlen(acpt);
 
-    if(len > s->used)
+    if(len > s->used) {
+        kerrno = KYLIN_ERROR_INVAL;
         return NULL;
+    }
 
     for(int i = 0; s->val[i] == acpt[0]; i++) {
         if(memcmp(acpt, (s->val + i), len) == 0)

@@ -13,8 +13,8 @@ struct kylin_bitmap {
     kword_t        val[];
 };
 
-#define BITMAP_GUARD_MALLOC(opts) ((opts)->allocator.guard_ctor ? (opts)->allocator.guard_ctor : malloc)
-#define BITMAP_GUARD_FREE(opts)   ((opts)->allocator.guard_dtor ? (opts)->allocator.guard_dtor : free)
+#define BITMAP_GUARD_MALLOC(opts) ((opts)->allocator.guard_ctor ? (opts)->allocator.guard_ctor : kylin_malloc)
+#define BITMAP_GUARD_FREE(opts)   ((opts)->allocator.guard_dtor ? (opts)->allocator.guard_dtor : kylin_free)
 
 kbitmap_t *kylin_bitmap_create(const kbitmap_opts_t *opts)
 {
@@ -22,9 +22,10 @@ kbitmap_t *kylin_bitmap_create(const kbitmap_opts_t *opts)
     size_t len = BITS_TO_WORDS(opts->cap);
 
     bm = BITMAP_GUARD_MALLOC(opts)(sizeof(kbitmap_t) + (__SIZEOF_WORD__ * len));
-    if(bm == NULL)
+    if(bm == NULL) {
+        kerrno = KYLIN_ERROR_NOMEM;
         return NULL;
-    memset(bm, 0, (sizeof(kbitmap_t) + (__SIZEOF_WORD__ * len)));
+    }
 
     memcpy(&bm->opts, opts, sizeof(kbitmap_opts_t));
     bm->size = len;
@@ -45,7 +46,7 @@ kbitmap_t *kylin_bitmap_dup(const kbitmap_t *bm)
     if(dup == NULL)
         return NULL;
 
-    if(KYLIN_ERROR_OK != kylin_bitmap_copy(dup, bm, bm->size)) {
+    if(kylin_bitmap_copy(dup, bm, bm->size) != KYLIN_ERROR_OK) {
         kylin_bitmap_destroy(dup);
         return NULL;
     }
@@ -75,25 +76,22 @@ size_t kylin_bitmap_len(kbitmap_t *bm)
 
 kerr_t kylin_bitmap_set(kbitmap_t *bm, unsigned int start, int len)
 {
-    kerr_t ret = KYLIN_ERROR_OK;
     kword_t *val = NULL;
     kword_t mask = 0;
     int bits = 0;
 
-    if(BITS_TO_WORDS(start) > bm->size || BITS_TO_WORDS(start + len) > bm->size) {
-        ret = KYLIN_ERROR_INVAL;
-        goto exit;
-    }
+    if(BITS_TO_WORDS(start) > bm->size || BITS_TO_WORDS(start + len) > bm->size) 
+        return KYLIN_ERROR_INVAL;
 
-	val = bm->val + BITMAP_WORD_INDEX(start);
+	val  = bm->val + BITMAP_WORD_INDEX(start);
 	mask = BITMAP_FIRST_WORD_MASK(start);
 	bits = BITS_PER_WORD - (start % BITS_PER_WORD);
 
-	while (len - bits >= 0) {
+	while(len - bits >= 0) {
 		*val |= mask;
-		len -= bits;
-		bits = BITS_PER_WORD;
-		mask = ~0UL;
+		len  -= bits;
+		bits  = BITS_PER_WORD;
+		mask  = ~0UL;
 		val++;
 	}
 
@@ -102,31 +100,27 @@ kerr_t kylin_bitmap_set(kbitmap_t *bm, unsigned int start, int len)
 		*val |= mask;
 	}
 
-exit:
-    return ret;
+    return KYLIN_ERROR_OK;
 }
 
 kerr_t kylin_bitmap_clear(kbitmap_t *bm, unsigned int start, int len)
 {
-    kerr_t ret = KYLIN_ERROR_OK;
     kword_t *val = NULL;
     kword_t mask = 0;
     int bits = 0;
 
-    if(BITS_TO_WORDS(start) > bm->size || BITS_TO_WORDS(start + len) > bm->size) {
-        ret = KYLIN_ERROR_INVAL;
-        goto exit;
-    }
+    if(BITS_TO_WORDS(start) > bm->size || BITS_TO_WORDS(start + len) > bm->size) 
+        return KYLIN_ERROR_INVAL;
 
-	val = bm->val + BITMAP_WORD_INDEX(start);
+	val  = bm->val + BITMAP_WORD_INDEX(start);
 	mask = BITMAP_FIRST_WORD_MASK(start);
 	bits = BITS_PER_WORD - (start % BITS_PER_WORD);
 
-	while (len - bits >= 0) {
+	while(len - bits >= 0) {
 		*val &= ~mask;
-		len -= bits;
-		bits = BITS_PER_WORD;
-		mask = ~0UL;
+		len  -= bits;
+		bits  = BITS_PER_WORD;
+		mask  = ~0UL;
 		val++;
 	}
 
@@ -135,43 +129,33 @@ kerr_t kylin_bitmap_clear(kbitmap_t *bm, unsigned int start, int len)
 		*val &= ~mask;
 	}
 
-exit:
-    return ret;
+    return KYLIN_ERROR_OK;
 }
 
 kerr_t kylin_bitmap_copy(kbitmap_t *dst, const kbitmap_t *src, size_t size)
 {
-    kerr_t ret = KYLIN_ERROR_OK;
-    if(size > src->size || size > dst->size) {
-        ret = KYLIN_ERROR_INVAL;
-        goto exit;
-    }
+    if(size > src->size || size > dst->size)
+        return KYLIN_ERROR_INVAL;
 
     memcpy(dst->val, src->val, __SIZEOF_WORD__ * size);
 
-exit:
-    return ret;
+    return KYLIN_ERROR_OK;
 }
 
 kerr_t kylin_bitmap_shift_right(kbitmap_t *bm, unsigned int shift)
 {
-    kerr_t ret = KYLIN_ERROR_OK;
     size_t size = bm->size;
     unsigned offset = shift / BITS_PER_WORD;
     unsigned remainder = shift % BITS_PER_WORD;
     kword_t *dst = NULL;
     kword_t upper, lower;
 
-    if(offset > size || (offset == size && remainder)) {
-        ret = KYLIN_ERROR_INVAL;
-        goto exit;
-    }
+    if(offset > size || (offset == size && remainder)) 
+        return KYLIN_ERROR_INVAL;
 
-    dst = malloc(size * __SIZEOF_WORD__);
-    if(dst == NULL) {
-        ret = KYLIN_ERROR_NOMEM;
-        goto exit;
-    }
+    dst = kylin_malloc(size * __SIZEOF_WORD__);
+    if(dst == NULL) 
+        return KYLIN_ERROR_NOMEM;
 
     for(int i = 0; i + offset < size; ++i) {
         if(!remainder || offset + i + 1 >= size)
@@ -190,32 +174,26 @@ kerr_t kylin_bitmap_shift_right(kbitmap_t *bm, unsigned int shift)
 
     memcpy(bm->val, dst, size * __SIZEOF_WORD__);
 
-exit:
     if(dst)
-        free(dst);
+        kylin_free(dst);
 
-    return ret;
+    return KYLIN_ERROR_OK;
 }
 
 kerr_t kylin_bitmap_shift_left(kbitmap_t *bm, unsigned int shift)
 {
-    kerr_t ret = KYLIN_ERROR_OK;
     size_t size = bm->size;
     unsigned offset = shift / BITS_PER_WORD;
     unsigned remainder = shift % BITS_PER_WORD;
     kword_t *dst = NULL;
     kword_t upper, lower;
 
-    if(offset > size || (offset == size && remainder)) {
-        ret = KYLIN_ERROR_INVAL;
-        goto exit;
-    }
+    if(offset > size || (offset == size && remainder))
+        return KYLIN_ERROR_INVAL;
 
-    dst = malloc(size * __SIZEOF_WORD__);
-    if(dst == NULL) {
-        ret = KYLIN_ERROR_NOMEM;
-        goto exit;
-    }
+    dst = kylin_malloc(size * __SIZEOF_WORD__);
+    if(dst == NULL) 
+        return KYLIN_ERROR_NOMEM;
 
     for(int i = size - offset - 1; i >= 0; --i) {
         if(remainder && i > 0)
@@ -231,11 +209,10 @@ kerr_t kylin_bitmap_shift_left(kbitmap_t *bm, unsigned int shift)
 
     memcpy(bm->val, dst, size * __SIZEOF_WORD__);
 
-exit:
     if(dst)
-        free(dst);
+        kylin_free(dst);
 
-    return ret;
+    return KYLIN_ERROR_OK;
 }
 
 /*
@@ -243,21 +220,17 @@ exit:
  */
 kerr_t kylin_bitmap_and(kbitmap_t *dst, const kbitmap_t *src1, const kbitmap_t *src2)
 {
-    kerr_t ret = KYLIN_ERROR_OK;
     size_t size = 0;
 
-    if(dst->size < 1 || src1->size < 1 || src2->size < 1) {
-        ret = KYLIN_ERROR_INVAL;
-        goto exit;
-    }
+    if(dst->size < 1 || src1->size < 1 || src2->size < 1)
+        return KYLIN_ERROR_INVAL;
 
     size = KYLIN_MIN(dst->size, KYLIN_MIN(src1->size, src2->size));
 
 	for(int i = 0; i < size; i++)
 		dst->val[i] = src1->val[i] & src2->val[i];
 
-exit:
-    return ret;
+    return KYLIN_ERROR_OK;
 }
 
 kerr_t kylin_bitmap_or(kbitmap_t *dst, const kbitmap_t *src1, const kbitmap_t *src2)
@@ -265,16 +238,12 @@ kerr_t kylin_bitmap_or(kbitmap_t *dst, const kbitmap_t *src1, const kbitmap_t *s
     kerr_t ret = KYLIN_ERROR_OK;
     size_t size = 0;
 
-    if(dst->size < 1 || src1->size < 1 || src2->size < 1) {
-        ret = KYLIN_ERROR_INVAL;
-        goto exit;
-    }
+    if(dst->size < 1 || src1->size < 1 || src2->size < 1) 
+        return KYLIN_ERROR_INVAL;
 
     size = KYLIN_MAX(dst->size, KYLIN_MAX(src1->size, src2->size));
-    if(dst->size != size) {
-        ret = KYLIN_ERROR_NOENT;
-        goto exit;
-    }
+    if(dst->size != size) 
+        return KYLIN_ERROR_NOENT;
 
     for(int i = 0; i < size; i++) {
         if(i < src1->size && i < src2->size)
@@ -285,88 +254,69 @@ kerr_t kylin_bitmap_or(kbitmap_t *dst, const kbitmap_t *src1, const kbitmap_t *s
             dst->val[i] = src2->val[i];
     }
 
-exit:
-    return ret;
+    return KYLIN_ERROR_OK;
 }
 
 kerr_t kylin_bitmap_xor(kbitmap_t *dst, const kbitmap_t *src1, const kbitmap_t *src2)
 {
-    kerr_t ret = KYLIN_ERROR_OK;
     size_t size = 0;
 
-    if(dst->size < 1 || src1->size < 1 || src2->size < 1) {
-        ret = KYLIN_ERROR_INVAL;
-        goto exit;
-    }
+    if(dst->size < 1 || src1->size < 1 || src2->size < 1) 
+        return KYLIN_ERROR_INVAL;
 
     size = KYLIN_MIN(dst->size, KYLIN_MIN(src1->size, src2->size));
 
 	for(int i = 0; i < size; i++)
 		dst->val[i] = src1->val[i] ^ src2->val[i];
 
-exit:
-    return ret;
+    return KYLIN_ERROR_OK;
 }
 
 kerr_t kylin_bitmap_andnot(kbitmap_t *dst, const kbitmap_t *src1, const kbitmap_t *src2)
 {
-    kerr_t ret = KYLIN_ERROR_OK;
     size_t size = 0;
 
-    if(dst->size < 1 || src1->size < 1 || src2->size < 1) {
-        ret = KYLIN_ERROR_INVAL;
-        goto exit;
-    }
+    if(dst->size < 1 || src1->size < 1 || src2->size < 1)
+        return KYLIN_ERROR_INVAL;
 
     size = KYLIN_MIN(dst->size, KYLIN_MIN(src1->size, src2->size));
 
 	for(int i = 0; i < size; i++)
 		dst->val[i] = src1->val[i] & ~src2->val[i];
 
-exit:
-    return ret;
+    return KYLIN_ERROR_OK;
 }
 
 kerr_t kylin_bitmap_complement(kbitmap_t *dst, const kbitmap_t *src)
 {
-    kerr_t ret = KYLIN_ERROR_OK;
     size_t size = 0;
 
-    if(dst->size < 1 || src->size < 1) {
-        ret = KYLIN_ERROR_INVAL;
-        goto exit;
-    }
+    if(dst->size < 1 || src->size < 1)
+        return KYLIN_ERROR_INVAL;
 
     size = KYLIN_MIN(dst->size, src->size);
 
     for(int i = 0; i < size; i++)
         dst->val[i] = ~src->val[i];
 
-exit:
-    return ret;
+    return KYLIN_ERROR_OK;
 }
 
 kbool_t kylin_bitmap_is_equal(const kbitmap_t *src1, const kbitmap_t *src2)
 {
-    kbool_t ret = KYLIN_TRUE;
     size_t size = 0;
 
-    if(src1->size < 1 || src2->size < 1 || src1->size != src2->size) {
-        ret = KYLIN_FALSE;
-        goto exit;
-    }
+    if(src1->size < 1 || src2->size < 1 || src1->size != src2->size)
+        return KYLIN_FALSE;
 
     size = src1->size;
 
     for(int i = 0; i < size; i++) {
-        if(src1->val[i] != src2->val[i]) {
-            ret = KYLIN_FALSE;
-            goto exit;
-        }
+        if(src1->val[i] != src2->val[i])
+            return KYLIN_FALSE;
     }
 
-exit:
-    return ret;
+    return KYLIN_TRUE;
 }
 
 kbool_t kylin_bitmap_is_intersects(const kbitmap_t *src1, const kbitmap_t *src2)
@@ -377,6 +327,7 @@ kbool_t kylin_bitmap_is_intersects(const kbitmap_t *src1, const kbitmap_t *src2)
         if(src1->val[i] & src2->val[i])
             return KYLIN_TRUE;
     }
+
     return KYLIN_FALSE;
 }
 
@@ -391,6 +342,7 @@ kbool_t kylin_bitmap_is_subset(const kbitmap_t *parent, const kbitmap_t *child)
         if(child->val[i] & ~parent->val[i])
             return KYLIN_FALSE;
     }
+
     return KYLIN_TRUE;
 }
 
@@ -402,6 +354,7 @@ kbool_t kylin_bitmap_is_empty(const kbitmap_t *src)
         if(src->val[i])
             return KYLIN_FALSE;
     }
+
     return KYLIN_TRUE;
 }
 
@@ -413,6 +366,7 @@ kbool_t kylin_bitmap_is_full(const kbitmap_t *src)
         if(~src->val[i])
             return KYLIN_FALSE;
     }
+
     return KYLIN_TRUE;
 }
 

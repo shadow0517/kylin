@@ -29,21 +29,22 @@ struct kylin_list {
 
 #define LIST_VAL_MATCH(opts)     ((opts)->match)
 #define LIST_VAL_MALLOC(opts)    ((opts)->allocator.val_ctor)
-#define LIST_VAL_FREE(opts)      ((opts)->allocator.val_dtor   ? (opts)->allocator.val_dtor   : free)
-#define LIST_NODE_MALLOC(opts)   ((opts)->allocator.node_ctor  ? (opts)->allocator.node_ctor  : malloc)
-#define LIST_NODE_FREE(opts)     ((opts)->allocator.node_dtor  ? (opts)->allocator.node_dtor  : free)
-#define LIST_GUARD_MALLOC(opts)  ((opts)->allocator.guard_ctor ? (opts)->allocator.guard_ctor : malloc)
-#define LIST_GUARD_FREE(opts)    ((opts)->allocator.guard_dtor ? (opts)->allocator.guard_dtor : free)
+#define LIST_VAL_FREE(opts)      ((opts)->allocator.val_dtor   ? (opts)->allocator.val_dtor   : kylin_free)
+#define LIST_NODE_MALLOC(opts)   ((opts)->allocator.node_ctor  ? (opts)->allocator.node_ctor  : kylin_malloc)
+#define LIST_NODE_FREE(opts)     ((opts)->allocator.node_dtor  ? (opts)->allocator.node_dtor  : kylin_free)
+#define LIST_GUARD_MALLOC(opts)  ((opts)->allocator.guard_ctor ? (opts)->allocator.guard_ctor : kylin_malloc)
+#define LIST_GUARD_FREE(opts)    ((opts)->allocator.guard_dtor ? (opts)->allocator.guard_dtor : kylin_free)
 
 klist_t *kylin_list_create(const klist_opts_t *opts)
 {
     klist_t *guard = NULL;
 
     guard = LIST_GUARD_MALLOC(opts)(sizeof(klist_t));
-    if(!guard)
+    if(!guard) {
+        kerrno = KYLIN_ERROR_NOMEM;
         return NULL;
+    }
 
-    memset(guard , 0, sizeof(klist_t));
     memcpy(&guard->opts, opts, sizeof(klist_opts_t));
 
     return guard;
@@ -119,8 +120,10 @@ klist_node_t *kylin_list_insert_head(klist_t *guard, void *val)
     klist_node_t *node = NULL;
 
     node = LIST_NODE_MALLOC(&guard->opts)(sizeof(klist_node_t));
-    if(!node)
+    if(!node) {
+        kerrno = KYLIN_ERROR_NOMEM;
         return NULL;
+    }
 
     kmath_val_ctor(&LIST_VAL(node), val, guard->opts.val_type, 
             guard->opts.val_size, LIST_VAL_MALLOC(&guard->opts));
@@ -145,8 +148,10 @@ klist_node_t *kylin_list_insert_tail(klist_t *guard, void *val)
     klist_node_t *node = NULL;
 
     node = LIST_NODE_MALLOC(&guard->opts)(sizeof(klist_node_t));
-    if(!node)
+    if(!node) {
+        kerrno = KYLIN_ERROR_NOMEM;
         return NULL;
+    }
 
     kmath_val_ctor(&LIST_VAL(node), val, guard->opts.val_type, 
             guard->opts.val_size, LIST_VAL_MALLOC(&guard->opts));
@@ -171,8 +176,10 @@ klist_node_t *kylin_list_insert(klist_t *guard, klist_node_t *before, void *val)
     klist_node_t *node = NULL;
 
     node = LIST_NODE_MALLOC(&guard->opts)(sizeof(klist_node_t));
-    if(!node)
+    if(!node) {
+        kerrno = KYLIN_ERROR_NOMEM;
         return NULL;
+    }
 
     kmath_val_ctor(&LIST_VAL(node), val, guard->opts.val_type, 
             guard->opts.val_size, LIST_VAL_MALLOC(&guard->opts));
@@ -244,6 +251,7 @@ klist_node_t *kylin_list_find(const klist_t *guard, void *key)
         if(LIST_VAL_MATCH(&guard->opts)(LIST_VAL(tmp).v, key) == 0)
             return tmp;
     }
+
     return NULL;
 }
 
@@ -259,6 +267,7 @@ klist_node_t *kylin_list_find_index(const klist_t *guard, int index)
             return tmp;
         tmp = LIST_NEXT(tmp);
     }
+
     return NULL;
 }
 

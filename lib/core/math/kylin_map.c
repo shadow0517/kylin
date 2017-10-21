@@ -36,9 +36,9 @@ static unsigned int force_resize_ratio = 5;
 #define MAP_KEY_FREE(opts)      ((opts)->allocator.key_dtor   ? (opts)->allocator.key_dtor   : free)
 #define MAP_VAL_MALLOC(opts)    ((opts)->allocator.val_ctor)
 #define MAP_VAL_FREE(opts)      ((opts)->allocator.val_dtor   ? (opts)->allocator.val_dtor   : free)
-#define MAP_NODE_MALLOC(opts)   ((opts)->allocator.node_ctor  ? (opts)->allocator.node_ctor  : malloc)
+#define MAP_NODE_MALLOC(opts)   ((opts)->allocator.node_ctor  ? (opts)->allocator.node_ctor  : kylin_malloc)
 #define MAP_NODE_FREE(opts)     ((opts)->allocator.node_dtor  ? (opts)->allocator.node_dtor  : free)
-#define MAP_GUARD_MALLOC(opts)  ((opts)->allocator.guard_ctor ? (opts)->allocator.guard_ctor : malloc)
+#define MAP_GUARD_MALLOC(opts)  ((opts)->allocator.guard_ctor ? (opts)->allocator.guard_ctor : kylin_malloc)
 #define MAP_GUARD_FREE(opts)    ((opts)->allocator.guard_dtor ? (opts)->allocator.guard_dtor : free)
 
 static __kylin_inline void _ht_clear(kmap_t *guard, kmap_ht_t *ht)
@@ -128,9 +128,10 @@ kmap_t *kylin_map_create(const kmap_opts_t *opts)
     kmap_t *map = NULL;
 
     map = MAP_GUARD_MALLOC(opts)(sizeof(kmap_t));
-    if(!map)
+    if(!map) {
+        kerrno = KYLIN_ERROR_NOMEM;
         return NULL;
-    memset(map, 0, sizeof(kmap_t));
+    }
 
     memcpy(&map->opts, opts, sizeof(kmap_opts_t));
     map->rehashidx = -1;
@@ -206,8 +207,7 @@ kerr_t kylin_map_resize(kmap_t *guard, size_t count)
     new_ht.cap   = real_count;
     new_ht.mask  = real_count - 1;
     new_ht.used  = 0;
-    new_ht.table = malloc(real_count * sizeof(kmap_node_t *));
-    memset(new_ht.table, 0, real_count * sizeof(kmap_node_t *));
+    new_ht.table = kylin_malloc(real_count * sizeof(kmap_node_t *));
 
     if(guard->ht[0].table == NULL)
         guard->ht[0] = new_ht;
@@ -326,8 +326,10 @@ kmap_node_t *kylin_map_insert(kmap_t *guard, void *key, void *val, kobj_t val_ty
     kmap_node_t *node = NULL;
 
     node = MAP_NODE_MALLOC(&guard->opts)(sizeof(kmap_node_t));
-    if(!node)
+    if(!node) {
+        kerrno = KYLIN_ERROR_NOMEM;
         return NULL;
+    }
 
     kmath_val_ctor(&node->key, key, guard->opts.key_type, guard->opts.key_size, MAP_KEY_MALLOC(&guard->opts));
 
@@ -355,8 +357,10 @@ kmap_node_t *kylin_map_insert_raw(kmap_t *guard, kmap_node_t *node)
         _map_rehash(guard, 1);
 
     ht = MAP_IS_REHASHING(guard) ? &guard->ht[1] : &guard->ht[0];
-    if(!ht->table)
+    if(!ht->table) {
+        kerrno = KYLIN_ERROR_NOENT;
         return NULL;
+    }
 
     index = MAP_HASH_FUNC(guard)(kmath_val_get(&node->key, guard->opts.key_type)) & ht->mask;
 
@@ -434,13 +438,16 @@ kmap_node_t *kylin_map_first(kmap_t *guard)
     kmap_ht_t *ht = NULL;
 
     ht = &guard->ht[0];
-    if(!ht->table)
+    if(!ht->table) {
+        kerrno = KYLIN_ERROR_NOENT;
         return NULL;
+    }
 
     for(int i = 0; i < ht->cap; i++) {
         if(ht->table[i])
             return ht->table[i];
     }
+
     return NULL;
 }
 
@@ -450,8 +457,10 @@ kmap_node_t *kylin_map_last(kmap_t *guard)
     kmap_node_t *node = NULL;
 
     ht = MAP_IS_REHASHING(guard) ? &guard->ht[1] : &guard->ht[0];
-    if(!ht->table)
+    if(!ht->table) {
+        kerrno = KYLIN_ERROR_NOENT;
         return NULL;
+    }
 
     for(int i = (ht->cap - 1); i >= 0; i--) {
         if(ht->table[i]) {
@@ -461,6 +470,7 @@ kmap_node_t *kylin_map_last(kmap_t *guard)
             return node;
         }
     }
+
     return NULL;
 }
 
@@ -510,6 +520,7 @@ kmap_node_t *kylin_map_next(kmap_t *guard, kmap_node_t *node)
             cmp = cmp->next;
         }
     }
+
     return NULL;
 }
 
@@ -567,6 +578,7 @@ kmap_node_t *kylin_map_prev(kmap_t *guard, kmap_node_t *node)
             cmp = cmp->next;
         }
     }
+
     return NULL;
 }
 
@@ -575,8 +587,10 @@ void *kylin_map_fetch_val(kmap_t *guard, void *key)
     kmap_node_t *node = NULL;
 
     node = kylin_map_find(guard, key);
-    if(!node)
+    if(!node) {
+        kerrno = KYLIN_ERROR_NOENT;
         return NULL;
+    }
 
     return kmath_val_get(&node->val, node->val_type);
 }

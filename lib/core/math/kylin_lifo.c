@@ -7,16 +7,18 @@ struct kylin_lifo {
     kbyte_t      buf[];
 };
 
-#define LIFO_GUARD_MALLOC(opts)  ((opts)->allocator.guard_ctor ? (opts)->allocator.guard_ctor : malloc)
-#define LIFO_GUARD_FREE(opts)    ((opts)->allocator.guard_dtor ? (opts)->allocator.guard_dtor : free)
+#define LIFO_GUARD_MALLOC(opts)  ((opts)->allocator.guard_ctor ? (opts)->allocator.guard_ctor : kylin_malloc)
+#define LIFO_GUARD_FREE(opts)    ((opts)->allocator.guard_dtor ? (opts)->allocator.guard_dtor : kylin_free)
 
 klifo_t *kylin_lifo_create(const klifo_opts_t *opts)
 {
     klifo_t *lifo = NULL;
 
     lifo = LIFO_GUARD_MALLOC(opts)(sizeof(klifo_t) + (sizeof(kbyte_t) * opts->cap));
-    if(!lifo)
+    if(!lifo) {
+        kerrno = KYLIN_ERROR_NOMEM;
         return NULL;
+    }
 
     memcpy(&lifo->opts, opts, sizeof(klifo_opts_t));
     memset(lifo->buf, 0, sizeof(kbyte_t) * opts->cap);

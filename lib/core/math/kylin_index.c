@@ -27,11 +27,11 @@ static unsigned int force_resize_ratio = 5;
 #define INDEX_COMP_FUNC(guard)    ((guard)->opts.compare)
 
 #define INDEX_VAL_MALLOC(opts)    ((opts)->allocator.val_ctor)
-#define INDEX_VAL_FREE(opts)      ((opts)->allocator.val_dtor   ? (opts)->allocator.val_dtor   : free)
-#define INDEX_NODE_MALLOC(opts)   ((opts)->allocator.node_ctor  ? (opts)->allocator.node_ctor  : malloc)
-#define INDEX_NODE_FREE(opts)     ((opts)->allocator.node_dtor  ? (opts)->allocator.node_dtor  : free)
-#define INDEX_GUARD_MALLOC(opts)  ((opts)->allocator.guard_ctor ? (opts)->allocator.guard_ctor : malloc)
-#define INDEX_GUARD_FREE(opts)    ((opts)->allocator.guard_dtor ? (opts)->allocator.guard_dtor : free)
+#define INDEX_VAL_FREE(opts)      ((opts)->allocator.val_dtor   ? (opts)->allocator.val_dtor   : kylin_free)
+#define INDEX_NODE_MALLOC(opts)   ((opts)->allocator.node_ctor  ? (opts)->allocator.node_ctor  : kylin_malloc)
+#define INDEX_NODE_FREE(opts)     ((opts)->allocator.node_dtor  ? (opts)->allocator.node_dtor  : kylin_free)
+#define INDEX_GUARD_MALLOC(opts)  ((opts)->allocator.guard_ctor ? (opts)->allocator.guard_ctor : kylin_malloc)
+#define INDEX_GUARD_FREE(opts)    ((opts)->allocator.guard_dtor ? (opts)->allocator.guard_dtor : kylin_free)
 
 static __kylin_inline void _ht_clear(kindex_t *guard, kindex_ht_t *ht)
 {
@@ -106,7 +106,7 @@ next:
     }
 
     if(guard->ht[0].used == 0) {
-        free(guard->ht[0].table);
+        kylin_free(guard->ht[0].table);
         guard->ht[0] = guard->ht[1];
         kmath_ht_reset(&guard->ht[1]);
         guard->rehashidx = -1;
@@ -118,9 +118,10 @@ kindex_t *kylin_index_create(const kindex_opts_t *opts)
     kindex_t *index = NULL;
 
     index = INDEX_GUARD_MALLOC(opts)(sizeof(kindex_t));
-    if(!index)
+    if(!index) {
+        kerrno = KYLIN_ERROR_NOMEM;
         return NULL;
-    memset(index, 0, sizeof(kindex_t));
+    }
 
     memcpy(&index->opts, opts, sizeof(kindex_opts_t));
     index->rehashidx = -1;
@@ -132,13 +133,13 @@ void kylin_index_destroy(kindex_t *guard)
 {
     if(guard->ht[0].table) {
         _ht_clear(guard, &guard->ht[0]);
-        free(guard->ht[0].table);
+        kylin_free(guard->ht[0].table);
         kmath_ht_reset(&guard->ht[0]);
     }
 
     if(guard->ht[1].table) {
         _ht_clear(guard, &guard->ht[1]);
-        free(guard->ht[1].table);
+        kylin_free(guard->ht[1].table);
         kmath_ht_reset(&guard->ht[1]);
     }
 
@@ -185,8 +186,7 @@ kerr_t kylin_index_resize(kindex_t *guard, size_t count)
     new_ht.cap   = real_count;
     new_ht.mask  = real_count - 1;
     new_ht.used  = 0;
-    new_ht.table = malloc(real_count * sizeof(kindex_node_t *));
-    memset(new_ht.table, 0, real_count * sizeof(kindex_node_t *));
+    new_ht.table = kylin_malloc(real_count * sizeof(kindex_node_t *));
 
     if(guard->ht[0].table == NULL)
         guard->ht[0] = new_ht;
@@ -313,8 +313,10 @@ kindex_node_t *kylin_index_insert(kindex_t *guard, void *val)
     kindex_node_t *node = NULL;
 
     node = INDEX_NODE_MALLOC(&guard->opts)(sizeof(kindex_node_t));
-    if(!node)
+    if(!node) {
+        kerrno = KYLIN_ERROR_NOMEM;
         return NULL;
+    }
 
     kmath_val_ctor(&node->val, val, guard->opts.val_type, guard->opts.val_size, INDEX_VAL_MALLOC(&guard->opts));
 
@@ -338,8 +340,10 @@ kindex_node_t *kylin_index_insert_raw(kindex_t *guard, kindex_node_t *node)
         _index_rehash(guard, 1);
 
     ht = INDEX_IS_REHASHING(guard) ? &guard->ht[1] : &guard->ht[0];
-    if(!ht->table)
+    if(!ht->table) {
+        kerrno = KYLIN_ERROR_NOENT;
         return NULL;
+    }
 
     idx = INDEX_HASH_FUNC(guard)(kmath_val_get(&node->val, guard->opts.val_type)) & ht->mask;
     cmp = ht->table[idx];
@@ -415,13 +419,16 @@ kindex_node_t *kylin_index_first(kindex_t *guard)
     kindex_ht_t *ht = NULL;
 
     ht = &guard->ht[0];
-    if(!ht->table)
+    if(!ht->table) {
+        kerrno = KYLIN_ERROR_NOENT;
         return NULL;
+    }
 
     for(int i = 0; i < ht->cap; i++) {
         if(ht->table[i])
             return ht->table[i];
     }
+
     return NULL;
 }
 
@@ -431,8 +438,10 @@ kindex_node_t *kylin_index_last(kindex_t *guard)
     kindex_node_t *node = NULL;
 
     ht = INDEX_IS_REHASHING(guard) ? &guard->ht[1] : &guard->ht[0];
-    if(!ht->table)
+    if(!ht->table) {
+        kerrno = KYLIN_ERROR_NOENT;
         return NULL;
+    }
 
     for(int i = (ht->cap - 1); i >= 0; i--) {
         if(ht->table[i]) {

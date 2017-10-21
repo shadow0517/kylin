@@ -10,8 +10,8 @@ struct kylin_fifo {
     kbyte_t      val[];
 };
 
-#define FIFO_GUARD_MALLOC(opts)  ((opts)->allocator.guard_ctor ? (opts)->allocator.guard_ctor : malloc)
-#define FIFO_GUARD_FREE(opts)    ((opts)->allocator.guard_dtor ? (opts)->allocator.guard_dtor : free)
+#define FIFO_GUARD_MALLOC(opts)  ((opts)->allocator.guard_ctor ? (opts)->allocator.guard_ctor : kylin_malloc)
+#define FIFO_GUARD_FREE(opts)    ((opts)->allocator.guard_dtor ? (opts)->allocator.guard_dtor : kylin_free)
 
 kfifo_t *kylin_fifo_create(const kfifo_opts_t *opts)
 {

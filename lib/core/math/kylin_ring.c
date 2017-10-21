@@ -16,7 +16,7 @@ struct kylin_ring {
 
 #define RING_VAL_MALLOC(opts)    ((opts)->allocator.val_ctor)
 #define RING_VAL_FREE(opts)      ((opts)->allocator.val_dtor   ? (opts)->allocator.val_dtor   : free)
-#define RING_GUARD_MALLOC(opts)  ((opts)->allocator.guard_ctor ? (opts)->allocator.guard_ctor : malloc)
+#define RING_GUARD_MALLOC(opts)  ((opts)->allocator.guard_ctor ? (opts)->allocator.guard_ctor : kylin_malloc)
 #define RING_GUARD_FREE(opts)    ((opts)->allocator.guard_dtor ? (opts)->allocator.guard_dtor : free)
 
 kring_t *kylin_ring_create(kring_opts_t *opts)
@@ -24,14 +24,15 @@ kring_t *kylin_ring_create(kring_opts_t *opts)
     kring_t *ring = NULL;
 
     ring = RING_GUARD_MALLOC(opts)(sizeof(kring_t) + (sizeof(kmath_val_t) * opts->cap));
-    if(!ring)
+    if(!ring) {
+        kerrno = KYLIN_ERROR_NOMEM;
         return NULL;
+    }
 
     memcpy(&ring->opts, opts, sizeof(kring_opts_t));
     ring->mask = opts->cap - 1;
     kylin_atomic32_init(&ring->head);
     kylin_atomic32_init(&ring->tail);
-    memset(ring->val, 0, sizeof(kmath_val_t) * opts->cap);
 
     return ring;
 }
