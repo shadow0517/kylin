@@ -17,14 +17,7 @@ static klist_opts_t conns_opts = {
     .val_type  = KOBJ_OTHERS,
     .val_size  = sizeof(ksock_conn_t),
     .match     = __tcp_connection_match,
-    .allocator = {
-        .val_ctor   = NULL, /*值所在的内存由调用者分配*/
-        .val_dtor   = NULL,
-        .node_ctor  = NULL,
-        .node_dtor  = NULL, 
-        .guard_ctor = NULL,
-        .guard_dtor = NULL
-    }
+    .allocator = KLIST_OPTS_ALLOCATOR_NULL
 };
 
 void *tcp_create(ksock_t *guard)
@@ -43,15 +36,13 @@ void *tcp_create(ksock_t *guard)
     if(!opts) 
         return NULL;
 
-    sock_tcp = malloc(sizeof(ksock_tcp_t));
+    sock_tcp = kylin_malloc(sizeof(ksock_tcp_t));
     if(!sock_tcp)
         return NULL;
 
     sock_tcp->fd = socket(PF_INET, SOCK_STREAM, 0);
-    if(sock_tcp->fd == -1) {
-        free(sock_tcp);
-        return NULL;
-    }
+    if(sock_tcp->fd == -1) 
+        goto error;
 
     setsockopt(sock_tcp->fd, SOL_SOCKET, SO_REUSEADDR, (const void *)&set, sizeof(int));
     setsockopt(sock_tcp->fd, SOL_SOCKET, MSG_NOSIGNAL, (void *)&set, sizeof(int));
@@ -68,40 +59,37 @@ void *tcp_create(ksock_t *guard)
     if(type == KYLIN_SOCK_SERVER_TCP) { /*server socket*/
         if(bind(sock_tcp->fd, 
                     (struct sockaddr *)&opts->config.server.local.addr.in, 
-                    opts->config.server.local.len) != 0) {
-            close(sock_tcp->fd);
-            free(sock_tcp);
-            return NULL;
-        }
+                    opts->config.server.local.len) != 0) 
+            goto error;
 
-        if(listen(sock_tcp->fd, opts->config.server.backlog) != 0) {
-            close(sock_tcp->fd);
-            free(sock_tcp);
-            return NULL;
-        }
+        if(listen(sock_tcp->fd, opts->config.server.backlog) != 0) 
+            goto error;
 
         sock_tcp->conns = kylin_list_create(&conns_opts);
-        if(!sock_tcp->conns) {
-            close(sock_tcp->fd);
-            free(sock_tcp);
-            return NULL;
-        }
+        if(!sock_tcp->conns) 
+            goto error;
     }
 
     return sock_tcp;
+
+error:
+    if(sock_tcp && sock_tcp->fd)
+        close(sock_tcp->fd);
+    if(sock_tcp)
+        kylin_free(sock_tcp);
+    return NULL;
 }
 
 void tcp_destroy(void *priv)
 {
     ksock_tcp_t *sock_tcp = (ksock_tcp_t *)priv;
 
-    if(sock_tcp) {
-        if(sock_tcp->fd)
-            close(sock_tcp->fd);
-        if(sock_tcp->conns)
-            kylin_list_destroy(sock_tcp->conns);
-        free(sock_tcp);
-    }
+    if(sock_tcp && sock_tcp->fd) 
+        close(sock_tcp->fd);
+    if(sock_tcp && sock_tcp->conns)
+        kylin_list_destroy(sock_tcp->conns);
+    if(sock_tcp)
+        kylin_free(sock_tcp);
 
     return;
 }
@@ -158,12 +146,11 @@ ksock_conn_t *tcp_accept(ksock_t *guard)
         return NULL;
     }
 
-    conn = malloc(sizeof(ksock_conn_t));
+    conn = kylin_malloc(sizeof(ksock_conn_t));
     if(!conn) {
         close(fd);
         return NULL;
     }
-    memset(conn, 0, sizeof(ksock_conn_t));
 
     conn->fd         = fd;
     conn->sock       = guard;
@@ -173,7 +160,7 @@ ksock_conn_t *tcp_accept(ksock_t *guard)
 
     if(kylin_list_insert_head(sock_tcp->conns, conn) != KYLIN_ERROR_OK) {
         close(conn->fd);
-        free(conn);
+        kylin_free(conn);
         return NULL;
     }
 
@@ -251,7 +238,7 @@ void tcp_conn_destroy(ksock_t *guard, ksock_conn_t *conn)
         return;
 
     close(conn->fd);
-    free(conn);
+    kylin_free(conn);
 }
 
 kfd_t tcp_get_sockfd(ksock_t *guard)

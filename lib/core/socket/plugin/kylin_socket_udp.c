@@ -24,13 +24,13 @@ void *udp_create(ksock_t *guard)
     if(!opts) 
         return NULL;
 
-    sock_udp = malloc(sizeof(ksock_udp_t));
+    sock_udp = kylin_malloc(sizeof(ksock_udp_t));
     if(!sock_udp)
         return NULL;
 
     sock_udp->fd = socket(PF_INET, SOCK_DGRAM, 0);
     if(sock_udp->fd == -1) {
-        free(sock_udp);
+        kylin_free(sock_udp);
         return NULL;
     }
 
@@ -48,7 +48,7 @@ void *udp_create(ksock_t *guard)
                     (struct sockaddr *)&opts->config.server.local.addr.in, 
                     opts->config.server.local.len) != 0) {
             close(sock_udp->fd);
-            free(sock_udp);
+            kylin_free(sock_udp);
             return NULL;
         }
     }
@@ -60,11 +60,10 @@ void udp_destroy(void *priv)
 {
     ksock_udp_t *sock_udp = (ksock_udp_t *)priv;
 
-    if(sock_udp) {
-        if(sock_udp->fd)
-            close(sock_udp->fd);
-        free(sock_udp);
-    }
+    if(sock_udp && sock_udp->fd) 
+        close(sock_udp->fd);
+    if(sock_udp)
+        kylin_free(sock_udp);
 
     return;
 }

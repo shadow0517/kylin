@@ -17,14 +17,7 @@ static klist_opts_t conns_opts = {
     .val_type  = KOBJ_OTHERS,
     .val_size  = sizeof(ksock_conn_t),
     .match     = __unix_connection_match,
-    .allocator = {
-        .val_ctor   = NULL, /*值所在的内存由调用者分配*/
-        .val_dtor   = NULL,
-        .node_ctor  = NULL,
-        .node_dtor  = NULL, 
-        .guard_ctor = NULL,
-        .guard_dtor = NULL
-    }
+    .allocator = KLIST_OPTS_ALLOCATOR_NULL
 };
 
 void *unix_create(ksock_t *guard)
@@ -42,13 +35,13 @@ void *unix_create(ksock_t *guard)
     if(!opts) 
         return NULL;
 
-    sock_unix = malloc(sizeof(ksock_unix_t));
+    sock_unix = kylin_malloc(sizeof(ksock_unix_t));
     if(!sock_unix)
         return NULL;
 
     sock_unix->fd = socket(PF_LOCAL, opts->type, 0);
     if(sock_unix->fd == -1) {
-        free(sock_unix);
+        kylin_free(sock_unix);
         return NULL;
     }
 
@@ -60,7 +53,7 @@ void *unix_create(ksock_t *guard)
                     (struct sockaddr *)&opts->config.server.local.addr.un, 
                     opts->config.server.local.len) != 0) {
             close(sock_unix->fd);
-            free(sock_unix);
+            kylin_free(sock_unix);
             return NULL;
         }
 
@@ -79,7 +72,7 @@ void *unix_create(ksock_t *guard)
 
         if(listen(sock_unix->fd, opts->config.server.backlog) != 0) {
             close(sock_unix->fd);
-            free(sock_unix);
+            kylin_free(sock_unix);
             return NULL;
         }
 
@@ -87,7 +80,7 @@ void *unix_create(ksock_t *guard)
             sock_unix->conns = kylin_list_create(&conns_opts);
             if(!sock_unix->conns) {
                 close(sock_unix->fd);
-                free(sock_unix);
+                kylin_free(sock_unix);
                 return NULL;
             }
         }
@@ -105,7 +98,7 @@ void unix_destroy(void *priv)
             close(sock_unix->fd);
         if(sock_unix->conns)
             kylin_list_destroy(sock_unix->conns);
-        free(sock_unix);
+        kylin_free(sock_unix);
     }
 
     return;
@@ -166,12 +159,11 @@ ksock_conn_t *unix_accept(ksock_t *guard)
     setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
 #endif
 
-    conn = malloc(sizeof(ksock_conn_t));
+    conn = kylin_malloc(sizeof(ksock_conn_t));
     if(!conn) {
         close(fd);
         return NULL;
     }
-    memset(conn, 0, sizeof(ksock_conn_t));
 
     conn->fd         = fd;
     conn->sock       = guard;
@@ -181,7 +173,7 @@ ksock_conn_t *unix_accept(ksock_t *guard)
 
     if(kylin_list_insert_head(sock_unix->conns, conn) != KYLIN_ERROR_OK) {
         close(conn->fd);
-        free(conn);
+        kylin_free(conn);
         return NULL;
     }
 
@@ -313,7 +305,7 @@ void unix_conn_destroy(ksock_t *guard, ksock_conn_t *conn)
         return;
 
     close(conn->fd);
-    free(conn);
+    kylin_free(conn);
 }
 
 kfd_t unix_get_sockfd(ksock_t *guard)

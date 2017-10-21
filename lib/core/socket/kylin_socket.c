@@ -23,7 +23,7 @@ ksock_t *kylin_socket_create(ksock_type_t type, const ksock_opts_t *opts)
     if(splugin[type].type == KYLIN_SOCK_MAX)
         return NULL;
 
-    guard = malloc(sizeof(ksock_t));
+    guard = kylin_malloc(sizeof(ksock_t));
     if(!guard)
         return NULL;
 
@@ -34,7 +34,7 @@ ksock_t *kylin_socket_create(ksock_type_t type, const ksock_opts_t *opts)
     if(splugin[type].reg.create) {
         guard->priv = splugin[type].reg.create(guard); 
         if(!guard->priv) {
-            free(guard);
+            kylin_free(guard);
             return NULL;
         }
     }
@@ -44,7 +44,7 @@ ksock_t *kylin_socket_create(ksock_type_t type, const ksock_opts_t *opts)
     if(!kylin_list_insert_head(slist, guard)) {
         if(splugin[type].reg.destroy)
             splugin[type].reg.destroy(guard->priv);
-        free(guard);
+        kylin_free(guard);
         return NULL;
     }
 
@@ -62,7 +62,7 @@ void kylin_socket_destroy(ksock_t *guard)
         splugin[guard->type].reg.destroy(guard->priv);
 
     splugin[guard->type].ref--;
-    free(guard);
+    kylin_free(guard);
 
     return;
 }
