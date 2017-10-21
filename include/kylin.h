@@ -84,6 +84,9 @@ typedef int kfd_t;
 #define __kylin_format_print(a, b) __attribute__((__format__(__printf__, a, b)))
 typedef int (*kylin_print)(const char *, ...)  __kylin_format_print(1, 2);
 
+/*kylin errno*/
+extern __thread int kerrno;
+
 /*
  * 2的幂次方运算，其余两个函数
  * kylin_roundup_pow_of_two 和 kylin_rounddown_pow_of_two
