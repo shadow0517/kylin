@@ -33,11 +33,9 @@ kusock_client_t *kylin_usock_client_open(const char *name)
         }
     };
 
-    cli = malloc(sizeof(kusock_client_t));
+    cli = kylin_malloc(sizeof(kusock_client_t));
     if(!cli)
         return NULL;
-
-    memset(cli, 0, sizeof(kusock_client_t));
 
     cli->sock = kylin_socket_create(KYLIN_SOCK_CLIENT_UNIX, &sock_opts);
     if(!cli->sock) 
@@ -63,7 +61,7 @@ error:
         kylin_socket_destroy(cli->sock);
 
     if(cli)
-        free(cli);
+        kylin_free(cli);
 
     return NULL;
 }

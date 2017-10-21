@@ -58,13 +58,12 @@ kusock_server_t *kylin_usock_server_create(const char *name, int mode,
         .val_type  = KOBJ_OTHERS,
         .val_size  = sizeof(usock_accept_t),
         .match     = __accept_node_match,
-        .allocator = KLIST_OPTS_ALLOCATOR_VAL(malloc)
+        .allocator = KLIST_OPTS_ALLOCATOR_VAL(kylin_malloc)
     };
 
-    serv = malloc(sizeof(kusock_server_t));
+    serv = kylin_malloc(sizeof(kusock_server_t));
     if(!serv)
         return NULL;
-    memset(serv, 0, sizeof(kusock_server_t));
 
     serv->sock = kylin_socket_create(KYLIN_SOCK_SERVER_UNIX, &sock_opts);
     if(!serv->sock) 
@@ -105,7 +104,7 @@ error:
         kylin_event_del(accept_event, serv->fd, KEVENT_FLAG_READ);
 
     if(serv)
-        free(serv);
+        kylin_free(serv);
 
     return NULL;
 }
@@ -178,7 +177,7 @@ static void __server_accept(kfd_t fd, void *priv)
     acpt.fd     = conn->fd;
     acpt.sock   = conn->sock;
     acpt.server = serv;
-    acpt.pdu    = malloc(sizeof(usock_pdu_t) + KYLIN_USOCK_PDU_PAYLOAD_MAX);
+    acpt.pdu    = kylin_malloc(sizeof(usock_pdu_t) + KYLIN_USOCK_PDU_PAYLOAD_MAX);
     if(!acpt.pdu) {
         kylin_event_del(process_event, conn->fd, 
                 KEVENT_FLAG_READ | KEVENT_FLAG_WRITE | KEVENT_FLAG_WRITE);
@@ -310,8 +309,8 @@ static void __server_process(kfd_t fd, void *priv)
 
 kerr_t server_init(void)
 {
-    acpt_priv = malloc(sizeof(kusock_server_t));
-    proc_priv = malloc(sizeof(usock_accept_t)); 
+    acpt_priv = kylin_malloc(sizeof(kusock_server_t));
+    proc_priv = kylin_malloc(sizeof(usock_accept_t)); 
     if(!acpt_priv || !proc_priv)
         return KYLIN_ERROR_NOMEM;
 
@@ -361,10 +360,10 @@ void server_fini(void)
         kylin_rb_destroy(serv_rb);
 
     if(acpt_priv)
-        free(acpt_priv);
+        kylin_free(acpt_priv);
 
     if(proc_priv)
-        free(proc_priv);
+        kylin_free(proc_priv);
 
     if(accept_event)
         kylin_event_destroy(accept_event);
