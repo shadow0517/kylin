@@ -17,7 +17,7 @@ static kring_opts_t log_ring_opts = {
     .cap       = 1024,
     .val_type  = KOBJ_OTHERS,
     .val_size  = sizeof(klog_buffer_t),
-    .allocator = KRING_OPTS_ALLOCATOR_VAL(malloc)
+    .allocator = KRING_OPTS_ALLOCATOR_VAL(kylin_malloc)
 };
 
 kerr_t buffer_enqueue(klog_buffer_t *buf)
@@ -52,14 +52,14 @@ static void __buffer_dequeue(uint32_t type)
 
     obj = object_find(buf->obj_id);
     if(!obj) {
-        free(buf);
+        kylin_free(buf);
         return;
     }
 
     if(obj->logger[type].print)
         obj->logger[type].print(buf->timestamp, buf->log_level, buf->data);
 
-    free(buf);
+    kylin_free(buf);
 
     buf = (klog_buffer_t *)kylin_ring_peek(log_ring[type]);
     if(!buf) 

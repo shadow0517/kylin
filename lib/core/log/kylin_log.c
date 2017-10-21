@@ -64,11 +64,10 @@ klog_t *kylin_log_create(klog_logger_t logger[], size_t num)
 {
     klog_t *obj = NULL;
 
-    obj = malloc(sizeof(klog_t));
+    obj = kylin_malloc(sizeof(klog_t));
     if(!obj)
         return NULL;
 
-    memset(obj, 0, sizeof(klog_t));
     for(int i = 0; i < KYLIN_LOG_MAX; i++)
         obj->logger[i].type = KYLIN_LOG_MAX;
 
