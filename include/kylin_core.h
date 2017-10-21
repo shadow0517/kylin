@@ -5,7 +5,7 @@
 #include <kylin/include/utils/kylin_error.h>
 
 extern kerr_t kylin_core_init(void);
-extern vlid kylin_core_fini(void);
+extern void kylin_core_fini(void);
 
 /*
  * 版本规范

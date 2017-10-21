@@ -176,6 +176,7 @@ static uint64_t __elf_get_byte(Elf32_Ehdr *e, void *base, elf_member_t member)
 		val = ((char *)base)[elf64_offsets[member]];
 		break;
 	case ELFCLASSNONE:
+        break;
 	}
 
 	return val;
@@ -197,6 +198,7 @@ static uint64_t __elf_get_word(Elf32_Ehdr *e, void *base, elf_member_t member)
 			val = le32dec(base);
 			break;
 		case ELFDATANONE:
+            break;
 		}
 		break;
 	case ELFCLASS64:
@@ -209,9 +211,11 @@ static uint64_t __elf_get_word(Elf32_Ehdr *e, void *base, elf_member_t member)
 			val = le32dec(base);
 			break;
 		case ELFDATANONE:
+            break;
 		}
 		break;
 	case ELFCLASSNONE:
+        break;
 	}
 
 	return val;
@@ -237,6 +241,7 @@ static uint64_t __elf_get_quad(Elf32_Ehdr *e, void *base, elf_member_t member)
 			val = le32dec(base);
 			break;
 		case ELFDATANONE:
+            break;
 		}
 		break;
 	case ELFCLASS64:
@@ -249,9 +254,11 @@ static uint64_t __elf_get_quad(Elf32_Ehdr *e, void *base, elf_member_t member)
 			val = le64dec(base);
 			break;
 		case ELFDATANONE:
+            break;
 		}
 		break;
 	case ELFCLASSNONE:
+        break;
 	}
 
 	return val;
@@ -273,6 +280,7 @@ static uint64_t __elf_get_quarter(Elf32_Ehdr *e, void *base, elf_member_t member
 			val = le16dec(base);
 			break;
 		case ELFDATANONE:
+            break;
 		}
 		break;
 	case ELFCLASS64:
@@ -285,9 +293,11 @@ static uint64_t __elf_get_quarter(Elf32_Ehdr *e, void *base, elf_member_t member
 			val = le16dec(base);
 			break;
 		case ELFDATANONE:
+            break;
 		}
 		break;
 	case ELFCLASSNONE:
+        break;
 	}
 
 	return val;

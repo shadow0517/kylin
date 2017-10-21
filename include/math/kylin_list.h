@@ -97,6 +97,11 @@ extern klist_node_t *kylin_list_next(const klist_t *, const klist_node_t *)
             node != NULL;                        \
             node = kylin_list_next(guard, node))
 
+#define KYLIN_LIST_FOREACH_REVERSE(guard, node)  \
+    for(node = kylin_list_last(guard);           \
+            node != NULL;                        \
+            node = kylin_list_prev(guard, node))
+
 extern klist_node_t *kylin_list_insert_head(klist_t *, void *) 
     __kylin_nonnull((1, 2));
 extern klist_node_t *kylin_list_insert_tail(klist_t *, void *) 

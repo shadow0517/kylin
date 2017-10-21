@@ -4,7 +4,12 @@
 #include <kylin/include/utils/kylin_error.h>
 #include <kylin/include/utils/kylin_limit.h>
 
-typedef struct kmod_t *(*module_get_func)(void);
+#include <kylin/lib/core/kylin_core_module.h>
+#include <kylin/lib/core/kylin_core_module_elf.h>
+
+#define KYLIN_MODULE_CONFIG_FILE  "modules.conf"
+
+typedef kmod_t *(*module_get_func)(void);
 
 typedef struct kylin_module_internal {
     char      name[KYLIN_NAME_LENGTH];
@@ -25,57 +30,56 @@ typedef struct kylin_module_elf_params {
 
 static int __module_match(const void *val, const void *key);
 
-static int __module_load(kmod_session_t *session, kmod_internal_t *module_internal)
+static int __module_load(kmod_session_t *session, kmod_internal_t *module_load)
 {
-    int ret;
     void *handle = NULL;
     char path[PATH_MAX] = {0};
     char func_name[64];
     module_get_func func;
 
-    snprintf(path, PATH_MAX, "%s/%s.so", session->path, module_internal->name);
+    snprintf(path, PATH_MAX, "%s/%s.so", session->path, module_load->name);
     handle = dlopen(path, RTLD_NOW | RTLD_GLOBAL);
     if(!handle) 
         return KYLIN_ERROR_INVAL;
 
-    snprintf(func_name, 64, "%s_module", module_internal->name);
+    snprintf(func_name, 64, "%s_module", module_load->name);
     func = (module_get_func)dlsym(handle, func_name);
     if (func == NULL) {
         dlclose(handle);
         return KYLIN_ERROR_INVAL;
     }
 
-    module_internal->handle = handle;
-    module_internal->module = (*func)();
-    if(!module_internal->module) {
+    module_load->dl_handle = handle;
+    module_load->module    = func();
+    if(!module_load->module) {
         dlclose(handle);
         return KYLIN_ERROR_INVAL;
     }
 
-    return module_internal->module->handle(KMOD_ACTION_LOAD);
+    return module_load->module->handle(KMOD_ACTION_LOAD);
 }
 
-static kerr_t __module_unload(kmod_session_t *session, kmod_internal_t *module_internal)
+static kerr_t __module_unload(kmod_session_t *session, kmod_internal_t *module_unload)
 {
     kerr_t ret = KYLIN_ERROR_OK;
 
-    ret = module_internal->module->handle(KMOD_ACTION_UNLOAD);
+    ret = module_unload->module->handle(KMOD_ACTION_UNLOAD);
     if(ret != KYLIN_ERROR_OK)
         return ret;
 
-    dlclose(module_internal->handle);
+    dlclose(module_unload->dl_handle);
 
     return ret;
 }
 
-static kbool_t __module_exist(kmod_session_t *session, char *name)
+static kbool_t __module_exist(kmod_session_t *session, const char *name)
 {
-    kmod_internal_t internal;
+    kmod_internal_t cmp;
 
-    memset(internal, 0, sizeof(kmod_internal_t));
-    memcpy(internal.name, name, KYLIN_MIN(strlen(name), (KYLIN_NAME_LENGTH - 1))); 
+    memset(&cmp, 0, sizeof(kmod_internal_t));
+    memcpy(cmp.name, name, KYLIN_MIN(strlen(name), (KYLIN_NAME_LENGTH - 1))); 
 
-    if(kylin_list_find(session->module_list, &internal))
+    if(kylin_list_find(session->module_list, &cmp))
         return KYLIN_TRUE;
 
     return KYLIN_FALSE;
@@ -84,15 +88,20 @@ static kbool_t __module_exist(kmod_session_t *session, char *name)
 kmod_session_t *kylin_module_session_create(const char *path)
 {
     kmod_session_t *session = NULL;
-    klist_opts_t module_opts;
 
     session = malloc(sizeof(kmod_session_t));
     if(!session)
         return NULL;
     memset(session, 0, sizeof(kmod_session_t));
 
-    module_opts = KLIST_OPTS_VAL_OTHERS_WITH_ALLOCATOR_NULL("session module", 
-            sizeof(kmod_internal_t), __module_match);
+    klist_opts_t module_opts = {
+        .name      = "session module",
+        .val_type  = KOBJ_OTHERS,
+        .val_size  = sizeof(kmod_internal_t),
+        .match     = __module_match,
+        .allocator = KLIST_OPTS_ALLOCATOR_NULL 
+        
+    };
     session->module_list = kylin_list_create(&module_opts);
     if(!session->module_list) {
         free(session);
@@ -114,7 +123,6 @@ void kylin_module_session_destroy(kmod_session_t *session)
 
 static kerr_t __module_depend_process(char *name, uint64_t value, void *data)
 {
-    kerr_t             ret = KYLIN_ERROR_OK;
     char               base[PATH_MAX]            = {0};
     char               path[PATH_MAX]            = {0};
     char               depend[KYLIN_NAME_LENGTH] = {0};
@@ -186,7 +194,6 @@ static kerr_t __module_depend_process(char *name, uint64_t value, void *data)
 
 kerr_t kylin_module_load(kmod_session_t *session, const char *mod_name)
 {
-    kerr_t             ret            = KYLIN_ERROR_OK;
     char               path[PATH_MAX] = {0};
     ked_t             *ed             = NULL;
     kmod_internal_t   *mod_load       = NULL;
@@ -200,7 +207,7 @@ kerr_t kylin_module_load(kmod_session_t *session, const char *mod_name)
         return KYLIN_ERROR_NOMEM;
 
     memset(mod_load, 0, sizeof(kmod_internal_t));
-    memcpy(mod_load->name, mod_name, KYLIN_MIN(strlen(name), (KYLIN_NAME_LENGTH - 1)));
+    memcpy(mod_load->name, mod_name, KYLIN_MIN(strlen(mod_name), (KYLIN_NAME_LENGTH - 1)));
     mod_load->refcnt = 1;
 
     if(!kylin_list_insert_tail(session->module_list, mod_load)) {
@@ -214,7 +221,7 @@ kerr_t kylin_module_load(kmod_session_t *session, const char *mod_name)
         return KYLIN_ERROR_INVAL;
 
     param.session  = session;
-    param.mod_name = mod_name;
+    memcpy(param.mod_name, mod_name, KYLIN_MIN(strlen(mod_name), (KYLIN_NAME_LENGTH - 1)));
 
     if(kylin_elf_symbol(ed, __module_depend_process, &param) != KYLIN_ERROR_OK)
         exit(1);
@@ -230,27 +237,118 @@ kerr_t kylin_module_load(kmod_session_t *session, const char *mod_name)
 
 kerr_t kylin_module_load_all(kmod_session_t *session)
 {
+    kerr_t       ret = KYLIN_ERROR_OK;
+    int          fd;
+    struct stat  sb;
+    char        *config_string                  = NULL;
+    char        *begin                          = NULL;
+    char        *end                            = NULL;
+    char         config_filename[PATH_MAX]      = {0};
+    char         module_name[KYLIN_NAME_LENGTH] = {0};
 
+    snprintf(config_filename, PATH_MAX, "%s/%s", session->path, KYLIN_MODULE_CONFIG_FILE);
+    fd = open(config_filename, O_RDONLY);
+    if(fd == -1)
+        return errno;
+
+    if(fstat(fd, &sb) < 0) {
+        close(fd);
+        return errno;
+    }
+
+    config_string = (char *)mmap(NULL, sb.st_size, PROT_READ, MAP_SHARED, fd, 0);
+    if (config_string == MAP_FAILED) {
+        close(fd);
+        return errno;
+    }
+
+    begin = config_string;
+    end   = begin;
+
+    while(end < config_string + sb.st_size) {
+        while(*end != '\n' && end < config_string + sb.st_size) 
+            end++;
+
+        if(*end == '\n' && end >= (config_string + sb.st_size)) 
+            break;
+
+        if((end > begin) && (end - begin) < PATH_MAX) {
+            memset(module_name, 0, KYLIN_NAME_LENGTH);
+            strncpy(module_name, begin, end - begin);
+
+            ret = kylin_module_load(session, module_name);
+            if(ret != KYLIN_ERROR_OK && ret != KYLIN_ERROR_EXIST) { 
+                munmap(config_string, sb.st_size);
+                close(fd);
+                return ret;
+            }
+        }
+
+        end++;
+        begin = end;
+    }
+
+    munmap(config_string, sb.st_size);
+    close(fd);
+
+    return KYLIN_ERROR_OK;
 }
 
 kerr_t kylin_module_unload(kmod_session_t *session, const char *mod_name)
 {
+    kerr_t ret = KYLIN_ERROR_OK;
+    kmod_internal_t  cmp;
+    kmod_internal_t *mod_unload;
 
+    memset(&cmp, 0, sizeof(kmod_internal_t));
+    memcpy(cmp.name, mod_name, KYLIN_MIN(strlen(mod_name), (KYLIN_NAME_LENGTH - 1)));
+
+    mod_unload = kylin_list_find(session->module_list, &cmp);
+    if(!mod_unload)
+        return KYLIN_ERROR_NOENT;
+
+    ret = __module_unload(session, mod_unload);
+    if(ret != KYLIN_ERROR_OK)
+        return ret;
+
+    mod_unload = kylin_list_unlink(session->module_list, &cmp);
+    if(!mod_unload)
+        return KYLIN_ERROR_NOENT;
+
+    free(mod_unload);
+
+    return KYLIN_ERROR_OK;
 }
 
 kerr_t kylin_module_unload_all(kmod_session_t *session)
 {
+    kerr_t ret = KYLIN_ERROR_OK;
+    klist_node_t    *mod_node   = NULL;
+    kmod_internal_t *mod_unload = NULL;
 
+    KYLIN_LIST_FOREACH_REVERSE(session->module_list, mod_node) {
+        mod_unload = kylin_list_val(session->module_list, mod_node);
+        if(!mod_unload)
+            return KYLIN_ERROR_INVAL;
+
+        ret = __module_unload(session, mod_unload);
+        if(ret != KYLIN_ERROR_OK)
+            return ret;
+    }
+
+    kylin_list_destroy(session->module_list);
+
+    return KYLIN_ERROR_OK;
 }
 
 size_t kylin_module_count(kmod_session_t *session)
 {
-
+    return kylin_list_count(session->module_list);
 }
 
 void kylin_module_dump(kmod_session_t *session, kylin_print print)
 {
-
+    return;
 }
 
 static int __module_match(const void *val, const void *key)

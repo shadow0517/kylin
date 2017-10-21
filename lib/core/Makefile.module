@@ -5,15 +5,15 @@ PREFIX=/usr/local/
 CFLAGS = ${KYLIN_CFLAGS} -DKYLIN_MODULE -D_GNU_SOURCE -I/usr/local/include -I${KYLIN_LIB_SRC}
 LDFLAGS += -L/usr/local/lib
 
-all: kylin_core_ddb
+all: kylin_core_core
 
-LIB_OBJS = kylin_ddb.o kylin_ddb_service.o kylin_ddb_log.o 
+LIB_OBJS = kylin_core.o kylin_core_module.o kylin_core_module_elf.o 
 
-kylin_core_ddb: $(LIB_OBJS)
-	${CC} ${CFLAGS} ${LIB_OBJS} -shared -o kylin_core_ddb.so ${LDFLAGS}
+kylin_core_core: $(LIB_OBJS)
+	${CC} ${CFLAGS} ${LIB_OBJS} -shared -o kylin_core_core.so ${LDFLAGS}
 
 distclean: clean
 clean:
-	rm -f *.o kylin_core_ddb.so
+	rm -f *.o kylin_core_core.so
 
 

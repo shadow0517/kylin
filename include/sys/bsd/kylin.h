@@ -12,6 +12,9 @@
 #include <sched.h>
 #include <md5.h>
 #include <libgen.h>
+#include <sys/elf32.h>
+#include <sys/elf64.h>
+#include <sys/endian.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>

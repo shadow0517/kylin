@@ -6,6 +6,7 @@
 #endif
 
 #include <alloca.h>
+#include <elf.h>
 #include <endian.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -21,6 +22,11 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+
+/* libbsd-dev */
+#include <bsd/sys/endian.h>
+#include <bsd/stdlib.h>
+#include <bsd/md5.h>
 
 #define KYLIN_PAGE_SIZE getpagesize()
 
