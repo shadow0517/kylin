@@ -11,11 +11,13 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdarg.h>
-#include <string.h>
-#include <signal.h>
-#include <time.h>
+
 #include <assert.h>
+#include <dlfcn.h>
 #include <errno.h>
+#include <signal.h>
+#include <string.h>
+#include <time.h>
 
 #include <pthread.h>
 
