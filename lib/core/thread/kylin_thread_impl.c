@@ -18,11 +18,10 @@ kthread_t *kylin_thread_create(char *name,
 {
     kthread_t *thread = NULL;
 
-    thread = malloc(sizeof(kthread_t) + param_size);
+    thread = kylin_malloc(sizeof(kthread_t) + param_size);
     if(!thread)
         return NULL;
 
-    memset(thread, 0, sizeof(kthread_t) + param_size);
     memcpy(thread->param, param, param_size);
     memcpy(thread->name, name, KYLIN_MIN(strlen(name), (KYLIN_NAME_LENGTH - 1)));
     thread->terminated = KYLIN_FALSE;
@@ -30,7 +29,7 @@ kthread_t *kylin_thread_create(char *name,
     thread->exec       = exec;
 
     if(kylin_thread_insert(thread) != KYLIN_ERROR_OK) {
-        free(thread);
+        kylin_free(thread);
         return NULL;
     }
 
@@ -46,7 +45,7 @@ void kylin_thread_destroy(kthread_t *thread)
     kylin_thread_terminate(thread);
     kylin_thread_stop(thread);
 
-    free(thread);
+    kylin_free(thread);
 }
 
 kerr_t kylin_thread_start(kthread_t *thread)
