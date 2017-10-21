@@ -452,7 +452,7 @@ ked_t *kylin_elf_create(const char *filename)
         return NULL;
     }
 
-    ed = malloc(sizeof(ked_t));
+    ed = kylin_malloc(sizeof(ked_t));
     if(!ed) {
         munmap(hdr, sb.st_size);
         close(fd);
@@ -468,13 +468,12 @@ ked_t *kylin_elf_create(const char *filename)
 
 void kylin_elf_destroy(ked_t *ed)
 {
-    if(ed) {
-        if(ed->ehdr != MAP_FAILED)
-            munmap(ed->ehdr, ed->size);
-        if(ed->fd)
-            close(ed->fd);
-        free(ed);
-    }
+    if(ed && ed->ehdr != MAP_FAILED)
+        munmap(ed->ehdr, ed->size);
+    if(ed && ed->fd)
+        close(ed->fd);
+    if(ed) 
+        kylin_free(ed);
 
     return;
 }

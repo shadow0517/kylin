@@ -89,10 +89,9 @@ kmod_session_t *kylin_module_session_create(const char *path)
 {
     kmod_session_t *session = NULL;
 
-    session = malloc(sizeof(kmod_session_t));
+    session = kylin_malloc(sizeof(kmod_session_t));
     if(!session)
         return NULL;
-    memset(session, 0, sizeof(kmod_session_t));
 
     klist_opts_t module_opts = {
         .name      = "session module",
@@ -104,7 +103,7 @@ kmod_session_t *kylin_module_session_create(const char *path)
     };
     session->module_list = kylin_list_create(&module_opts);
     if(!session->module_list) {
-        free(session);
+        kylin_free(session);
         return NULL;
     }
 
@@ -157,16 +156,15 @@ static kerr_t __module_depend_process(char *name, uint64_t value, void *data)
             if(!mod_node)
                 return KYLIN_ERROR_INVAL;
 
-            mod_depend = malloc(sizeof(kmod_internal_t));
+            mod_depend = kylin_malloc(sizeof(kmod_internal_t));
             if(!mod_depend)
                 return KYLIN_ERROR_NOMEM;
 
-            memset(mod_depend, 0, sizeof(kmod_internal_t));
             memcpy(mod_depend->name, depend, KYLIN_NAME_LENGTH);
             mod_depend->refcnt = 1;
 
             if(!kylin_list_insert_before(param->session->module_list, mod_node, mod_depend)){
-                free(mod_depend);
+                kylin_free(mod_depend);
                 return KYLIN_ERROR_NOENT;
             }
         }
@@ -202,16 +200,15 @@ kerr_t kylin_module_load(kmod_session_t *session, const char *mod_name)
     if(__module_exist(session, mod_name)) 
         return KYLIN_ERROR_EXIST;
 
-    mod_load = malloc(sizeof(kmod_internal_t));
+    mod_load = kylin_malloc(sizeof(kmod_internal_t));
     if(!mod_load)
         return KYLIN_ERROR_NOMEM;
 
-    memset(mod_load, 0, sizeof(kmod_internal_t));
     memcpy(mod_load->name, mod_name, KYLIN_MIN(strlen(mod_name), (KYLIN_NAME_LENGTH - 1)));
     mod_load->refcnt = 1;
 
     if(!kylin_list_insert_tail(session->module_list, mod_load)) {
-        free(mod_load);
+        kylin_free(mod_load);
         return KYLIN_ERROR_NOENT;
     }
 
@@ -315,7 +312,7 @@ kerr_t kylin_module_unload(kmod_session_t *session, const char *mod_name)
     if(!mod_unload)
         return KYLIN_ERROR_NOENT;
 
-    free(mod_unload);
+    kylin_free(mod_unload);
 
     return KYLIN_ERROR_OK;
 }

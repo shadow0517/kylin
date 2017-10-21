@@ -3,7 +3,7 @@ SHELL=/bin/sh
 PREFIX=/usr/local/
 
 CFLAGS = ${KYLIN_CFLAGS} -I/usr/local/include -D_GNU_SOURCE -I${KYLIN_LIB_SRC}
-LDFLAGS += -L/usr/local/lib
+LDFLAGS += -L/usr/local/lib -lbsd
 
 all: libcore_core
 
