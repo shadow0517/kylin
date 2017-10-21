@@ -22,17 +22,17 @@ ktimer_source_t timer_source[KTIMER_SRC_MAX] = {
     }
 };
 
-static uint64_t __tsc_get_cycle(void)
+uint64_t __tsc_get_cycle(void)
 {
     return 0;
 }
 
-static uint64_t __hpet_get_cycle(void)
+uint64_t __hpet_get_cycle(void)
 {
     return 0;
 }
 
-static uint64_t __soft_get_cycle(void)
+uint64_t __soft_get_cycle(void)
 {
     return 0;
 }

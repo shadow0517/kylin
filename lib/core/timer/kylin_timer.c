@@ -32,10 +32,9 @@ ktimer_t *kylin_timer_create(uint64_t expire,
 {
     ktimer_t *timer = NULL;
 
-    timer = malloc(sizeof(ktimer_t) + arg_size);
+    timer = kylin_malloc(sizeof(ktimer_t) + arg_size);
     if(!timer)
         return NULL;
-    memset(timer, 0, sizeof(ktimer_t) + arg_size);
 
     timer->expire = expire;
     if(type == KTIMER_TYPE_PERIODICAL)
