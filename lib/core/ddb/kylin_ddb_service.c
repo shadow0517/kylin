@@ -65,7 +65,7 @@ kerr_t service_init(void)
         .val_type  = KOBJ_OTHERS,
         .val_size  = sizeof(kddb_service_t),
         .match     = __service_match,
-        .allocator = KLIST_OPTS_ALLOCATOR_VAL(malloc)
+        .allocator = KLIST_OPTS_ALLOCATOR_VAL(kylin_malloc)
     };
 
     service_list = kylin_list_create(&service_opts);
