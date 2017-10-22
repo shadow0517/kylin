@@ -107,9 +107,11 @@ kerr_t kylin_set_remove_by_index(kset_t *guard, uint32_t index)
 
 void *kylin_set_find(kset_t *guard, void *key)
 {
+    void *result = NULL;
+
     for(int i = 0; i < guard->used; i++) {
-        if(guard->opts.compare && 
-                guard->opts.compare(key, kmath_val_get(&guard->val[i], guard->opts.val_type)) == 0)
+        result = kmath_val_get(&guard->val[i], guard->opts.val_type);
+        if(guard->opts.compare && guard->opts.compare(key, result) == 0)
             return result;
     }
 

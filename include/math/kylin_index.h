@@ -76,7 +76,7 @@ extern kerr_t kylin_index_resize(kindex_t *, size_t)
 extern void kylin_index_clear(kindex_t *) 
     __kylin_nonnull((1));
 
-extern kindex_node_t *kylin_index_insert(kindex_t *, void *val) 
+extern void *kylin_index_insert(kindex_t *, void *val) 
     __kylin_nonnull((1, 2));
 extern kindex_node_t *kylin_index_insert_raw(kindex_t *, kindex_node_t *) 
     __kylin_nonnull((1, 2));

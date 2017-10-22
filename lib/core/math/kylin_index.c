@@ -272,10 +272,11 @@ kindex_node_t *kylin_index_unlink_raw(kindex_t *guard, kindex_node_t *node)
     return NULL;
 }
 
-kindex_node_t *kylin_index_unlink(kindex_t *guard, void *val)
+void *kylin_index_unlink(kindex_t *guard, void *val)
 {
     uint64_t hash = 0;
     size_t idx = 0;
+    void *result = NULL;
     kindex_node_t *cmp = NULL, *prev_node = NULL;
 
     if(INDEX_IS_REHASHING(guard))
@@ -296,7 +297,10 @@ kindex_node_t *kylin_index_unlink(kindex_t *guard, void *val)
                     guard->ht[i].table[idx] = cmp->next;
 
                 guard->ht[i].used--;
-                return cmp;
+
+                result = kmath_val_get(&cmp->val, guard->opts.val_type);
+                INDEX_NODE_FREE(&guard->opts)(cmp);
+                return result;
             }
             prev_node = cmp;
             cmp = cmp->next;
@@ -308,7 +312,7 @@ kindex_node_t *kylin_index_unlink(kindex_t *guard, void *val)
     return NULL;
 }
 
-kindex_node_t *kylin_index_insert(kindex_t *guard, void *val)
+void *kylin_index_insert(kindex_t *guard, void *val)
 {
     kindex_node_t *node = NULL;
 
@@ -320,7 +324,14 @@ kindex_node_t *kylin_index_insert(kindex_t *guard, void *val)
 
     kmath_val_ctor(&node->val, val, guard->opts.val_type, guard->opts.val_size, INDEX_VAL_MALLOC(&guard->opts));
 
-    return kylin_index_insert_raw(guard, node);
+    node = kylin_index_insert_raw(guard, node);
+    if(!node) {
+        kmath_val_dtor(&node->val, guard->opts.val_type, INDEX_VAL_FREE(&guard->opts));
+        INDEX_NODE_FREE(&guard->opts)(node);
+        return NULL;
+    }
+
+    return kmath_val_get(&node->val, guard->opts.val_type);
 }
 
 kindex_node_t *kylin_index_insert_raw(kindex_t *guard, kindex_node_t *node)

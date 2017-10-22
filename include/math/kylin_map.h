@@ -94,7 +94,7 @@ extern kerr_t kylin_map_remove(kmap_t *, void *)
 extern kerr_t kylin_map_remove_raw(kmap_t *, kmap_node_t *) 
     __kylin_nonnull((1, 2));
 
-extern void *kylin_map_unlink(kmap_t *, void *key) 
+extern kmap_node_t *kylin_map_unlink(kmap_t *, void *key) 
     __kylin_nonnull((1, 2));
 extern kmap_node_t *kylin_map_unlink_raw(kmap_t *, kmap_node_t *) 
     __kylin_nonnull((1, 2));
