@@ -13,6 +13,7 @@
 #include <stdarg.h>
 
 #include <assert.h>
+#include <ctype.h>
 #include <dlfcn.h>
 #include <errno.h>
 #include <signal.h>

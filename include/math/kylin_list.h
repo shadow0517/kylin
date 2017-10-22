@@ -1,6 +1,8 @@
 #ifndef _KYLIN_MATH_LIST_H_
 #define _KYLIN_MATH_LIST_H_
 
+#include <kylin/include/kylin.h>
+#include <kylin/include/utils/kylin_error.h>
 #include <kylin/include/utils/kylin_object.h>
 
 /*
@@ -102,22 +104,22 @@ extern klist_node_t *kylin_list_next(const klist_t *, const klist_node_t *)
             node != NULL;                        \
             node = kylin_list_prev(guard, node))
 
-extern klist_node_t *kylin_list_insert_head(klist_t *, void *) 
+extern void *kylin_list_insert_head(klist_t *, void *) 
     __kylin_nonnull((1, 2));
-extern klist_node_t *kylin_list_insert_tail(klist_t *, void *) 
+extern void *kylin_list_insert_tail(klist_t *, void *) 
     __kylin_nonnull((1, 2));
-extern klist_node_t *kylin_list_insert_after(klist_t *, klist_node_t *before, void *) 
+extern void *kylin_list_insert_after(klist_t *, klist_node_t *before, void *) 
     __kylin_nonnull((1, 2, 3));
-extern klist_node_t *kylin_list_insert_before(klist_t *, klist_node_t *after, void *) 
+extern void *kylin_list_insert_before(klist_t *, klist_node_t *after, void *) 
     __kylin_nonnull((1, 2, 3));
 
-extern klist_node_t *kylin_list_insert_head_raw(klist_t *, klist_node_t *) 
+extern void kylin_list_insert_head_raw(klist_t *, klist_node_t *) 
     __kylin_nonnull((1, 2));
-extern klist_node_t *kylin_list_insert_tail_raw(klist_t *, klist_node_t *) 
+extern void kylin_list_insert_tail_raw(klist_t *, klist_node_t *) 
     __kylin_nonnull((1, 2));
-extern klist_node_t *kylin_list_insert_after_raw(klist_t *, klist_node_t *before, klist_node_t *) 
+extern void kylin_list_insert_after_raw(klist_t *, klist_node_t *before, klist_node_t *) 
     __kylin_nonnull((1, 2, 3));
-extern klist_node_t *kylin_list_insert_before_raw(klist_t *, klist_node_t *after, klist_node_t *) 
+extern void kylin_list_insert_before_raw(klist_t *, klist_node_t *after, klist_node_t *) 
     __kylin_nonnull((1, 2, 3));
 
 extern void kylin_list_remove(klist_t *, void *) 
