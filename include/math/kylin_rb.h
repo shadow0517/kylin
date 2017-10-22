@@ -1,11 +1,9 @@
 #ifndef _KYLIN_MATH_RB_H_
 #define _KYLIN_MATH_RB_H_
 
+#include <kylin/include/kylin.h>
 #include <kylin/include/utils/kylin_error.h>
 #include <kylin/include/utils/kylin_object.h>
-/*
- * kylin/lib/module/basic/kylin_rb.c
- */
 
 struct kylin_rb;
 struct kylin_rb_node;
@@ -96,14 +94,9 @@ extern void *kylin_rb_val(const krb_t *, krb_node_t *)
 extern size_t kylin_rb_count(krb_t *) 
     __kylin_nonnull((1));
 
-extern krb_node_t *kylin_rb_min(krb_t *) 
-    __kylin_nonnull((1));
-extern krb_node_t *kylin_rb_max(krb_t *) 
-    __kylin_nonnull((1));
-
-extern krb_node_t *kylin_rb_insert(krb_t *, void *val) 
+extern void *kylin_rb_insert(krb_t *, void *val) 
     __kylin_nonnull((1, 2));
-extern krb_node_t *kylin_rb_insert_raw(krb_t *, krb_node_t *) 
+extern void kylin_rb_insert_raw(krb_t *, krb_node_t *) 
     __kylin_nonnull((1, 2));
 
 extern void kylin_rb_remove(krb_t *, void *cmp) 
@@ -116,9 +109,14 @@ extern void *kylin_rb_unlink(krb_t *, void *cmp)
 extern krb_node_t *kylin_rb_unlink_raw(krb_t *, krb_node_t *) 
     __kylin_nonnull((1, 2));
 
-extern krb_node_t *kylin_rb_next(krb_t *, void *cmp) 
+extern krb_node_t *kylin_rb_min(krb_t *) 
+    __kylin_nonnull((1));
+extern krb_node_t *kylin_rb_max(krb_t *) 
+    __kylin_nonnull((1));
+
+extern void *kylin_rb_next(krb_t *, void *cmp) 
     __kylin_nonnull((1, 2));
-extern krb_node_t *kylin_rb_prev(krb_t *, void *cmp) 
+extern void *kylin_rb_prev(krb_t *, void *cmp) 
     __kylin_nonnull((1, 2));
 
 extern krb_node_t *kylin_rb_next_raw(krb_t *, krb_node_t *) 

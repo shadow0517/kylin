@@ -25,15 +25,15 @@ struct kylin_rb
 #define RB_RED                (KYLIN_TRUE)
 #define RB_BLACK              (KYLIN_FALSE)
 
-#define RB_LEFT(node)         (node) ? (node)->left   : NULL
-#define RB_RIGHT(node)        (node) ? (node)->right  : NULL
-#define RB_PARENT(node)       (node) ? (node)->parent : NULL
-#define RB_COLOR(node)        (node) ? (node)->color  : NULL
-#define RB_VAL(node)          (node) ? (node)->val    : NULL
-#define RB_MIN(guard)         (guard) ? (guard)->min   : NULL
-#define RB_MAX(guard)         (guard) ? (guard)->max   : NULL
-#define RB_CNT(guard)         (guard) ? (guard)->count : NULL
-#define RB_ROOT(guard)        (guard) ? (guard)->root  : NULL
+#define RB_LEFT(node)         (node)->left
+#define RB_RIGHT(node)        (node)->right
+#define RB_PARENT(node)       (node)->parent
+#define RB_COLOR(node)        (node)->color
+#define RB_VAL(node)          (node)->val
+#define RB_MIN(guard)         (guard)->min
+#define RB_MAX(guard)         (guard)->max
+#define RB_CNT(guard)         (guard)->count
+#define RB_ROOT(guard)        (guard)->root
 #define RB_EMPTY(guard)       (RB_ROOT(guard) == NULL)
 #define RB_COMPARE(guard)     ((guard)->opts.compare)
 
@@ -277,7 +277,7 @@ void *kylin_rb_val(const krb_t *guard, krb_node_t *node)
     return kmath_val_get(&RB_VAL(node), guard->opts.val_type);
 }
 
-krb_node_t *kylin_rb_insert(krb_t *guard, void *elm)
+void *kylin_rb_insert(krb_t *guard, void *elm)
 {
     krb_node_t *tmp = NULL, *parent = NULL, *node = NULL;
     int result = 0;
@@ -301,6 +301,7 @@ krb_node_t *kylin_rb_insert(krb_t *guard, void *elm)
         else if(result > 0)
             tmp = RB_RIGHT(tmp);
         else {
+            kmath_val_dtor(&RB_VAL(node), guard->opts.val_type, RB_VAL_FREE(&guard->opts));
             RB_NODE_FREE(&guard->opts)(node);
             return NULL; /*有相似的结点存在*/
         }
@@ -321,16 +322,58 @@ krb_node_t *kylin_rb_insert(krb_t *guard, void *elm)
 
     _insert_color(guard, node);
 
-    return node;
+    return kmath_val_get(&RB_VAL(node), guard->opts.val_type);
 }
 
-krb_node_t *kylin_rb_insert_raw(krb_t *guard, krb_node_t *node)
+void kylin_rb_insert_raw(krb_t *guard, krb_node_t *node)
 {
-    return NULL;
+    krb_node_t *tmp = NULL, *parent = NULL;
+    int result = 0;
+
+    tmp = RB_ROOT(guard);
+    while(tmp) {
+        parent = tmp;
+
+        result = kmath_val_cmp(&RB_VAL(node), &RB_VAL(tmp), guard->opts.val_type, RB_COMPARE(guard));
+        if(result < 0)
+            tmp = RB_LEFT(tmp);
+        else if(result > 0)
+            tmp = RB_RIGHT(tmp);
+        else {
+            kerrno = KYLIN_ERROR_EXIST;
+            return; /*有相似的结点存在*/
+        }
+    }
+
+    RB_PARENT(node) = parent;
+    RB_LEFT(node) = RB_RIGHT(node) = NULL;
+    RB_COLOR(node) = RB_RED;
+
+    if(tmp != NULL) {
+        if(result < 0)
+            RB_LEFT(parent) = node;
+        else
+            RB_RIGHT(parent) = node;
+    }
+    else
+        RB_ROOT(guard) = node;
+
+    _insert_color(guard, node);
+
+    return;
 }
 
 void kylin_rb_remove(krb_t *guard, void *cmp)
 {
+    krb_node_t *tmp = NULL;
+
+    tmp = kylin_rb_find_raw(guard, cmp);
+    if(!tmp) {
+        kerrno = KYLIN_ERROR_NOENT;
+        return;
+    }
+
+    kylin_rb_remove_raw(guard, tmp);
     return;
 }
 
@@ -401,6 +444,7 @@ color:
     if(color == RB_BLACK)
         _remove_color(guard, parent, child);
 
+    kmath_val_dtor(&RB_VAL(old), guard->opts.val_type, RB_VAL_FREE(&guard->opts));
     RB_NODE_FREE(&guard->opts)(old);
 
     return ;
@@ -408,12 +452,100 @@ color:
 
 void *kylin_rb_unlink(krb_t *guard, void *cmp)
 {
-    return NULL;
+    void *result = NULL;
+    krb_node_t *tmp = NULL;
+
+    tmp = kylin_rb_find_raw(guard, cmp);
+    if(!tmp) {
+        kerrno = KYLIN_ERROR_NOENT;
+        return NULL;
+    }
+
+    tmp = kylin_rb_unlink_raw(guard, tmp);
+    if(!tmp) {
+        kerrno = KYLIN_ERROR_NOENT;
+        return NULL;
+    }
+
+    result = kmath_val_get(&RB_VAL(tmp), guard->opts.val_type);
+    RB_NODE_FREE(&guard->opts)(tmp);
+
+    return result;
 }
 
 krb_node_t *kylin_rb_unlink_raw(krb_t *guard, krb_node_t *node)
 {
-    return NULL;
+    int color = RB_RED;
+    krb_node_t *child = NULL, *parent = NULL, *old = node;
+
+    if(NULL == RB_LEFT(node))
+        child = RB_RIGHT(node);
+    else if(NULL == RB_RIGHT(node))
+        child = RB_LEFT(node);
+    else {
+        krb_node_t *left = NULL;
+        node = RB_RIGHT(node);
+        while((left = RB_LEFT(node)) != NULL)
+            node = left;
+
+        child = RB_RIGHT(node);
+        parent = RB_PARENT(node);
+        color = RB_COLOR(node);
+
+        if(child)
+            RB_PARENT(child) = parent;
+
+        if(parent) {
+            if(RB_LEFT(parent) == node)
+                RB_LEFT(parent) = child;
+            else
+                RB_RIGHT(parent) = child;
+        }
+        else
+            RB_ROOT(guard) = child;
+
+        if(RB_PARENT(node) == old)
+            parent = node;
+
+        if(RB_PARENT(old)) {
+            if(RB_LEFT(RB_PARENT(old)) == old)
+                RB_LEFT(RB_PARENT(old)) = node;
+            else
+                RB_RIGHT(RB_PARENT(old)) = node;
+        }
+        else
+            RB_ROOT(guard) = node;
+        RB_PARENT(RB_LEFT(old)) = node;
+
+        if(RB_RIGHT(old))
+            RB_PARENT(RB_RIGHT(old)) = node;
+        goto color;
+    }
+
+    parent = RB_PARENT(node);
+    color = RB_COLOR(node);
+    if(child)
+        RB_PARENT(child) = parent;
+
+    if(parent) {
+        if(RB_LEFT(parent) == node)
+            RB_LEFT(parent) = child;
+        else
+            RB_RIGHT(parent) = child;
+    }
+    else
+        RB_ROOT(guard) = child;
+
+color:
+    if(color == RB_BLACK)
+        _remove_color(guard, parent, child);
+
+    return old;
+}
+
+size_t kylin_rb_count(krb_t *guard)
+{
+    return RB_CNT(guard);
 }
 
 krb_node_t *kylin_rb_min(krb_t *guard)
@@ -426,52 +558,81 @@ krb_node_t *kylin_rb_max(krb_t *guard)
     return RB_MAX(guard);
 }
 
-size_t kylin_rb_count(krb_t *guard)
+void *kylin_rb_next(krb_t *guard, void *cmp) 
 {
-    return RB_CNT(guard);
+    krb_node_t *node = NULL;
+
+    node = kylin_rb_find_raw(guard, cmp);
+    if(!node)
+        return NULL;
+
+    node = kylin_rb_next_raw(guard, node);
+    if(!node)
+        return NULL;
+
+    return kmath_val_get(&RB_VAL(node), guard->opts.val_type);
 }
 
-krb_node_t *kylin_rb_next(krb_node_t *node)
+void *kylin_rb_prev(krb_t *guard, void *cmp) 
 {
-    if(RB_RIGHT(node)) {
-        node = RB_RIGHT(node);
-        while(RB_LEFT(node))
-            node = RB_LEFT(node);
+    krb_node_t *node = NULL;
+
+    node = kylin_rb_find_raw(guard, cmp);
+    if(!node)
+        return NULL;
+
+    node = kylin_rb_prev_raw(guard, node);
+    if(!node)
+        return NULL;
+
+    return kmath_val_get(&RB_VAL(node), guard->opts.val_type);
+}
+
+krb_node_t *kylin_rb_next_raw(krb_t *guard __kylin_unused, krb_node_t *node)
+{
+    krb_node_t *tmp = node;
+
+    if(RB_RIGHT(tmp)) {
+        tmp = RB_RIGHT(tmp);
+        while(RB_LEFT(tmp))
+            tmp = RB_LEFT(tmp);
     }
     else {
-        if(RB_PARENT(node) && (node == RB_LEFT(RB_PARENT(node))))
-            node = RB_PARENT(node);
+        if(RB_PARENT(tmp) && (tmp == RB_LEFT(RB_PARENT(tmp))))
+            tmp = RB_PARENT(tmp);
         else {
-            while(RB_PARENT(node) && (node == RB_RIGHT(RB_PARENT(node))))
-                node = RB_PARENT(node);
-            node = RB_PARENT(node);
+            while(RB_PARENT(tmp) && (tmp == RB_RIGHT(RB_PARENT(tmp))))
+                tmp = RB_PARENT(tmp);
+            tmp = RB_PARENT(tmp);
         }
     }
 
-    return node;
+    return tmp;
 }
 
-krb_node_t *kylin_rb_prev(krb_node_t *node)
+krb_node_t *kylin_rb_prev_raw(krb_t *guard __kylin_unused, krb_node_t *node)
 {
-    if(RB_LEFT(node)) {
-        node = RB_LEFT(node);
-        while(RB_RIGHT(node))
-            node = RB_RIGHT(node);
+    krb_node_t *tmp = node;
+
+    if(RB_LEFT(tmp)) {
+        tmp = RB_LEFT(tmp);
+        while(RB_RIGHT(tmp))
+            tmp = RB_RIGHT(tmp);
     }
     else {
-        if(RB_PARENT(node) && (node == RB_RIGHT(RB_PARENT(node))))
-            node = RB_PARENT(node);
+        if(RB_PARENT(tmp) && (tmp == RB_RIGHT(RB_PARENT(tmp))))
+            tmp = RB_PARENT(tmp);
         else {
-            while(RB_PARENT(node) && (node == RB_LEFT(RB_PARENT(node))))
-                node = RB_PARENT(node);
-            node = RB_PARENT(node);
+            while(RB_PARENT(tmp) && (tmp == RB_LEFT(RB_PARENT(tmp))))
+                tmp = RB_PARENT(tmp);
+            tmp = RB_PARENT(tmp);
         }
     }
 
-    return node;
+    return tmp;
 }
 
-krb_node_t *kylin_rb_find(krb_t *guard, void *cmp)
+void *kylin_rb_find(krb_t *guard, void *cmp) 
 {
     int result = 0;
     krb_node_t *tmp = RB_ROOT(guard);
@@ -479,17 +640,17 @@ krb_node_t *kylin_rb_find(krb_t *guard, void *cmp)
     while(tmp) {
         result = kmath_val_cmp_raw(&RB_VAL(tmp), cmp, guard->opts.val_type, RB_COMPARE(guard));
         if(result < 0)
-            tmp = RB_LEFT(tmp);
-        else if(result > 0)
             tmp = RB_RIGHT(tmp);
+        else if(result > 0)
+            tmp = RB_LEFT(tmp);
         else
-            return tmp;
+            return kmath_val_get(&RB_VAL(tmp), guard->opts.val_type);
     }
 
     return NULL;
 }
 
-krb_node_t *kylin_rb_find_or_next(krb_t *guard, void *cmp)
+void *kylin_rb_find_or_next(krb_t *guard, void *cmp) 
 {
     int result = 0;
     krb_node_t *tmp = RB_ROOT(guard);
@@ -499,10 +660,49 @@ krb_node_t *kylin_rb_find_or_next(krb_t *guard, void *cmp)
         result = kmath_val_cmp_raw(&RB_VAL(tmp), cmp, guard->opts.val_type, RB_COMPARE(guard));
         if(result < 0) {
             res = tmp;
-            tmp = RB_LEFT(tmp);
+            tmp = RB_RIGHT(tmp);
         }
         else if(result > 0)
+            tmp = RB_LEFT(tmp);
+        else
+            return kmath_val_get(&RB_VAL(tmp), guard->opts.val_type);
+    }
+
+    return res;
+}
+
+krb_node_t *kylin_rb_find_raw(krb_t *guard, void *cmp)
+{
+    int result = 0;
+    krb_node_t *tmp = RB_ROOT(guard);
+
+    while(tmp) {
+        result = kmath_val_cmp_raw(&RB_VAL(tmp), cmp, guard->opts.val_type, RB_COMPARE(guard));
+        if(result < 0)
             tmp = RB_RIGHT(tmp);
+        else if(result > 0)
+            tmp = RB_LEFT(tmp);
+        else
+            return tmp;
+    }
+
+    return NULL;
+}
+
+krb_node_t *kylin_rb_find_or_next_raw(krb_t *guard, void *cmp)
+{
+    int result = 0;
+    krb_node_t *tmp = RB_ROOT(guard);
+    krb_node_t *res = NULL;
+
+    while(tmp) {
+        result = kmath_val_cmp_raw(&RB_VAL(tmp), cmp, guard->opts.val_type, RB_COMPARE(guard));
+        if(result < 0) {
+            res = tmp;
+            tmp = RB_RIGHT(tmp);
+        }
+        else if(result > 0)
+            tmp = RB_LEFT(tmp);
         else
             return tmp;
     }
