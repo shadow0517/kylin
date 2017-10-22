@@ -1,6 +1,9 @@
 #ifndef _KYLIN_MATH_AUTOID_H_
 #define _KYLIN_MATH_AUTOID_H_
 
+#include <kylin/include/kylin.h>
+#include <kylin/include/utils/kylin_error.h>
+
 /*
  * 基于位图实现的自动索引
  */

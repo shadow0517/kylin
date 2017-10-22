@@ -25,8 +25,8 @@
 
 /* libbsd-dev */
 #include <bsd/sys/endian.h>
-#include <bsd/stdlib.h>
-#include <bsd/md5.h>
+//#include <bsd/stdlib.h>
+//#include <bsd/md5.h>
 
 #define KYLIN_PAGE_SIZE getpagesize()
 

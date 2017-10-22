@@ -235,7 +235,6 @@ kerr_t kylin_bitmap_and(kbitmap_t *dst, const kbitmap_t *src1, const kbitmap_t *
 
 kerr_t kylin_bitmap_or(kbitmap_t *dst, const kbitmap_t *src1, const kbitmap_t *src2)
 {
-    kerr_t ret = KYLIN_ERROR_OK;
     size_t size = 0;
 
     if(dst->size < 1 || src1->size < 1 || src2->size < 1) 

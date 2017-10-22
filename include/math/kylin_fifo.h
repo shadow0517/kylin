@@ -2,6 +2,7 @@
 #define _KYLIN_MATH_FIFO_H_
 
 #include <kylin/include/kylin.h>
+#include <kylin/include/utils/kylin_error.h>
 
 /*
  * 先进先出队列，队列存储的是字节流

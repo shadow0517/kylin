@@ -1,4 +1,6 @@
 #include <kylin/include/kylin.h>
+#include <kylin/include/utils/kylin_error.h>
+
 #include <kylin/include/math/kylin_lifo.h>
 
 struct kylin_lifo {

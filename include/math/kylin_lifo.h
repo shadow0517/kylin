@@ -2,6 +2,7 @@
 #define _KYLIN_MATH_LIFO_H_
 
 #include <kylin/include/kylin.h>
+#include <kylin/include/utils/kylin_error.h>
 
 /*
  * 后进先出队列，队列存储的是字节流
