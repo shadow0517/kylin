@@ -7,8 +7,8 @@ LDFLAGS += -L/usr/local/lib
 
 all: libcore_math
 
-LIB_OBJS = kylin_string.o kylin_bitmap.o kylin_fifo.o kylin_lifo.o kylin_list.o \
-		   kylin_rb.o kylin_map.o kylin_index.o kylin_set.o kylin_ring.o
+LIB_OBJS = kylin_string.o kylin_bitmap.o kylin_autoid.o kylin_fifo.o kylin_lifo.o \
+		   kylin_list.o kylin_rb.o kylin_map.o kylin_index.o kylin_set.o kylin_ring.o
 
 libcore_math: $(LIB_OBJS)
 	${CC} ${CFLAGS} ${LIB_OBJS} -shared -o libcore_math.so ${LDFLAGS}

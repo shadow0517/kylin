@@ -7,10 +7,13 @@
 /*
  * 基于位图实现的自动索引
  */
+
+#define KYLIN_AUTOID_MAX_ID 65535 
+
 struct kylin_autoid;
 typedef struct kylin_autoid kautoid_t;
 
-extern kautoid_t *kylin_autoid_create(uint32_t);
+extern kautoid_t *kylin_autoid_create(uint16_t);
 extern void kylin_autoid_destroy(kautoid_t *);
 
 extern void kylin_autoid_clear(kautoid_t *);
@@ -19,7 +22,7 @@ extern int kylin_autoid_total_count(kautoid_t *);
 extern int kylin_autoid_unset_count(kautoid_t *);
 
 extern int kylin_autoid_get(kautoid_t *);
-extern kerr_t kylin_autoid_put(kautoid_t *, uint32_t);
-extern kerr_t kylin_autoid_set(kautoid_t *, uint32_t);
+extern kerr_t kylin_autoid_put(kautoid_t *, uint16_t);
+extern kerr_t kylin_autoid_set(kautoid_t *, uint16_t);
 
 #endif /*_KYLIN_MATH_AUTOID_H_*/
