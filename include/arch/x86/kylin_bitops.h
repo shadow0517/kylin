@@ -108,9 +108,13 @@ static inline int kylin_test_and_change_bit(kword_t nr, volatile kword_t *addr)
  */
 static inline kword_t kylin_ffs(kword_t word)
 {
+    if(word == 0)
+        return ~0UL;
+
     asm("rep; bsf %1,%0"
             : "=r" (word)
             : "rm" (word));
+
     return word;
 }
 
@@ -119,9 +123,13 @@ static inline kword_t kylin_ffs(kword_t word)
  */
 static inline kword_t kylin_ffz(kword_t word)
 {
-    asm("rep; bsf %1,%0"
-            : "=r" (word)
-            : "r" (~word));
+    if(word ^ ~0UL)
+        asm("rep; bsf %1,%0"
+                : "=r" (word)
+                : "r" (~word));
+    else
+        word = ~0UL;
+
     return word;
 }
 
